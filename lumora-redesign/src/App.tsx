@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { CheckCircle2, ArrowRight, Instagram, Linkedin, Twitter } from 'lucide-react';
+import { CheckCircle2, ArrowRight } from 'lucide-react';
 
 function App() {
   const { scrollYProgress } = useScroll();
@@ -29,14 +29,11 @@ function App() {
         }`}
       >
         <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="h-8 w-8 rounded bg-gradient-to-br from-odysser-primary to-blue-400 flex items-center justify-center">
-              <span className="text-white font-bold text-sm tracking-tighter">AS</span>
-            </div>
-            <span className="font-display font-bold text-lg tracking-tight">Aaryaveer Sharma</span>
+          <div className="flex items-center mr-auto">
+            <span className="font-display font-bold text-2xl tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-gray-300 via-gray-400 to-gray-500 drop-shadow-[0_0_8px_rgba(156,163,175,0.8)] blur-[0.5px]">Aaryaveer sharma</span>
           </div>
 
-          <div className="hidden md:flex items-center gap-8 text-[15px] font-medium text-odysser-muted">
+          <div className="hidden md:flex items-center gap-8 text-[15px] font-medium text-odysser-muted ml-8">
             <a href="#features" className="hover:text-black transition-colors">Expertise</a>
             <a href="#process" className="hover:text-black transition-colors">Services</a>
             <a href="#pricing" className="hover:text-black transition-colors">Pricing</a>
@@ -44,9 +41,9 @@ function App() {
           </div>
 
           <div className="flex items-center gap-4">
-            <a href="#pricing" className="hidden sm:block text-[15px] font-medium text-odysser-muted hover:text-black transition-colors">Contact</a>
-            <a href="#pricing" className="btn-odysser px-5 py-2.5 text-[15px] group">
-              Hire Me
+            <a href="mailto:contact@sovereignsites.in" className="hidden sm:block text-[15px] font-medium text-odysser-muted hover:text-black transition-colors">Contact</a>
+            <a href="mailto:contact@sovereignsites.in" className="btn-odysser px-5 py-2.5 text-[15px] group">
+              Work with me
               <span className="absolute inset-0 shimmer-bg opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></span>
             </a>
           </div>
@@ -98,7 +95,7 @@ function App() {
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.4 }}
             className="mt-12 flex flex-col items-center justify-center gap-4"
           >
-            <a href="#features" className="btn-odysser px-8 py-4 text-lg w-full sm:w-auto group">
+            <a href="https://aaryaveersharma.in" target="_blank" rel="noopener noreferrer" className="btn-odysser px-8 py-4 text-lg w-full sm:w-auto group">
               <span className="relative z-10 flex items-center gap-2">
                 View My Work
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -433,15 +430,15 @@ function App() {
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-odysser-primary to-transparent"></div>
                 <div className="text-odysser-muted font-bold mb-2">Project-based pricing</div>
                 <div className="text-sm font-bold uppercase tracking-widest text-odysser-primary mb-4">Starting at</div>
-                <div className="text-6xl md:text-7xl font-display font-bold mb-8 text-black">$500</div>
+                <div className="text-6xl md:text-7xl font-display font-bold mb-8 text-black">₹8000</div>
 
-                <button className="btn-odysser w-full md:w-auto px-12 py-5 text-xl group mb-4">
+                <a href="mailto:contact@sovereignsites.in" className="btn-odysser inline-block w-full md:w-auto px-12 py-5 text-xl group mb-4">
                   <span className="relative z-10 flex items-center justify-center gap-2">
-                    Start a Project
+                    Work with me
                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                   </span>
                   <span className="absolute inset-0 shimmer-bg pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity"></span>
-                </button>
+                </a>
                 <div className="text-sm text-odysser-muted font-bold flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
                   <span>Transparent scoping</span>
                   <span className="hidden md:inline">•</span>
@@ -467,9 +464,9 @@ function App() {
             Stop worrying about technical debt and start focusing on growth. Let's build a product that scales with your ambition.
           </p>
           <div className="flex flex-col items-center gap-4">
-            <button className="btn-odysser bg-white text-black px-10 py-5 text-lg group hover:bg-gray-50 w-full sm:w-auto shadow-none border-0">
+            <a href="mailto:contact@sovereignsites.in" className="btn-odysser inline-block bg-white text-black px-10 py-5 text-lg group hover:bg-gray-50 w-full sm:w-auto shadow-none border-0">
               <span className="relative z-10 font-bold">Contact Me</span>
-            </button>
+            </a>
             <div className="text-sm text-gray-400 font-bold flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
               <span>Free Consultation</span>
               <span>•</span>
@@ -484,21 +481,12 @@ function App() {
       {/* Footer */}
       <footer className="py-12 px-6 border-t border-gray-200">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-3">
-            <div className="h-8 w-8 rounded bg-odysser-surface flex items-center justify-center">
-              <span className="text-white font-bold text-sm tracking-tighter">AS</span>
-            </div>
-            <span className="font-display font-bold text-lg tracking-tight">Aaryaveer Sharma</span>
+          <div className="flex items-center mr-auto">
+            <span className="font-display font-bold text-2xl tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-gray-300 via-gray-400 to-gray-500 drop-shadow-[0_0_8px_rgba(156,163,175,0.8)] blur-[0.5px]">Aaryaveer sharma</span>
           </div>
 
-          <div className="flex items-center gap-6">
-            <a href="#" className="text-gray-400 hover:text-black transition-colors"><Twitter className="w-5 h-5" /></a>
-            <a href="#" className="text-gray-400 hover:text-black transition-colors"><Linkedin className="w-5 h-5" /></a>
-            <a href="#" className="text-gray-400 hover:text-black transition-colors"><Instagram className="w-5 h-5" /></a>
-          </div>
-
-          <div className="text-sm text-odysser-muted font-bold">
-            © {new Date().getFullYear()} Aaryaveer Sharma. All rights reserved.
+          <div className="text-sm text-odysser-muted font-bold ml-auto">
+            © {new Date().getFullYear()} Aaryaveer sharma. All rights reserved.
           </div>
         </div>
       </footer>
