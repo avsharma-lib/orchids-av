@@ -1,0 +1,61 @@
+@import url('https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Urbanist:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-odysser-bg: #fafafb;
+  --color-odysser-text: #111111;
+  --color-odysser-muted: #494949;
+  --color-odysser-primary: #0099ff;
+  --color-odysser-border: #989897;
+  --color-odysser-surface: #111111;
+  --color-odysser-surfaceLight: #f0ece7;
+
+  --font-sans: 'Urbanist', sans-serif;
+  --font-display: 'Area Inktrap', 'Plus Jakarta Sans', sans-serif;
+  --font-handwriting: 'Nanum Pen Script', cursive;
+
+  --background-image-hero-gradient: radial-gradient(50% 50% at 50% 50%, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 1) 100%);
+}
+
+@layer base {
+  :root {
+    --bg-color: #fafafb;
+    --text-primary: #111111;
+    --text-muted: #494949;
+    --border-color: #989897;
+    --surface-dark: #111111;
+    --surface-light: #f0ece7;
+  }
+
+  body {
+    @apply bg-odysser-bg text-odysser-text font-sans antialiased overflow-x-hidden;
+    background: radial-gradient(50% 50% at 50% 50%, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 1) 100%), #fafafb;
+  }
+}
+
+@layer utilities {
+  .btn-odysser {
+    @apply relative inline-flex items-center justify-center font-medium bg-odysser-surface text-white rounded-[18px] overflow-hidden;
+    border: 0.5px solid var(--border-color);
+    box-shadow: 0px 0.48px 1.25px -1.16px rgba(0, 0, 0, 0.1),
+                0px 1.83px 4.76px -2.33px rgba(0, 0, 0, 0.09),
+                0px 8px 20.8px -3.5px rgba(0, 0, 0, 0.05),
+                inset 0px -2px 9px 0px rgba(255, 255, 255, 0.49),
+                0px 0px 0px 2px rgba(0, 0, 0, 0.2);
+  }
+
+  .glass-card {
+    @apply rounded-3xl bg-white border border-gray-200 shadow-[0_8px_30px_rgb(0,0,0,0.04)] backdrop-blur-sm;
+  }
+
+  .shimmer-bg {
+    background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.2) 50%, transparent 100%);
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+}
