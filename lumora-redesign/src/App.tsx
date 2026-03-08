@@ -51,6 +51,7 @@ function App() {
       </motion.nav>
 
       {/* Hero Section */}
+      <main>
       <section className="relative pt-40 pb-20 md:pt-48 md:pb-32 overflow-hidden px-6">
         <div className="max-w-7xl mx-auto text-center relative z-10">
 
@@ -477,6 +478,8 @@ function App() {
           </div>
         </div>
       </section>
+
+      </main>
 
       {/* Footer */}
       <footer className="py-12 px-6 border-t border-gray-200">
