@@ -32,23 +32,23 @@ The digital economy requires more than traditional strategies. By leveraging AI,
     insight: "AI is the central nervous system of modern digital commerce.",
     content: (
       <div className="mt-8 space-y-6">
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 max-w-2xl mx-auto">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-3xl mx-auto">
           {[
+            "Anshika Sharma",
             "Aaryaveer Sharma",
             "Aayush Balkishore",
-            "Anshika Sharma",
-            "Contributor 4",
-            "Contributor 5",
-            "Contributor 6"
+            "Anshu Nirvan",
+            "Anjali Sahu",
+            "Aashi Chaudhary",
+            "Anjani Gupta",
+            "Anushka Shrivas"
           ].map((name, i) => (
             <motion.div
               key={i}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.7 + (i * 0.1) }}
-              className={`glass-card py-2.5 px-4 text-xs font-bold border-white/50 shadow-sm text-center ${
-                i > 2 ? 'opacity-40 italic' : 'opacity-90'
-              }`}
+              className="glass-card py-2.5 px-3 text-[10px] md:text-xs font-bold border-white/50 shadow-sm text-center opacity-90"
             >
               {name}
             </motion.div>
