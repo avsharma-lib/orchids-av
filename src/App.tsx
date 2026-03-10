@@ -32,27 +32,38 @@ The digital economy requires more than traditional strategies. By leveraging AI,
     insight: "AI is the central nervous system of modern digital commerce.",
     content: (
       <div className="mt-8 space-y-6">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-3xl mx-auto">
-          {[
-            "Anshika Sharma",
-            "Aaryaveer Sharma",
-            "Aayush Balkishore",
-            "Anshu Nirvan",
-            "Anjali Sahu",
-            "Aashi Chaudhary",
-            "Anjani Gupta",
-            "Anushka Shrivas"
-          ].map((name, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.7 + (i * 0.1) }}
-              className="glass-card py-2.5 px-3 text-[10px] md:text-xs font-bold border-white/50 shadow-sm text-center opacity-90"
-            >
-              {name}
-            </motion.div>
-          ))}
+        <div className="mt-8">
+          <motion.h3
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6 }}
+            className="text-xs font-extrabold uppercase tracking-[0.3em] text-odysser-primary/60 mb-4"
+          >
+            Presented by
+          </motion.h3>
+          <div className="flex flex-col gap-y-1.5">
+            {[
+              "Aaryaveer sharma",
+              "Aashi chaudhary",
+              "Aayush balkishore",
+              "Anjani gupta",
+              "Anjali sahu",
+              "Anshika sharma",
+              "Anshu nirvan",
+              "Anushka shrivas"
+            ].map((name, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.7 + (i * 0.05) }}
+                className="text-[13px] md:text-sm font-bold text-odysser-muted flex items-center gap-3"
+              >
+                <span className="text-odysser-primary/50 tabular-nums w-4">{i + 1}.</span>
+                {name}
+              </motion.div>
+            ))}
+          </div>
         </div>
       </div>
     )
