@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, cloneElement } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ChevronLeft,
@@ -24,28 +24,31 @@ const SLIDES = [
   {
     id: 1,
     title: "AI in Management & E-commerce Operations",
-    description: `Artificial Intelligence is no longer a futuristic concept but a foundational pillar of modern enterprise. In the realm of management, AI serves as an augmented intelligence layer that enhances human decision-making by processing datasets too vast for the human mind to comprehend. For e-commerce, it is the engine of growth, driving everything from storefront optimization to warehouse automation. This presentation explores the symbiotic relationship between machine learning algorithms and business operations, demonstrating how the integration of AI leads to unprecedented levels of efficiency, cost reduction, and customer satisfaction.
+    description: `Artificial Intelligence is a foundational pillar of modern enterprise. In management, AI enhances decision-making by processing vast datasets beyond human capability. For e-commerce, it drives everything from storefront optimization to warehouse automation. This presentation explores how machine learning leads to unprecedented efficiency and customer satisfaction.
 
-The digital economy is evolving at a breakneck pace, and staying competitive requires more than just traditional strategies. By leveraging AI, businesses can gain deep insights into consumer behavior, optimize their supply chains in real-time, and provide personalized experiences that were previously impossible at scale. Throughout these fifteen slides, we will examine the transformative power of AI across various domains of management and e-commerce operations. From strategic planning to last-mile delivery, we will see how AI is not just changing the game, but rewriting the rules of engagement for the 21st-century enterprise.`,
+The digital economy requires more than traditional strategies. By leveraging AI, businesses gain deep insights into consumer behavior and optimize supply chains in real-time. We will examine the transformative power of AI across fifteen key domains, from strategic planning to last-mile delivery.`,
     icon: <Globe className="w-16 h-16 text-odysser-primary" />,
     image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=1200",
+    insight: "AI is the central nervous system of modern digital commerce.",
     content: (
       <div className="mt-8 space-y-6">
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-2xl mx-auto">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 max-w-2xl mx-auto">
           {[
             "Aaryaveer Sharma",
             "Aayush Balkishore",
             "Anshika Sharma",
-            "Team Member 4",
-            "Team Member 5",
-            "Team Member 6"
+            "Contributor 4",
+            "Contributor 5",
+            "Contributor 6"
           ].map((name, i) => (
             <motion.div
               key={i}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.7 + (i * 0.1) }}
-              className="glass-card py-2 px-4 text-xs font-bold border-white/50 shadow-sm"
+              className={`glass-card py-2.5 px-4 text-xs font-bold border-white/50 shadow-sm text-center ${
+                i > 2 ? 'opacity-40 italic' : 'opacity-90'
+              }`}
             >
               {name}
             </motion.div>
@@ -57,128 +60,142 @@ The digital economy is evolving at a breakneck pace, and staying competitive req
   {
     id: 2,
     title: "Strategic AI Management",
-    description: `Traditional management often relied on 'gut feeling' and retrospective reporting, which can be slow and prone to human error. Strategic AI Management shifts this paradigm toward real-time, predictive insights. By utilizing neural networks and advanced data modeling, executives can simulate various business scenarios and predict market shifts before they occur. This allows for a proactive stance in competitive markets, where timing is often everything. AI systems can analyze global economic indicators, social media sentiment, and internal performance metrics simultaneously to suggest the most viable strategic paths for growth and sustainability.
+    description: `Strategic AI Management shifts the paradigm from 'gut feeling' to real-time, predictive insights. By utilizing neural networks, executives can simulate business scenarios and predict market shifts before they occur. This proactive stance is vital in competitive markets where timing is everything.
 
-Furthermore, AI helps in identifying hidden operational bottlenecks and suggesting resource reallocation strategies that maximize ROI. By automating the analysis of complex data streams, management can focus on high-level creative and ethical decision-making. This synergy between human intuition and machine precision ensures that the organization remains agile and resilient in an ever-changing global landscape. As AI continues to evolve, its role in strategic management will only deepen, providing even more sophisticated tools for risk assessment, long-term forecasting, and organizational optimization.`,
+AI identifies operational bottlenecks and suggests resource reallocation to maximize ROI. By automating complex data analysis, management can focus on creative and ethical decision-making, ensuring the organization remains agile and resilient.`,
     icon: <Brain className="w-16 h-16 text-odysser-primary" />,
-    image: "https://images.unsplash.com/photo-1551288049-bbbda536339a?auto=format&fit=crop&q=80&w=1200"
+    image: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&q=80&w=800",
+    insight: "Data-driven strategy replaces intuition with precision."
   },
   {
     id: 3,
     title: "Supply Chain Intelligence",
-    description: `Supply chains are the lifeblood of e-commerce, and AI is rapidly becoming their central nervous system. Supply Chain Intelligence involves using predictive analytics to forecast demand with surgical precision, thereby minimizing the risks of both overstocking and stockouts. AI algorithms analyze historical sales data, seasonal trends, and even external factors like weather patterns or social media trends to optimize logistics. This high level of foresight allows companies to maintain leaner inventories while ensuring that products are always available when and where the customer needs them.
+    description: `AI is the central nervous system of modern supply chains. Predictive analytics forecast demand with surgical precision, minimizing risks of overstocking or stockouts. Algorithms analyze historical sales and external factors like weather to optimize global logistics.
 
-Beyond demand forecasting, AI enhances supply chain transparency through real-time tracking and automated risk assessment. If a major shipping route is blocked or a key supplier faces a delay, AI systems can automatically trigger alternative logistics plans to ensure business continuity. This level of optimization not only reduces operational costs but also significantly lowers the carbon footprint of the entire logistics network. By making supply chains more efficient and responsive, AI is helping e-commerce businesses build more sustainable and reliable foundations for global trade.`,
+Real-time tracking and automated risk assessment enhance transparency. If a shipping route is blocked, AI triggers alternative plans instantly. This optimization reduces costs and lowers the carbon footprint of the entire logistics network.`,
     icon: <Truck className="w-16 h-16 text-odysser-primary" />,
-    image: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&q=80&w=1200"
+    image: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&q=80&w=1200",
+    insight: "Predictive logistics ensures products are always where they need to be."
   },
   {
     id: 4,
     title: "Hyper-Personalization",
-    description: `In the crowded e-commerce marketplace, relevance is the ultimate currency. Hyper-personalization goes beyond simple 'you might also like' widgets. It leverages deep learning to understand the unique psychological profile of every shopper, including their browsing speed, color preferences, and price sensitivity. AI creates a 'segment of one,' where every touchpoint—from email marketing to the homepage layout—is dynamically generated for the individual user in real-time. This level of tailored experience results in significantly higher conversion rates and fosters a deep, lasting sense of brand loyalty among consumers.
+    description: `In e-commerce, relevance is currency. Hyper-personalization leverages deep learning to understand every shopper's unique profile—from browsing speed to price sensitivity. AI creates a 'segment of one,' dynamically generating every touchpoint in real-time.
 
-By predicting what a customer needs before they even search for it, AI-driven platforms provide a frictionless shopping experience that feels intuitive and personalized. This technology also allows for 'smart' content generation, where product descriptions and images can be adapted to match the specific interests and aesthetic tastes of each visitor. As hyper-personalization becomes the industry standard, e-commerce businesses that fail to adopt these AI-driven strategies risk being left behind in a sea of generic, uninspiring digital storefronts.`,
+By predicting needs before a search occurs, AI-driven platforms provide a frictionless experience. This technology fosters deep brand loyalty and significantly higher conversion rates by making every digital storefront feel uniquely tailored to the individual.`,
     icon: <Target className="w-16 h-16 text-odysser-primary" />,
-    image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=1200"
+    image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=1200",
+    insight: "Moving from mass marketing to a 'segment of one' at scale."
   },
   {
     id: 5,
     title: "Cognitive Customer Service",
-    description: `Modern customer service demands instant, accurate, and empathetic responses twenty-four hours a day. Cognitive Customer Service utilizes Natural Language Processing (NLP) and Large Language Models (LLMs) to provide virtual assistants that can do much more than just answer basic FAQs. These next-generation AI agents can process returns, track complex orders, and resolve billing disputes with remarkable accuracy. They can understand context, sentiment, and intent, allowing them to provide a level of service that was previously only possible through human interaction.
+    description: `Modern service demands instant, empathetic responses. Cognitive Customer Service uses NLP and Large Language Models to provide assistants that process returns and resolve disputes with remarkable accuracy. They understand context and intent, providing human-like support.
 
-When a human agent is eventually required for more complex issues, AI provides them with a full context of the customer's history and suggests the best possible resolution path. This reduces 'average handle time' and significantly improves 'first contact resolution' rates. By automating routine inquiries and providing intelligent support to human staff, businesses can focus their talent on high-value interactions that require deep emotional intelligence and complex problem-solving. This balanced approach ensures that customer satisfaction remains high even as the volume of interactions grows.`,
+When human intervention is needed, AI provides agents with full customer context and suggests the best resolution path. This reduces handle times and improves satisfaction, allowing talent to focus on high-value emotional interactions.`,
     icon: <MessageSquare className="w-16 h-16 text-odysser-primary" />,
-    image: "https://images.unsplash.com/photo-1521791136368-7d8b519539b0?auto=format&fit=crop&q=80&w=1200"
+    image: "https://images.unsplash.com/photo-1549923746-c502d488b3ea?auto=format&fit=crop&q=80&w=800",
+    insight: "AI provides the scale of automation with the touch of empathy."
   },
   {
     id: 6,
     title: "Algorithmic Pricing",
-    description: `Static pricing is rapidly becoming a relic of the past in the dynamic world of digital commerce. Algorithmic pricing, or dynamic pricing, allows e-commerce businesses to adjust their prices in milliseconds based on a vast multitude of variables. AI monitors competitor prices, real-time inventory levels, current market demand, and even specific user attributes to determine the optimal price point that maximizes either profit margin or total market share. This technology is particularly effective in high-velocity sectors where market conditions can fluctuate several times within a single day.
+    description: `Dynamic pricing is essential in the digital world. AI adjusts prices in milliseconds based on competitor data, inventory levels, and real-time demand. This ensures the optimal price point to maximize profit or market share.
 
-By using AI, businesses can capture additional revenue during peak demand periods while remaining competitive during slower intervals through automated, targeted discounts. This data-driven approach ensures that the business is always perfectly aligned with the market's willingness to pay at any given moment. Furthermore, algorithmic pricing can help in managing inventory cycles by adjusting prices to clear out old stock or promote new arrivals. It represents a level of financial precision and agility that is impossible to achieve through manual pricing strategies.`,
+Businesses capture additional revenue during peak periods and remain competitive during slow intervals through automated discounts. This data-driven approach perfectly aligns pricing with the market's willingness to pay at any given moment.`,
     icon: <TrendingUp className="w-16 h-16 text-odysser-primary" />,
-    image: "https://images.unsplash.com/photo-1543286386-2e659306cd6c?auto=format&fit=crop&q=80&w=1200"
+    image: "https://images.unsplash.com/photo-1543286386-2e659306cd6c?auto=format&fit=crop&q=80&w=1200",
+    insight: "Optimizing margins through real-time market responsiveness."
   },
   {
     id: 7,
     title: "AI-Enhanced Recruitment",
-    description: `Human capital is any company's most valuable asset, and AI is completely revolutionizing how it is acquired and managed. AI-Enhanced Recruitment uses sophisticated algorithms to scan thousands of resumes, identifying the best-fit candidates based on skills, experience, and even cultural alignment, all while working to minimize unconscious human bias. This automation allows recruitment teams to focus on the human elements of the hiring process, such as conducting deep-dive interviews and building relationships with top-tier talent.
+    description: `AI is revolutionizing human capital management. Algorithms scan thousands of resumes to identify best-fit candidates while minimizing unconscious bias. This allows recruitment teams to focus on relationship building and deep-dive interviews.
 
-Beyond the initial hiring phase, AI plays a crucial role in talent management by analyzing employee engagement data and identifying patterns that often precede turnover. This allows HR managers to intervene early with personalized retention strategies and support. Furthermore, AI-driven learning and development platforms can recommend specific training modules to employees based on their unique career goals and performance gaps. By creating a more data-driven and personalized employee experience, AI is helping organizations build stronger, more committed teams that are better equipped for the challenges of the future.`,
+AI also plays a role in talent retention by analyzing engagement data to identify turnover patterns early. Personalized learning platforms recommend training based on career goals, creating a more data-driven and supportive employee experience.`,
     icon: <Users className="w-16 h-16 text-odysser-primary" />,
-    image: "https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&q=80&w=1200"
+    image: "https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&q=80&w=1200",
+    insight: "Finding and retaining the best talent through algorithmic insight."
   },
   {
     id: 8,
     title: "Automated Cybersecurity",
-    description: `As the e-commerce sector continues to grow, so does the sophistication and frequency of cyber threats. Automated Cybersecurity uses advanced machine learning to establish a detailed baseline of 'normal' behavior for both users and internal systems. When an anomaly occurs—such as a login from an unusual location or a sudden, unexpected spike in data transfer—the AI system can take immediate, autonomous action to neutralize the threat before it can cause significant damage. This proactive defense is essential for protecting sensitive customer data and maintaining trust.
+    description: `As e-commerce grows, so do cyber threats. AI establishes a baseline of 'normal' behavior and takes autonomous action to neutralize anomalies instantly. This proactive defense is essential for protecting sensitive customer data and brand trust.
 
-In the specific context of e-commerce, AI is particularly effective at detecting and preventing payment fraud. It analyzes hundreds of unique data points for every single transaction in real-time to identify fraudulent patterns that would be virtually impossible for human moderators to catch. This protects the business from direct financial loss and ensures that customers can shop with total confidence in the platform's security. By staying one step ahead of cybercriminals, AI-driven security systems are providing the essential foundation of trust upon which the entire digital economy is built.`,
+In payment processing, AI analyzes hundreds of data points per transaction to detect fraud patterns invisible to humans. This protects the business from financial loss and ensures customers can shop with total confidence in the platform's security.`,
     icon: <ShieldCheck className="w-16 h-16 text-odysser-primary" />,
-    image: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=1200"
+    image: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=1200",
+    insight: "Proactive, autonomous defense in an era of sophisticated threats."
   },
   {
     id: 9,
     title: "Optimized Last-Mile Logistics",
-    description: `The 'last mile' is often cited as the most expensive and complex part of the entire e-commerce journey. AI optimizes this critical process by calculating the most efficient delivery routes, accounting for real-time traffic conditions, specific delivery windows, and vehicle capacity. This not only speeds up delivery times for the end customer but also significantly reduces fuel costs and vehicle wear and tear for the business. By making every delivery more efficient, AI is turning one of the biggest operational challenges into a competitive advantage.
+    description: `The 'last mile' is the most complex part of e-commerce. AI calculates efficient delivery routes by accounting for traffic, delivery windows, and vehicle capacity. This speeds up fulfillment while reducing fuel costs and vehicle wear.
 
-Furthermore, AI is the driving force behind the integration of autonomous delivery robots and drones, which promise to further reduce costs and increase delivery density in crowded urban areas. By using predictive analytics, AI can also suggest the placement of 'micro-fulfillment' centers located directly in high-demand neighborhoods, ensuring that popular products are always just minutes away from the customer. These innovations are not only improving the customer experience but are also making e-commerce logistics more sustainable by reducing the total distance traveled by delivery vehicles.`,
+AI also drives the integration of autonomous delivery robots and drones. Predictive analytics suggest the placement of 'micro-fulfillment' centers in high-demand neighborhoods, ensuring popular products are always just minutes away from the customer.`,
     icon: <Zap className="w-16 h-16 text-odysser-primary" />,
-    image: "https://images.unsplash.com/photo-1519003722824-192d992a6023?auto=format&fit=crop&q=80&w=1200"
+    image: "https://images.unsplash.com/photo-1551434678-e076c223a692?auto=format&fit=crop&q=80&w=800",
+    insight: "Turning the most expensive logistics challenge into a competitive edge."
   },
   {
     id: 10,
     title: "Smart Inventory Nodes",
-    description: `Smart Inventory Nodes represent a fundamental shift from traditional centralized warehousing to a decentralized, highly intelligent network. AI analyzes regional demand patterns to decide exactly where inventory should be placed across a vast network of warehouses. In some advanced cases, AI can even trigger 'anticipatory shipping,' where products are moved toward a customer's location before they have even completed their purchase, based on their high statistical probability of buying. This drastically reduces total delivery times and minimizes the need for expensive air freight.
+    description: `Smart Inventory Nodes represent a shift to decentralized, intelligent warehousing. AI analyzes regional demand to decide exactly where stock should be placed. Some systems even trigger 'anticipatory shipping' before a purchase is finalized.
 
-By keeping inventory moving and ensuring it is always in the right place at the right time, AI helps e-commerce businesses maintain lean operations while still meeting the high expectations of modern consumers. This intelligent distribution strategy also helps in reducing waste by ensuring that products aren't sitting idle in areas with low demand. As e-commerce continues to expand globally, the ability to manage inventory through these smart, AI-driven nodes will be a key factor in maintaining both profitability and customer satisfaction across different markets.`,
+By keeping inventory moving and in the right place, AI helps businesses maintain lean operations. This strategy reduces waste and ensures that popular products aren't sitting idle in low-demand areas, maximizing both speed and profitability.`,
     icon: <ShoppingCart className="w-16 h-16 text-odysser-primary" />,
-    image: "https://images.unsplash.com/photo-1553413077-190dd305871c?auto=format&fit=crop&q=80&w=1200"
+    image: "https://images.unsplash.com/photo-1553413077-190dd305871c?auto=format&fit=crop&q=80&w=1200",
+    insight: "Decentralized intelligence for faster, leaner inventory management."
   },
   {
     id: 11,
     title: "Predictive Ad Tech",
-    description: `The world of digital advertising is becoming increasingly complex and expensive, making efficient ad spend more important than ever. Predictive Ad Tech uses AI to shift from broad-spectrum advertising to precision-targeted campaigns that deliver real results. By analyzing vast amounts of historical data and real-time signals, AI can predict the Customer Lifetime Value (CLV) of an individual user and determine exactly how much should be spent to acquire them. This ensures that marketing budgets are always used in the most effective way possible.
+    description: `Predictive Ad Tech uses AI to shift from broad advertising to precision-targeted campaigns. By analyzing historical data, AI predicts the Customer Lifetime Value (CLV) and determines the exact spend needed for acquisition.
 
-Algorithms automate the bidding process in real-time ad auctions, ensuring that ad spend is always allocated to the channels and audiences with the highest conversion potential. This results in a much higher return on ad spend (ROAS) and allows marketing teams to focus their energy on creative strategy and brand building rather than manual campaign adjustments. By making advertising more relevant to the consumer and more efficient for the business, predictive ad tech is creating a more sustainable and effective digital marketing ecosystem for e-commerce.`,
+Algorithms automate bidding in real-time auctions, ensuring budget is allocated to channels with the highest conversion potential. This results in a higher return on ad spend (ROAS) and allows teams to focus on creative strategy.`,
     icon: <BarChart3 className="w-16 h-16 text-odysser-primary" />,
-    image: "https://images.unsplash.com/photo-1533750516457-a7f992034fce?auto=format&fit=crop&q=80&w=1200"
+    image: "https://images.unsplash.com/photo-1534452203293-494d7ddbf7e0?auto=format&fit=crop&q=80&w=800",
+    insight: "Maximizing marketing ROI through predictive acquisition models."
   },
   {
     id: 12,
     title: "Visual & Voice Commerce",
-    description: `The way people discover and interact with products online is undergoing a massive transformation. Visual search allows customers to upload a photo of an item they like and find identical or similar products in an e-commerce catalog almost instantly. Similarly, voice commerce enables users to search for and purchase products using simple voice commands via smart speakers or mobile assistants. AI is the core technology behind both of these innovations, using advanced computer vision for visual search and natural language understanding (NLU) for voice interaction.
+    description: `Discovery is being transformed by computer vision and natural language understanding. Visual search allows customers to find products via photos, while voice commerce enables purchases through simple commands to smart assistants.
 
-These technologies make commerce truly 'omnichannel' and frictionless, meeting the customer wherever they are and however they choose to express their shopping intent. By lowering the barrier to product discovery, visual and voice commerce are significantly broadening the top of the sales funnel and attracting new segments of consumers. As these technologies become more accurate and widely adopted, they will continue to redefine the shopping experience, making it more natural, accessible, and integrated into our daily lives.`,
+These technologies make commerce truly 'omnichannel' and frictionless, meeting the customer wherever they are. By lowering barriers to discovery, they broaden the sales funnel and create a more natural, integrated shopping experience.`,
     icon: <Search className="w-16 h-16 text-odysser-primary" />,
-    image: "https://images.unsplash.com/photo-1550009158-9ebf69173e03?auto=format&fit=crop&q=80&w=1200"
+    image: "https://images.unsplash.com/photo-1550009158-9ebf69173e03?auto=format&fit=crop&q=80&w=1200",
+    insight: "Natural, frictionless interfaces for the next generation of shoppers."
   },
   {
     id: 13,
     title: "Industrial IoT & AI",
-    description: `In the modern e-commerce warehouse, hardware and software are becoming inextricably linked. Industrial IoT (Internet of Things) devices collect data from every piece of equipment, and AI analyzes this data to enable 'predictive maintenance' on a massive scale. Instead of waiting for a conveyor belt or a robotic arm to break down, the AI identifies early signs of wear and schedules maintenance during off-peak hours. This proactive approach prevents costly unplanned downtime and significantly extends the lifespan of expensive warehouse machinery.
+    description: `In modern warehouses, Industrial IoT devices collect data analyzed by AI for predictive maintenance. Instead of waiting for a breakdown, the AI identifies early wear signs and schedules repairs during off-peak hours, preventing costly downtime.
 
-Furthermore, AI orchestrates the movements of autonomous mobile robots (AMRs) that navigate the warehouse floor, optimizing picking paths and ensuring that the entire operation runs at maximum efficiency twenty-four hours a day. This integration of AI and physical hardware allows for a level of speed and accuracy in order fulfillment that was once thought impossible. By automating the most labor-intensive parts of the warehouse journey, AI is helping e-commerce businesses scale their operations and meet the demands of an increasingly global customer base.`,
+AI also orchestrates autonomous mobile robots (AMRs) to optimize picking paths. This integration of hardware and software allows for a level of speed and accuracy in fulfillment that was once thought impossible, helping businesses scale globally.`,
     icon: <Settings className="w-16 h-16 text-odysser-primary" />,
-    image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=1200"
+    image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=1200",
+    insight: "The fusion of physical hardware and algorithmic optimization."
   },
   {
     id: 14,
     title: "Generative Operations",
-    description: `Generative AI is the newest and perhaps most disruptive frontier in the world of e-commerce operations. It can automatically generate thousands of unique, SEO-optimized product descriptions in seconds, saving human copywriters hundreds of hours of repetitive work. Beyond just text, Generative AI can create high-quality product images and even personalized marketing videos based on simple text inputs. This allows e-commerce businesses to rapidly test different visual styles and marketing messages at a tiny fraction of the traditional cost and time.
+    description: `Generative AI is a disruptive force in e-commerce. It automatically generates SEO-optimized product descriptions and high-quality images in seconds. This allows businesses to test marketing messages at a fraction of the traditional cost.
 
-In the realm of management, Generative AI acts as a powerful force multiplier for every employee. It can summarize long, complex reports, draft professional emails, and even write and debug code, allowing staff to focus on higher-level strategic work. This level of automation allows businesses to scale their creative and operational output exponentially without a linear increase in costs. As generative models continue to improve, their ability to create highly relevant and engaging content will become a key differentiator for successful e-commerce brands.`,
+In management, Generative AI acts as a force multiplier by summarizing reports and drafting communications. This allows businesses to scale their creative output exponentially without a linear increase in overhead, redefining operational efficiency.`,
     icon: <Cpu className="w-16 h-16 text-odysser-primary" />,
-    image: "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&q=80&w=1200"
+    image: "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&q=80&w=1200",
+    insight: "Scaling creativity and operations through generative models."
   },
   {
     id: 15,
     title: "The Future of Digital Enterprise",
-    description: `The integration of Artificial Intelligence into management and e-commerce is no longer just a luxury—it is a survival mandate in the competitive digital age. As we have seen throughout this presentation, AI provides the scale, speed, and precision that human teams alone simply cannot achieve. It transforms every aspect of the modern business, from the way executives plan for the long-term future to the way individual packages are delivered to the customer's doorstep. The future of enterprise is one where data and algorithms are just as important as brand and product.
+    description: `AI integration is a survival mandate. It provides the scale and precision human teams alone cannot achieve, transforming everything from long-term planning to last-mile delivery. The future of enterprise is data-driven and algorithmic.
 
-The competitive edge in the coming years will belong to those who view AI not as a replacement for human talent, but as a powerful partner that amplifies human creativity and strategic vision. By embracing these technologies today, organizations can build the resilient, efficient, and deeply customer-centric enterprises that will define the global economy of tomorrow. The journey toward a fully AI-integrated business is complex, but the rewards—in terms of growth, innovation, and customer loyalty—are well worth the effort. The future is here, and it is powered by AI.`,
+The competitive edge belongs to those who view AI as a partner that amplifies human creativity. By embracing these technologies, organizations can build the resilient, customer-centric enterprises that will define the global economy of tomorrow.`,
     icon: <Sparkles className="w-16 h-16 text-odysser-primary" />,
-    image: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&q=80&w=1200"
+    image: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&q=80&w=1200",
+    insight: "Building the AI-powered enterprises of the future."
   }
 ];
 
@@ -215,8 +232,9 @@ function App() {
 
   return (
     <div className="min-h-screen bg-odysser-bg text-odysser-text flex flex-col items-center selection:bg-black selection:text-white overflow-x-hidden relative font-sans">
-      {/* Background Abstract Glows */}
+      {/* Background Abstract Glows & Pattern */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10">
+        <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%230099ff' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2v-4h4v-2h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2v-4h4v-2H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")` }} />
         <div className="absolute top-1/4 -left-20 w-[600px] h-[600px] bg-gradient-to-tr from-blue-100/40 to-transparent rounded-full blur-3xl opacity-60" />
         <div className="absolute bottom-1/3 -right-20 w-[500px] h-[500px] bg-gradient-to-bl from-gray-100/60 to-transparent rounded-full blur-3xl opacity-80" />
       </div>
@@ -234,62 +252,93 @@ function App() {
               x: { type: "spring", stiffness: 300, damping: 35 },
               opacity: { duration: 0.4 }
             }}
-            className="w-full grid lg:grid-cols-2 gap-12 items-center"
+            className="w-full max-w-5xl mx-auto"
           >
-            {/* Left Side: Content */}
-            <div className="flex flex-col items-center lg:items-start text-center lg:text-left h-full justify-center lg:pr-8">
-              <motion.div
-                initial={{ scale: 0.5, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ delay: 0.2 }}
-                className="mb-6 p-4 glass-card inline-block border-white shadow-lg"
-              >
+            <div className="glass-card p-8 md:p-12 border-white/80 shadow-2xl relative overflow-hidden">
+              {/* Background Icon Accent */}
+              <div className="absolute -top-12 -right-12 opacity-[0.03] pointer-events-none">
                 {SLIDES[currentSlide].icon}
-              </motion.div>
+              </div>
 
-              <motion.h1
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.3 }}
-                className="text-3xl md:text-4xl lg:text-5xl font-display font-bold tracking-tight mb-6 leading-tight text-balance text-odysser-primary"
-              >
-                {SLIDES[currentSlide].title}
-              </motion.h1>
+              <div className="flex flex-col gap-10">
+                <header className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                  <div className="flex-1">
+                    <motion.div
+                      initial={{ x: -20, opacity: 0 }}
+                      animate={{ x: 0, opacity: 1 }}
+                      className="flex items-center gap-4 mb-4"
+                    >
+                      <div className="p-2.5 glass-card border-white shadow-sm inline-block text-odysser-primary">
+                        {cloneElement(SLIDES[currentSlide].icon as React.ReactElement<any>, { className: "w-8 h-8" })}
+                      </div>
+                      <div className="h-px flex-1 bg-gradient-to-r from-odysser-primary/20 to-transparent" />
+                    </motion.div>
 
-              <motion.div
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.4 }}
-                className="text-odysser-muted font-sans leading-relaxed space-y-4 max-h-[45vh] lg:max-h-[50vh] overflow-y-auto pr-4 custom-scrollbar"
-              >
-                {SLIDES[currentSlide].description.split('\n\n').map((para, i) => (
-                  <p key={i} className="text-base md:text-lg text-balance font-medium opacity-80">
-                    {para}
-                  </p>
-                ))}
-              </motion.div>
+                    <motion.h1
+                      initial={{ y: 20, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      transition={{ delay: 0.1 }}
+                      className="text-4xl md:text-5xl lg:text-6xl font-display font-bold tracking-tight leading-[1.1] text-balance text-odysser-primary"
+                    >
+                      {SLIDES[currentSlide].title}
+                    </motion.h1>
+                  </div>
+                </header>
 
-              {SLIDES[currentSlide].content && (
-                <div className="w-full mt-4">
-                  {SLIDES[currentSlide].content}
+                <div className="grid md:grid-cols-12 gap-10 items-start">
+                  <motion.div
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 0.2 }}
+                    className="md:col-span-7 space-y-6"
+                  >
+                    <div className="text-odysser-muted font-sans leading-relaxed space-y-6 max-h-[40vh] overflow-y-auto pr-6 custom-scrollbar">
+                      {SLIDES[currentSlide].description.split('\n\n').map((para, i) => (
+                        <p key={i} className="text-xl md:text-2xl text-balance font-medium opacity-90 leading-snug">
+                          {para}
+                        </p>
+                      ))}
+                    </div>
+
+                    {(SLIDES[currentSlide] as any).insight && (
+                      <motion.div
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.4 }}
+                        className="flex items-center gap-4 p-4 bg-odysser-primary/5 border-l-4 border-odysser-primary rounded-r-xl"
+                      >
+                        <Sparkles className="w-5 h-5 text-odysser-primary shrink-0" />
+                        <span className="text-sm font-bold uppercase tracking-wider text-odysser-primary/80">
+                          {(SLIDES[currentSlide] as any).insight}
+                        </span>
+                      </motion.div>
+                    )}
+                  </motion.div>
+
+                  <motion.div
+                    initial={{ scale: 0.9, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ delay: 0.3 }}
+                    className="md:col-span-5 space-y-6"
+                  >
+                    <div className="relative aspect-square rounded-2xl overflow-hidden shadow-xl border-2 border-white">
+                      <img
+                        src={SLIDES[currentSlide].image}
+                        alt={SLIDES[currentSlide].title}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent pointer-events-none" />
+                    </div>
+
+                    {SLIDES[currentSlide].content && (
+                      <div className="w-full">
+                        {SLIDES[currentSlide].content}
+                      </div>
+                    )}
+                  </motion.div>
                 </div>
-              )}
+              </div>
             </div>
-
-            {/* Right Side: Image */}
-            <motion.div
-              initial={{ x: 40, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ delay: 0.5 }}
-              className="relative aspect-[4/3] lg:aspect-square w-full rounded-3xl overflow-hidden shadow-2xl border-4 border-white"
-            >
-              <img
-                src={SLIDES[currentSlide].image}
-                alt={SLIDES[currentSlide].title}
-                className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
-            </motion.div>
           </motion.div>
         </AnimatePresence>
       </main>
