@@ -24,9 +24,9 @@ const SLIDES = [
   {
     id: 1,
     title: "AI in Management & E-commerce Operations",
-    description: `Artificial Intelligence is a foundational pillar of modern enterprise. In management, AI enhances decision-making by processing vast datasets beyond human capability. For e-commerce, it drives everything from storefront optimization to warehouse automation. This presentation explores how machine learning leads to unprecedented efficiency and customer satisfaction.
+    description: `Artificial Intelligence is the backbone of modern enterprise. In management, it enhances decision-making by processing vast datasets, while in e-commerce, it drives everything from storefront optimization to warehouse automation.
 
-The digital economy requires more than traditional strategies. By leveraging AI, businesses gain deep insights into consumer behavior and optimize supply chains in real-time. We will examine the transformative power of AI across fifteen key domains, from strategic planning to last-mile delivery.`,
+By leveraging AI, businesses gain deep insights into consumer behavior and optimize supply chains in real-time. This presentation explores the transformative power of AI across fifteen key domains.`,
     icon: <Globe className="w-16 h-16 text-odysser-primary" />,
     image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=1200",
     insight: "AI is the central nervous system of modern digital commerce.",
@@ -71,9 +71,9 @@ The digital economy requires more than traditional strategies. By leveraging AI,
   {
     id: 2,
     title: "Strategic AI Management",
-    description: `Strategic AI Management shifts the paradigm from 'gut feeling' to real-time, predictive insights. By utilizing neural networks, executives can simulate business scenarios and predict market shifts before they occur. This proactive stance is vital in competitive markets where timing is everything.
+    description: `Strategic AI Management shifts the paradigm from 'gut feeling' to real-time, predictive insights. By utilizing neural networks, executives can simulate business scenarios and predict market shifts before they occur.
 
-AI identifies operational bottlenecks and suggests resource reallocation to maximize ROI. By automating complex data analysis, management can focus on creative and ethical decision-making, ensuring the organization remains agile and resilient.`,
+AI identifies operational bottlenecks and suggests resource reallocation to maximize ROI. By automating complex data analysis, management can focus on creative and ethical decision-making.`,
     icon: <Brain className="w-16 h-16 text-odysser-primary" />,
     image: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&q=80&w=800",
     insight: "Data-driven strategy replaces intuition with precision."
@@ -81,9 +81,9 @@ AI identifies operational bottlenecks and suggests resource reallocation to maxi
   {
     id: 3,
     title: "Supply Chain Intelligence",
-    description: `AI is the central nervous system of modern supply chains. Predictive analytics forecast demand with surgical precision, minimizing risks of overstocking or stockouts. Algorithms analyze historical sales and external factors like weather to optimize global logistics.
+    description: `AI-driven predictive analytics forecast demand with surgical precision, minimizing risks of overstocking or stockouts. Algorithms analyze historical sales and external factors to optimize global logistics.
 
-Real-time tracking and automated risk assessment enhance transparency. If a shipping route is blocked, AI triggers alternative plans instantly. This optimization reduces costs and lowers the carbon footprint of the entire logistics network.`,
+Real-time tracking and automated risk assessment enhance transparency. This optimization reduces costs and lowers the carbon footprint of the entire logistics network.`,
     icon: <Truck className="w-16 h-16 text-odysser-primary" />,
     image: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&q=80&w=1200",
     insight: "Predictive logistics ensures products are always where they need to be."
@@ -91,9 +91,9 @@ Real-time tracking and automated risk assessment enhance transparency. If a ship
   {
     id: 4,
     title: "Hyper-Personalization",
-    description: `In e-commerce, relevance is currency. Hyper-personalization leverages deep learning to understand every shopper's unique profile—from browsing speed to price sensitivity. AI creates a 'segment of one,' dynamically generating every touchpoint in real-time.
+    description: `Hyper-personalization leverages deep learning to understand every shopper's unique profile. AI creates a 'segment of one,' dynamically generating every touchpoint in real-time.
 
-By predicting needs before a search occurs, AI-driven platforms provide a frictionless experience. This technology fosters deep brand loyalty and significantly higher conversion rates by making every digital storefront feel uniquely tailored to the individual.`,
+By predicting needs before a search occurs, AI-driven platforms provide a frictionless experience. This technology fosters deep brand loyalty and significantly higher conversion rates.`,
     icon: <Target className="w-16 h-16 text-odysser-primary" />,
     image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=1200",
     insight: "Moving from mass marketing to a 'segment of one' at scale."
@@ -101,9 +101,9 @@ By predicting needs before a search occurs, AI-driven platforms provide a fricti
   {
     id: 5,
     title: "Cognitive Customer Service",
-    description: `Modern service demands instant, empathetic responses. Cognitive Customer Service uses NLP and Large Language Models to provide assistants that process returns and resolve disputes with remarkable accuracy. They understand context and intent, providing human-like support.
+    description: `Modern service demands instant, empathetic responses. Cognitive assistants use NLP to process returns and resolve disputes with remarkable accuracy, providing human-like support at scale.
 
-When human intervention is needed, AI provides agents with full customer context and suggests the best resolution path. This reduces handle times and improves satisfaction, allowing talent to focus on high-value emotional interactions.`,
+When human intervention is needed, AI provides agents with full customer context. This reduces handle times and improves satisfaction, allowing talent to focus on high-value interactions.`,
     icon: <MessageSquare className="w-16 h-16 text-odysser-primary" />,
     image: "https://images.unsplash.com/photo-1549923746-c502d488b3ea?auto=format&fit=crop&q=80&w=800",
     insight: "AI provides the scale of automation with the touch of empathy."
@@ -111,9 +111,9 @@ When human intervention is needed, AI provides agents with full customer context
   {
     id: 6,
     title: "Algorithmic Pricing",
-    description: `Dynamic pricing is essential in the digital world. AI adjusts prices in milliseconds based on competitor data, inventory levels, and real-time demand. This ensures the optimal price point to maximize profit or market share.
+    description: `Dynamic pricing adjusts prices in milliseconds based on competitor data and real-time demand. This ensures the optimal price point to maximize profit or market share.
 
-Businesses capture additional revenue during peak periods and remain competitive during slow intervals through automated discounts. This data-driven approach perfectly aligns pricing with the market's willingness to pay at any given moment.`,
+Businesses capture additional revenue during peak periods and remain competitive through automated discounts. This approach perfectly aligns pricing with the market's willingness to pay.`,
     icon: <TrendingUp className="w-16 h-16 text-odysser-primary" />,
     image: "https://images.unsplash.com/photo-1543286386-2e659306cd6c?auto=format&fit=crop&q=80&w=1200",
     insight: "Optimizing margins through real-time market responsiveness."
@@ -121,9 +121,9 @@ Businesses capture additional revenue during peak periods and remain competitive
   {
     id: 7,
     title: "AI-Enhanced Recruitment",
-    description: `AI is revolutionizing human capital management. Algorithms scan thousands of resumes to identify best-fit candidates while minimizing unconscious bias. This allows recruitment teams to focus on relationship building and deep-dive interviews.
+    description: `AI is revolutionizing human capital management. Algorithms scan thousands of resumes to identify best-fit candidates while minimizing unconscious bias, allowing teams to focus on relationship building.
 
-AI also plays a role in talent retention by analyzing engagement data to identify turnover patterns early. Personalized learning platforms recommend training based on career goals, creating a more data-driven and supportive employee experience.`,
+AI also plays a role in talent retention by analyzing engagement patterns. Personalized learning platforms recommend training based on career goals, creating a more data-driven employee experience.`,
     icon: <Users className="w-16 h-16 text-odysser-primary" />,
     image: "https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&q=80&w=1200",
     insight: "Finding and retaining the best talent through algorithmic insight."
@@ -131,9 +131,9 @@ AI also plays a role in talent retention by analyzing engagement data to identif
   {
     id: 8,
     title: "Automated Cybersecurity",
-    description: `As e-commerce grows, so do cyber threats. AI establishes a baseline of 'normal' behavior and takes autonomous action to neutralize anomalies instantly. This proactive defense is essential for protecting sensitive customer data and brand trust.
+    description: `AI establishes a baseline of 'normal' behavior and takes autonomous action to neutralize anomalies instantly. This proactive defense is essential for protecting sensitive customer data and brand trust.
 
-In payment processing, AI analyzes hundreds of data points per transaction to detect fraud patterns invisible to humans. This protects the business from financial loss and ensures customers can shop with total confidence in the platform's security.`,
+In payment processing, AI analyzes hundreds of data points to detect fraud patterns invisible to humans. This protects the business from financial loss and ensures customer confidence.`,
     icon: <ShieldCheck className="w-16 h-16 text-odysser-primary" />,
     image: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=1200",
     insight: "Proactive, autonomous defense in an era of sophisticated threats."
@@ -141,9 +141,9 @@ In payment processing, AI analyzes hundreds of data points per transaction to de
   {
     id: 9,
     title: "Optimized Last-Mile Logistics",
-    description: `The 'last mile' is the most complex part of e-commerce. AI calculates efficient delivery routes by accounting for traffic, delivery windows, and vehicle capacity. This speeds up fulfillment while reducing fuel costs and vehicle wear.
+    description: `AI calculates efficient delivery routes by accounting for traffic and delivery windows. This speeds up fulfillment while reducing fuel costs and vehicle wear.
 
-AI also drives the integration of autonomous delivery robots and drones. Predictive analytics suggest the placement of 'micro-fulfillment' centers in high-demand neighborhoods, ensuring popular products are always just minutes away from the customer.`,
+AI also drives the integration of autonomous delivery robots. Predictive analytics suggest the placement of 'micro-fulfillment' centers in high-demand neighborhoods, ensuring products are always minutes away.`,
     icon: <Zap className="w-16 h-16 text-odysser-primary" />,
     image: "https://images.unsplash.com/photo-1551434678-e076c223a692?auto=format&fit=crop&q=80&w=800",
     insight: "Turning the most expensive logistics challenge into a competitive edge."
@@ -151,9 +151,9 @@ AI also drives the integration of autonomous delivery robots and drones. Predict
   {
     id: 10,
     title: "Smart Inventory Nodes",
-    description: `Smart Inventory Nodes represent a shift to decentralized, intelligent warehousing. AI analyzes regional demand to decide exactly where stock should be placed. Some systems even trigger 'anticipatory shipping' before a purchase is finalized.
+    description: `Smart Inventory Nodes represent a shift to decentralized, intelligent warehousing. AI analyzes regional demand to decide exactly where stock should be placed to minimize delivery times.
 
-By keeping inventory moving and in the right place, AI helps businesses maintain lean operations. This strategy reduces waste and ensures that popular products aren't sitting idle in low-demand areas, maximizing both speed and profitability.`,
+By keeping inventory moving and in the right place, AI helps businesses maintain lean operations. This strategy reduces waste and ensures popular products are never out of reach.`,
     icon: <ShoppingCart className="w-16 h-16 text-odysser-primary" />,
     image: "https://images.unsplash.com/photo-1553413077-190dd305871c?auto=format&fit=crop&q=80&w=1200",
     insight: "Decentralized intelligence for faster, leaner inventory management."
@@ -161,9 +161,9 @@ By keeping inventory moving and in the right place, AI helps businesses maintain
   {
     id: 11,
     title: "Predictive Ad Tech",
-    description: `Predictive Ad Tech uses AI to shift from broad advertising to precision-targeted campaigns. By analyzing historical data, AI predicts the Customer Lifetime Value (CLV) and determines the exact spend needed for acquisition.
+    description: `Predictive Ad Tech uses AI to shift from broad advertising to precision-targeted campaigns. By analyzing historical data, AI predicts Customer Lifetime Value and determines the exact spend needed for acquisition.
 
-Algorithms automate bidding in real-time auctions, ensuring budget is allocated to channels with the highest conversion potential. This results in a higher return on ad spend (ROAS) and allows teams to focus on creative strategy.`,
+Algorithms automate bidding in real-time auctions, ensuring budget is allocated to channels with the highest conversion potential. This results in a much higher return on ad spend.`,
     icon: <BarChart3 className="w-16 h-16 text-odysser-primary" />,
     image: "https://images.unsplash.com/photo-1534452203293-494d7ddbf7e0?auto=format&fit=crop&q=80&w=800",
     insight: "Maximizing marketing ROI through predictive acquisition models."
@@ -171,9 +171,9 @@ Algorithms automate bidding in real-time auctions, ensuring budget is allocated 
   {
     id: 12,
     title: "Visual & Voice Commerce",
-    description: `Discovery is being transformed by computer vision and natural language understanding. Visual search allows customers to find products via photos, while voice commerce enables purchases through simple commands to smart assistants.
+    description: `Visual search allows customers to find products via photos, while voice commerce enables purchases through simple commands. These technologies make commerce truly frictionless.
 
-These technologies make commerce truly 'omnichannel' and frictionless, meeting the customer wherever they are. By lowering barriers to discovery, they broaden the sales funnel and create a more natural, integrated shopping experience.`,
+By meeting the customer wherever they are and lowering barriers to discovery, they broaden the sales funnel and create a more natural, integrated shopping experience.`,
     icon: <Search className="w-16 h-16 text-odysser-primary" />,
     image: "https://images.unsplash.com/photo-1550009158-9ebf69173e03?auto=format&fit=crop&q=80&w=1200",
     insight: "Natural, frictionless interfaces for the next generation of shoppers."
@@ -181,9 +181,9 @@ These technologies make commerce truly 'omnichannel' and frictionless, meeting t
   {
     id: 13,
     title: "Industrial IoT & AI",
-    description: `In modern warehouses, Industrial IoT devices collect data analyzed by AI for predictive maintenance. Instead of waiting for a breakdown, the AI identifies early wear signs and schedules repairs during off-peak hours, preventing costly downtime.
+    description: `In modern warehouses, Industrial IoT devices collect data for AI-driven predictive maintenance. Systems identify early wear signs and schedule repairs during off-peak hours, preventing costly downtime.
 
-AI also orchestrates autonomous mobile robots (AMRs) to optimize picking paths. This integration of hardware and software allows for a level of speed and accuracy in fulfillment that was once thought impossible, helping businesses scale globally.`,
+AI also orchestrates autonomous mobile robots (AMRs) to optimize picking paths. This integration allows for a level of speed and accuracy in fulfillment that was once thought impossible.`,
     icon: <Settings className="w-16 h-16 text-odysser-primary" />,
     image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=1200",
     insight: "The fusion of physical hardware and algorithmic optimization."
@@ -191,9 +191,9 @@ AI also orchestrates autonomous mobile robots (AMRs) to optimize picking paths. 
   {
     id: 14,
     title: "Generative Operations",
-    description: `Generative AI is a disruptive force in e-commerce. It automatically generates SEO-optimized product descriptions and high-quality images in seconds. This allows businesses to test marketing messages at a fraction of the traditional cost.
+    description: `Generative AI automatically creates SEO-optimized product descriptions and high-quality images in seconds. This allows businesses to test marketing messages at a fraction of the cost.
 
-In management, Generative AI acts as a force multiplier by summarizing reports and drafting communications. This allows businesses to scale their creative output exponentially without a linear increase in overhead, redefining operational efficiency.`,
+In management, Generative AI acts as a force multiplier by summarizing reports and drafting communications. This allows businesses to scale creative output without a linear increase in overhead.`,
     icon: <Cpu className="w-16 h-16 text-odysser-primary" />,
     image: "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&q=80&w=1200",
     insight: "Scaling creativity and operations through generative models."
@@ -201,9 +201,9 @@ In management, Generative AI acts as a force multiplier by summarizing reports a
   {
     id: 15,
     title: "The Future of Digital Enterprise",
-    description: `AI integration is a survival mandate. It provides the scale and precision human teams alone cannot achieve, transforming everything from long-term planning to last-mile delivery. The future of enterprise is data-driven and algorithmic.
+    description: `AI integration is a survival mandate. It provides the scale and precision human teams alone cannot achieve, transforming everything from long-term planning to last-mile delivery.
 
-The competitive edge belongs to those who view AI as a partner that amplifies human creativity. By embracing these technologies, organizations can build the resilient, customer-centric enterprises that will define the global economy of tomorrow.`,
+The competitive edge belongs to those who view AI as a partner that amplifies human creativity. Organizations can build the resilient, customer-centric enterprises that will define the global economy.`,
     icon: <Sparkles className="w-16 h-16 text-odysser-primary" />,
     image: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&q=80&w=1200",
     insight: "Building the AI-powered enterprises of the future."
