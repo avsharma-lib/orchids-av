@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
+import { CheckCircle2, Instagram, VolumeX, Volume2, Plus, X, ExternalLink, MessageCircle, UserPlus, Phone } from 'lucide-react';
 
 interface Product {
   id: number;
