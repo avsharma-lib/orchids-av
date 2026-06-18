@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
-import { CheckCircle2, ArrowRight } from 'lucide-react';
+import { useEffect, useState, useRef } from 'react';
+import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
+import { CheckCircle2, ArrowRight, Plus, ChevronLeft, ChevronRight, Image as ImageIcon, Film } from 'lucide-react';
+import { saveMedia, getAllMedia, type MediaItem } from './utils/db';
 
 function App() {
   const { scrollYProgress } = useScroll();
@@ -8,6 +9,77 @@ function App() {
   const y2 = useTransform(scrollYProgress, [0, 1], [0, -50]);
 
   const [isScrolled, setIsScrolled] = useState(false);
+  const [galleryMedia, setGalleryMedia] = useState<MediaItem[]>([]);
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+  const [currentBlobUrl, setCurrentBlobUrl] = useState<string>('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const autoPlayRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    const loadGallery = async () => {
+      const media = await getAllMedia();
+      setGalleryMedia(media);
+    };
+    loadGallery();
+  }, []);
+
+  useEffect(() => {
+    if (isAutoPlaying && galleryMedia.length > 0) {
+      autoPlayRef.current = window.setInterval(() => {
+        setCurrentSlide((prev) => (prev + 1) % galleryMedia.length);
+      }, 5000);
+    }
+    return () => {
+      if (autoPlayRef.current) {
+        window.clearInterval(autoPlayRef.current);
+        autoPlayRef.current = null;
+      }
+    };
+  }, [isAutoPlaying, galleryMedia.length]);
+
+  useEffect(() => {
+    if (galleryMedia.length > 0 && galleryMedia[currentSlide]) {
+      const url = URL.createObjectURL(galleryMedia[currentSlide].blob);
+      setCurrentBlobUrl(url);
+      return () => URL.revokeObjectURL(url);
+    }
+  }, [galleryMedia, currentSlide]);
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const type = file.type.startsWith('video') ? 'video' : 'image';
+
+      const newItem: Omit<MediaItem, 'id'> = {
+        blob: file,
+        type: type,
+        timestamp: Date.now()
+      };
+
+      await saveMedia(newItem);
+    }
+
+    // Reload gallery
+    const media = await getAllMedia();
+    setGalleryMedia(media);
+    if (media.length > 0) {
+      setCurrentSlide(media.length - 1);
+    }
+  };
+
+  const nextSlide = () => {
+    setIsAutoPlaying(false);
+    setCurrentSlide((prev) => (prev + 1) % galleryMedia.length);
+  };
+
+  const prevSlide = () => {
+    setIsAutoPlaying(false);
+    setCurrentSlide((prev) => (prev - 1 + galleryMedia.length) % galleryMedia.length);
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -38,6 +110,7 @@ function App() {
 
           <div className="hidden md:flex items-center gap-8 text-[15px] font-medium text-odysser-muted">
             <a href="#features" className="hover:text-black transition-colors">परिचय</a>
+            <a href="#gallery" className="hover:text-black transition-colors">फोटो गैलरी</a>
             <a href="#process" className="hover:text-black transition-colors">प्राथमिकताएं</a>
             <a href="#pricing" className="hover:text-black transition-colors">स्वयंसेवक बनें</a>
             <a href="#testimonials" className="hover:text-black transition-colors">जनमत</a>
@@ -395,6 +468,109 @@ function App() {
         </div>
       </section>
 
+      {/* Photo Gallery Section */}
+      <section id="gallery" className="py-32 px-6 bg-white overflow-hidden">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16 relative">
+            <p className="font-handwriting text-3xl md:text-4xl text-odysser-primary mb-4 transform -rotate-2">फोटो गैलरी</p>
+            <h2 className="text-4xl md:text-6xl font-display font-bold tracking-tight">क्षेत्र की <span className="text-odysser-muted">झलकियाँ।</span></h2>
+
+            {/* Upload Button */}
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="mt-8 mx-auto h-16 w-16 rounded-full bg-odysser-primary text-white flex items-center justify-center shadow-lg hover:scale-110 transition-transform cursor-pointer group relative overflow-hidden"
+            >
+              <Plus className="w-8 h-8 relative z-10" />
+              <span className="absolute inset-0 shimmer-bg opacity-0 group-hover:opacity-100 transition-opacity"></span>
+            </button>
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileUpload}
+              multiple
+              accept="image/*,video/*"
+              className="hidden"
+            />
+          </div>
+
+          <div className="relative aspect-[16/9] md:aspect-[21/9] w-full max-w-6xl mx-auto rounded-[2rem] md:rounded-[3rem] overflow-hidden glass-card border-4 border-white shadow-2xl group">
+            {galleryMedia.length > 0 ? (
+              <>
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={currentSlide}
+                    initial={{ opacity: 0, x: 100 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -100 }}
+                    transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                    className="absolute inset-0"
+                  >
+                    {galleryMedia[currentSlide].type === 'image' ? (
+                      <img
+                        src={currentBlobUrl}
+                        alt="Gallery"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <video
+                        src={currentBlobUrl}
+                        autoPlay
+                        muted
+                        loop
+                        playsInline
+                        className="w-full h-full object-cover"
+                      />
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+                  </motion.div>
+                </AnimatePresence>
+
+                {/* Navigation Buttons */}
+                <button
+                  onClick={prevSlide}
+                  className="absolute left-6 top-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white flex items-center justify-center hover:bg-white hover:text-black transition-all z-20 opacity-0 group-hover:opacity-100"
+                >
+                  <ChevronLeft className="w-6 h-6" />
+                </button>
+                <button
+                  onClick={nextSlide}
+                  className="absolute right-6 top-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white flex items-center justify-center hover:bg-white hover:text-black transition-all z-20 opacity-0 group-hover:opacity-100"
+                >
+                  <ChevronRight className="w-6 h-6" />
+                </button>
+
+                {/* Indicators */}
+                <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2 z-20">
+                  {galleryMedia.map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => {
+                        setIsAutoPlaying(false);
+                        setCurrentSlide(i);
+                      }}
+                      className={`h-1.5 rounded-full transition-all duration-500 ${
+                        currentSlide === i ? 'w-8 bg-white' : 'w-2 bg-white/40 hover:bg-white/60'
+                      }`}
+                    />
+                  ))}
+                </div>
+
+                {/* Media Type Icon */}
+                <div className="absolute top-8 right-8 z-20 p-3 rounded-2xl bg-black/20 backdrop-blur-md border border-white/20 text-white">
+                  {galleryMedia[currentSlide].type === 'image' ? <ImageIcon className="w-5 h-5" /> : <Film className="w-5 h-5" />}
+                </div>
+              </>
+            ) : (
+              <div className="absolute inset-0 flex flex-col items-center justify-center text-odysser-muted bg-gray-50">
+                <ImageIcon className="w-16 h-16 mb-4 opacity-20" />
+                <p className="text-xl font-medium">कोई फोटो या वीडियो नहीं है।</p>
+                <p className="text-sm">ऊपर दिए गए बटन से मीडिया जोड़ें।</p>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
       {/* Janmat (Testimonials) */}
       <section id="testimonials" className="py-32 px-6">
         <div className="max-w-7xl mx-auto">
@@ -471,7 +647,15 @@ function App() {
                 </div>
 
                 <div className="pt-4">
-                  <button type="button" className="btn-odysser w-full px-12 py-5 text-xl group relative">
+                  <button
+                    type="submit"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      console.log('Volunteer registration submitted');
+                      alert('पंजीकरण के लिए धन्यवाद! हम जल्द ही आपसे संपर्क करेंगे।');
+                    }}
+                    className="btn-odysser w-full px-12 py-5 text-xl group relative"
+                  >
                     <span className="relative z-10 flex items-center justify-center gap-2">
                       स्वयंसेवक के रूप में जुड़ें
                       <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -530,6 +714,7 @@ function App() {
 
           <div className="flex items-center gap-6">
             <a href="#features" className="text-sm font-bold text-odysser-muted hover:text-black transition-colors">परिचय</a>
+            <a href="#gallery" className="text-sm font-bold text-odysser-muted hover:text-black transition-colors">फोटो गैलरी</a>
             <a href="#process" className="text-sm font-bold text-odysser-muted hover:text-black transition-colors">प्राथमिकताएं</a>
             <a href="#pricing" className="text-sm font-bold text-odysser-muted hover:text-black transition-colors">स्वयंसेवक बनें</a>
             <a href="#testimonials" className="text-sm font-bold text-odysser-muted hover:text-black transition-colors">जनमत</a>
