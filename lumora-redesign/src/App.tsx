@@ -3,7 +3,8 @@ import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
 import {
   ArrowRight, Plus, ChevronLeft, ChevronRight,
   Image as ImageIcon, Film, MessageCircle, Phone,
-  Trash2, ArrowUp, ArrowDown, X
+  Trash2, ArrowUp, ArrowDown, X,
+  Smile, CheckCircle, Briefcase, Trophy
 } from 'lucide-react';
 import { saveMedia, getAllMedia, deleteMedia, updateMediaOrder, type MediaItem } from './utils/db';
 
@@ -315,9 +316,9 @@ function App() {
       </AnimatePresence>
 
       {/* 1. Photo Gallery Section */}
-      <section id="gallery" className="pt-32 pb-20 px-6 bg-white overflow-hidden">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16 relative">
+      <section id="gallery" className="pt-32 bg-white overflow-hidden">
+        <div className="w-full">
+          <div className="text-center mb-16 relative px-6">
             <p className="font-handwriting text-3xl md:text-4xl text-odysser-primary mb-4 transform -rotate-2">फोटो गैलरी</p>
             <h2 className="text-4xl md:text-6xl font-display font-bold tracking-tight">क्षेत्र की <span className="text-odysser-muted">झलकियाँ।</span></h2>
 
@@ -331,7 +332,7 @@ function App() {
             />
           </div>
 
-          <div className="relative aspect-[16/9] md:aspect-[21/9] w-full max-w-6xl mx-auto rounded-[2rem] md:rounded-[3rem] overflow-hidden glass-card border-4 border-white shadow-2xl group">
+          <div className="relative aspect-[16/9] md:aspect-[21/9] w-full overflow-hidden shadow-2xl group">
             {galleryMedia.length > 0 ? (
               <>
                 <AnimatePresence mode="wait">
@@ -445,25 +446,41 @@ function App() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.4 }}
-            className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4"
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.35 }}
+            className="mt-8"
           >
             <button
-              onClick={() => setIsContactModalOpen(true)}
-              className="btn-odysser px-8 py-4 text-lg w-full sm:w-auto group"
+              onClick={() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })}
+              className="btn-odysser px-8 py-3 text-sm font-bold uppercase tracking-wider"
             >
-              <span className="relative z-10 flex items-center gap-2">
-                संपर्क करें
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </span>
-              <span className="absolute inset-0 shimmer-bg pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity"></span>
+              अधिक जानकारी
             </button>
-            <button
-              onClick={() => document.getElementById('volunteer')?.scrollIntoView({ behavior: 'smooth' })}
-              className="px-8 py-4 text-lg w-full sm:w-auto font-bold border-2 border-gray-200 rounded-2xl hover:bg-gray-50 transition-colors"
-            >
-              स्वयंसेवक बनें
-            </button>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.45 }}
+            className="mt-12 space-y-4 max-w-xl mx-auto px-4"
+          >
+            {[
+              { label: 'जुड़ें', color: 'bg-[#1e69a5]', icon: Smile, target: 'volunteer' },
+              { label: 'शिकायत', color: 'bg-[#ffcc33]', text: 'text-black', icon: CheckCircle, target: 'volunteer' },
+              { label: 'सुझाव', color: 'bg-[#21283d]', icon: Briefcase, target: 'volunteer' },
+              { label: 'संपर्क', color: 'bg-[#d62839]', icon: Trophy, isModal: true }
+            ].map((item, idx) => (
+              <button
+                key={idx}
+                onClick={() => item.isModal ? setIsContactModalOpen(true) : document.getElementById(item.target!)?.scrollIntoView({ behavior: 'smooth' })}
+                className={`w-full flex items-center justify-between p-6 ${item.color} ${item.text || 'text-white'} rounded-2xl transition-all hover:scale-[1.02] hover:shadow-xl group relative overflow-hidden shadow-md`}
+              >
+                <div className="flex items-center gap-4 relative z-10">
+                  <item.icon className="w-12 h-12 opacity-20 absolute -left-4" />
+                  <span className="text-2xl font-display font-black ml-8 uppercase tracking-wide">{item.label}</span>
+                </div>
+                <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
+              </button>
+            ))}
           </motion.div>
         </div>
 
@@ -512,34 +529,10 @@ function App() {
               समर्पण और सेवा का<br/>
               <span className="text-odysser-muted">एक नया अध्याय।</span>
             </h2>
-            <div className="mt-6 text-xl text-odysser-muted max-w-3xl mx-auto space-y-4">
-              <p>छत्तीसगढ़ प्रदेश कांग्रेस कमेटी के सचिव।</p>
-              <p>मुंगेली विधानसभा के प्रभारी रह चुके हैं।</p>
-              <p>पूर्व प्रदेश सचिव, छत्तीसगढ़ युवा कांग्रेस।</p>
-              <p>जनसेवा, संगठन निर्माण और क्षेत्रीय विकास के लिए निरंतर कार्यरत।</p>
+            <div className="mt-6 text-2xl md:text-3xl text-odysser-muted max-w-4xl mx-auto font-sans leading-relaxed">
+              कमलेश मिश्रा वर्तमान में छत्तीसगढ़ प्रदेश कांग्रेस कमेटी के सचिव हैं वे पूर्व में छत्तीसगढ़ युवा कांग्रेस के सचिव रह चुके हैं
             </div>
           </motion.div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
-            {[
-              { stat: 'सचिव', label: 'छत्तीसगढ़ प्रदेश कांग्रेस कमेटी' },
-              { stat: 'मुंगेली', label: 'पूर्व विधानसभा प्रभारी' },
-              { stat: 'पूर्व प्रदेश सचिव', label: 'छत्तीसगढ़ युवा कांग्रेस' },
-              { stat: 'जनसेवा', label: 'निरंतर कार्यरत' }
-            ].map((item, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: i * 0.1 }}
-                className="glass-card p-6 md:p-8 text-center border-t-4 border-t-odysser-primary hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)] transition-shadow"
-              >
-                <div className="text-3xl md:text-4xl font-display font-bold text-black mb-2">{item.stat}</div>
-                <div className="text-sm font-bold text-odysser-muted uppercase tracking-wider">{item.label}</div>
-              </motion.div>
-            ))}
-          </div>
         </div>
       </section>
 
@@ -549,7 +542,7 @@ function App() {
         <div className="max-w-3xl mx-auto relative z-10">
           <p className="font-handwriting text-3xl md:text-4xl text-blue-400 mb-4">संपर्क करें</p>
           <h2 className="text-5xl md:text-7xl font-display font-bold tracking-tight mb-8">
-            क्षेत्र के विकास के लिए<br/>हमसे जुड़ें।
+            संपर्क सूत्र
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="p-8 bg-white/5 rounded-[2rem] backdrop-blur-md border border-white/10 flex flex-col items-center gap-6">
