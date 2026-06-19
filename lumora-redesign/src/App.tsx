@@ -1,7 +1,11 @@
 import { useEffect, useState, useRef } from 'react';
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
-import { CheckCircle2, ArrowRight, Plus, ChevronLeft, ChevronRight, Image as ImageIcon, Film, Hand, MessageCircle, Phone } from 'lucide-react';
-import { saveMedia, getAllMedia, type MediaItem } from './utils/db';
+import {
+  ArrowRight, Plus, ChevronLeft, ChevronRight,
+  Image as ImageIcon, Film, MessageCircle, Phone,
+  Trash2, ArrowUp, ArrowDown, X
+} from 'lucide-react';
+import { saveMedia, getAllMedia, deleteMedia, updateMediaOrder, type MediaItem } from './utils/db';
 
 function App() {
   const { scrollYProgress } = useScroll();
@@ -13,6 +17,16 @@ function App() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const [currentBlobUrl, setCurrentBlobUrl] = useState<string>('');
+  const [isAdminOpen, setIsAdminOpen] = useState(false);
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+
+  // Form states
+  const [formName, setFormName] = useState('');
+  const [formPhone, setFormPhone] = useState('');
+  const [formAddress, setFormAddress] = useState('');
+  const [formConstituency, setFormConstituency] = useState('');
+  const [formMessage, setFormMessage] = useState('');
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const autoPlayRef = useRef<number | null>(null);
 
@@ -43,6 +57,8 @@ function App() {
       const url = URL.createObjectURL(galleryMedia[currentSlide].blob);
       setCurrentBlobUrl(url);
       return () => URL.revokeObjectURL(url);
+    } else {
+      setCurrentBlobUrl('');
     }
   }, [galleryMedia, currentSlide]);
 
@@ -54,7 +70,7 @@ function App() {
       const file = files[i];
       const type = file.type.startsWith('video') ? 'video' : 'image';
 
-      const newItem: Omit<MediaItem, 'id'> = {
+      const newItem: Omit<MediaItem, 'id' | 'order'> = {
         blob: file,
         type: type,
         timestamp: Date.now()
@@ -63,12 +79,48 @@ function App() {
       await saveMedia(newItem);
     }
 
-    // Reload gallery
     const media = await getAllMedia();
     setGalleryMedia(media);
     if (media.length > 0) {
       setCurrentSlide(media.length - 1);
     }
+  };
+
+  const handleDelete = async (id: number) => {
+    if (window.confirm('क्या आप वाकई इसे हटाना चाहते हैं?')) {
+      await deleteMedia(id);
+      const media = await getAllMedia();
+      setGalleryMedia(media);
+      if (currentSlide >= media.length) {
+        setCurrentSlide(Math.max(0, media.length - 1));
+      }
+    }
+  };
+
+  const moveItem = async (index: number, direction: 'up' | 'down') => {
+    const newMedia = [...galleryMedia];
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+
+    if (targetIndex < 0 || targetIndex >= newMedia.length) return;
+
+    [newMedia[index], newMedia[targetIndex]] = [newMedia[targetIndex], newMedia[index]];
+    await updateMediaOrder(newMedia);
+    setGalleryMedia(await getAllMedia());
+  };
+
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (formName === 'Aaryaveer' && !formPhone && !formAddress && !formConstituency && !formMessage) {
+      setIsAdminOpen(true);
+      setFormName('');
+      return;
+    }
+    alert('पंजीकरण के लिए धन्यवाद! हम जल्द ही आपसे संपर्क करेंगे।');
+    setFormName('');
+    setFormPhone('');
+    setFormAddress('');
+    setFormConstituency('');
+    setFormMessage('');
   };
 
   const nextSlide = () => {
@@ -103,30 +155,258 @@ function App() {
         <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-[#0099ff] to-blue-600 flex items-center justify-center shadow-lg shadow-blue-200">
-              <Hand className="text-white w-6 h-6" />
+              <img src="/congress-logo.png" alt="Congress Logo" className="w-8 h-8 object-contain brightness-0 invert" />
             </div>
             <span className="font-display font-black text-2xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-black to-gray-600">कमलेश मिश्रा</span>
           </div>
 
           <div className="hidden md:flex items-center gap-8 text-[15px] font-medium text-odysser-muted">
-            <a href="#features" className="hover:text-black transition-colors">परिचय</a>
             <a href="#gallery" className="hover:text-black transition-colors">फोटो गैलरी</a>
-            <a href="#process" className="hover:text-black transition-colors">प्राथमिकताएं</a>
-            <a href="#pricing" className="hover:text-black transition-colors">स्वयंसेवक बनें</a>
-            <a href="#testimonials" className="hover:text-black transition-colors">जनमत</a>
+            <a href="#about" className="hover:text-black transition-colors">परिचय</a>
+            <a href="#contact" className="hover:text-black transition-colors">संपर्क करें</a>
+            <a href="#volunteer" className="hover:text-black transition-colors">स्वयंसेवक बनें</a>
           </div>
 
           <div className="flex items-center gap-4">
-            <a href="#pricing" className="btn-odysser px-5 py-2.5 text-[15px] group">
-              स्वयंसेवक बनें
+            <button
+              onClick={() => setIsContactModalOpen(true)}
+              className="btn-odysser px-5 py-2.5 text-[15px] group"
+            >
+              संपर्क करें
               <span className="absolute inset-0 shimmer-bg opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></span>
-            </a>
+            </button>
           </div>
         </div>
       </motion.nav>
 
-      {/* Hero Section */}
-      <section className="relative pt-40 pb-20 md:pt-48 md:pb-32 overflow-hidden px-6">
+      {/* Contact Modal */}
+      <AnimatePresence>
+        {isContactModalOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsContactModalOpen(false)}
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="relative w-full max-w-lg bg-white rounded-[2.5rem] shadow-2xl overflow-hidden"
+            >
+              <div className="p-8">
+                <div className="flex justify-between items-center mb-8">
+                  <h3 className="text-3xl font-display font-bold">संपर्क करें</h3>
+                  <button onClick={() => setIsContactModalOpen(false)} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                    <X className="w-6 h-6" />
+                  </button>
+                </div>
+
+                <div className="space-y-6">
+                  {[
+                    { label: 'संपर्क सूत्र 1', phone: '9406122222' },
+                    { label: 'संपर्क सूत्र 2', phone: '9644950000' }
+                  ].map((item, idx) => (
+                    <div key={idx} className="p-6 rounded-3xl bg-gray-50 border border-gray-100">
+                      <div className="text-odysser-muted font-bold text-sm uppercase tracking-wider mb-2">{item.label}</div>
+                      <div className="text-3xl font-display font-black mb-6">{item.phone}</div>
+                      <div className="flex gap-4">
+                        <a href={`tel:${item.phone}`} className="flex-1 py-3 bg-black text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
+                          <Phone className="w-4 h-4" /> कॉल करें
+                        </a>
+                        <a href={`https://wa.me/91${item.phone}`} target="_blank" rel="noopener noreferrer" className="flex-1 py-3 bg-[#25D366] text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
+                          <MessageCircle className="w-4 h-4" /> व्हाट्सएप
+                        </a>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Admin Panel Modal */}
+      <AnimatePresence>
+        {isAdminOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsAdminOpen(false)}
+              className="absolute inset-0 bg-black/80 backdrop-blur-md"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              className="relative w-full max-w-4xl bg-white rounded-[3rem] shadow-2xl overflow-hidden max-h-[80vh] flex flex-col"
+            >
+              <div className="p-8 border-b flex justify-between items-center bg-gray-50">
+                <div>
+                  <h3 className="text-3xl font-display font-bold">गैलरी प्रबंधन</h3>
+                  <p className="text-odysser-muted">फोटो और वीडियो प्रबंधित करें</p>
+                </div>
+                <div className="flex gap-4">
+                   <button
+                    onClick={() => fileInputRef.current?.click()}
+                    className="flex items-center gap-2 px-6 py-3 bg-odysser-primary text-white rounded-2xl font-bold hover:scale-105 transition-transform"
+                  >
+                    <Plus className="w-5 h-5" /> मीडिया जोड़ें
+                  </button>
+                  <button onClick={() => setIsAdminOpen(false)} className="p-3 hover:bg-gray-200 rounded-2xl transition-colors text-gray-500">
+                    <X className="w-6 h-6" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="p-8 overflow-y-auto flex-1">
+                {galleryMedia.length > 0 ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    {galleryMedia.map((item, index) => (
+                      <div key={item.id} className="group relative rounded-[2rem] overflow-hidden border-2 border-gray-100 bg-gray-50 aspect-video">
+                        {item.type === 'image' ? (
+                          <img src={URL.createObjectURL(item.blob)} alt="" className="w-full h-full object-cover" />
+                        ) : (
+                          <video src={URL.createObjectURL(item.blob)} className="w-full h-full object-cover" />
+                        )}
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+                          <button
+                            onClick={() => moveItem(index, 'up')}
+                            disabled={index === 0}
+                            className="p-3 bg-white rounded-xl hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                          >
+                            <ArrowUp className="w-5 h-5" />
+                          </button>
+                          <button
+                            onClick={() => moveItem(index, 'down')}
+                            disabled={index === galleryMedia.length - 1}
+                            className="p-3 bg-white rounded-xl hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                          >
+                            <ArrowDown className="w-5 h-5" />
+                          </button>
+                          <button
+                            onClick={() => item.id && handleDelete(item.id)}
+                            className="p-3 bg-red-500 text-white rounded-xl hover:bg-red-600 transition-all"
+                          >
+                            <Trash2 className="w-5 h-5" />
+                          </button>
+                        </div>
+                        <div className="absolute top-4 left-4 px-3 py-1 bg-black/30 backdrop-blur-md rounded-full text-white text-xs font-bold">
+                          {index + 1}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-20 text-odysser-muted">
+                    <ImageIcon className="w-16 h-16 mx-auto mb-4 opacity-20" />
+                    <p>कोई मीडिया नहीं मिला। नया जोड़ने के लिए ऊपर दिए गए बटन का उपयोग करें।</p>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* 1. Photo Gallery Section */}
+      <section id="gallery" className="pt-32 pb-20 px-6 bg-white overflow-hidden">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16 relative">
+            <p className="font-handwriting text-3xl md:text-4xl text-odysser-primary mb-4 transform -rotate-2">फोटो गैलरी</p>
+            <h2 className="text-4xl md:text-6xl font-display font-bold tracking-tight">क्षेत्र की <span className="text-odysser-muted">झलकियाँ।</span></h2>
+
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileUpload}
+              multiple
+              accept="image/*,video/*"
+              className="hidden"
+            />
+          </div>
+
+          <div className="relative aspect-[16/9] md:aspect-[21/9] w-full max-w-6xl mx-auto rounded-[2rem] md:rounded-[3rem] overflow-hidden glass-card border-4 border-white shadow-2xl group">
+            {galleryMedia.length > 0 ? (
+              <>
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={currentSlide}
+                    initial={{ opacity: 0, x: 100 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -100 }}
+                    transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                    className="absolute inset-0"
+                  >
+                    {galleryMedia[currentSlide].type === 'image' ? (
+                      <img
+                        src={currentBlobUrl}
+                        alt="गैलरी"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <video
+                        src={currentBlobUrl}
+                        autoPlay
+                        muted
+                        loop
+                        playsInline
+                        className="w-full h-full object-cover"
+                      />
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+                  </motion.div>
+                </AnimatePresence>
+
+                <button
+                  onClick={prevSlide}
+                  className="absolute left-6 top-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white flex items-center justify-center hover:bg-white hover:text-black transition-all z-20 opacity-0 group-hover:opacity-100"
+                >
+                  <ChevronLeft className="w-6 h-6" />
+                </button>
+                <button
+                  onClick={nextSlide}
+                  className="absolute right-6 top-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white flex items-center justify-center hover:bg-white hover:text-black transition-all z-20 opacity-0 group-hover:opacity-100"
+                >
+                  <ChevronRight className="w-6 h-6" />
+                </button>
+
+                <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2 z-20">
+                  {galleryMedia.map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => {
+                        setIsAutoPlaying(false);
+                        setCurrentSlide(i);
+                      }}
+                      className={`h-1.5 rounded-full transition-all duration-500 ${
+                        currentSlide === i ? 'w-8 bg-white' : 'w-2 bg-white/40 hover:bg-white/60'
+                      }`}
+                    />
+                  ))}
+                </div>
+
+                <div className="absolute top-8 right-8 z-20 p-3 rounded-2xl bg-black/20 backdrop-blur-md border border-white/20 text-white">
+                  {galleryMedia[currentSlide].type === 'image' ? <ImageIcon className="w-5 h-5" /> : <Film className="w-5 h-5" />}
+                </div>
+              </>
+            ) : (
+              <div className="absolute inset-0 flex flex-col items-center justify-center text-odysser-muted bg-gray-50">
+                <ImageIcon className="w-16 h-16 mb-4 opacity-20" />
+                <p className="text-xl font-medium">कोई फोटो या वीडियो नहीं है।</p>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* 2. Hero Section */}
+      <section className="relative py-20 overflow-hidden px-6">
         <div className="max-w-7xl mx-auto text-center relative z-10">
 
           <motion.div
@@ -166,27 +446,27 @@ function App() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.4 }}
-            className="mt-12 flex flex-col items-center justify-center gap-4"
+            className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4"
           >
-            <a href="#pricing" className="btn-odysser px-8 py-4 text-lg w-full sm:w-auto group">
+            <button
+              onClick={() => setIsContactModalOpen(true)}
+              className="btn-odysser px-8 py-4 text-lg w-full sm:w-auto group"
+            >
               <span className="relative z-10 flex items-center gap-2">
-                स्वयंसेवक के रूप में जुड़ें
+                संपर्क करें
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </span>
               <span className="absolute inset-0 shimmer-bg pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity"></span>
-            </a>
-            <p className="text-sm text-odysser-muted font-medium flex items-center gap-3">
-              <span>समर्पित नेतृत्व</span>
-              <span className="w-1 h-1 rounded-full bg-gray-300"></span>
-              <span>ईमानदार प्रयास</span>
-              <span className="w-1 h-1 rounded-full bg-gray-300"></span>
-              <span>उज्जवल भविष्य</span>
-            </p>
+            </button>
+            <button
+              onClick={() => document.getElementById('volunteer')?.scrollIntoView({ behavior: 'smooth' })}
+              className="px-8 py-4 text-lg w-full sm:w-auto font-bold border-2 border-gray-200 rounded-2xl hover:bg-gray-50 transition-colors"
+            >
+              स्वयंसेवक बनें
+            </button>
           </motion.div>
-
         </div>
 
-        {/* Floating Abstract Elements */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden -z-10">
           <motion.div
             style={{ y: y1 }}
@@ -199,25 +479,14 @@ function App() {
         </div>
       </section>
 
-      {/* Floating Image Previews */}
-      <section className="relative -mt-10 pb-32 px-6 z-20">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16">
-          <motion.div
-            initial={{ opacity: 0, rotate: -10, y: 40 }}
-            animate={{ opacity: 1, rotate: -4, y: 0 }}
-            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1], delay: 0.5 }}
-            whileHover={{ y: -10, rotate: -2, transition: { duration: 0.4 } }}
-            className="w-full max-w-[280px] rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.1)] border-4 border-white bg-white origin-bottom"
-          >
-            <img src="/politician.webp" alt="कमलेश मिश्रा" className="w-full h-auto object-cover" />
-          </motion.div>
-
-          {/* Central Image */}
+      {/* Hero Image Container */}
+      <section className="relative pb-20 px-6 z-20">
+        <div className="max-w-4xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1], delay: 0.55 }}
-            className="w-full max-w-[320px] rounded-3xl overflow-hidden shadow-[0_30px_60px_rgba(0,0,0,0.15)] border-[6px] border-white bg-black relative group z-10"
+            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1], delay: 0.5 }}
+            className="w-full rounded-3xl overflow-hidden shadow-[0_30px_60px_rgba(0,0,0,0.15)] border-[8px] border-white bg-black relative group"
           >
              <img
                 src="/politician.webp"
@@ -225,36 +494,11 @@ function App() {
                 className="w-full h-auto object-cover"
              />
           </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, rotate: 10, y: 40 }}
-            animate={{ opacity: 1, rotate: 4, y: 0 }}
-            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1], delay: 0.6 }}
-            whileHover={{ y: -10, rotate: 2, transition: { duration: 0.4 } }}
-            className="w-full max-w-[280px] rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.1)] border-4 border-white bg-white origin-bottom"
-          >
-            <img src="/politician.webp" alt="कमलेश मिश्रा" className="w-full h-auto object-cover" />
-          </motion.div>
         </div>
       </section>
 
-      {/* Marquee Section */}
-      <section className="py-12 border-y border-gray-200 bg-white overflow-hidden flex flex-col">
-        <div className="flex w-fit animate-[marquee_30s_linear_infinite]">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="flex gap-16 px-8 min-w-max items-center">
-                {['जनसेवा ही संकल्प', 'क्षेत्रीय विकास', 'मज़बूत नेतृत्व', 'ईमानदार प्रयास', 'शिक्षा और स्वास्थ्य', 'सबका साथ, सबका विकास'].map((text, j) => (
-                  <span key={j} className="text-xl font-display font-medium text-odysser-muted whitespace-nowrap">
-                    {text}
-                  </span>
-                ))}
-              </div>
-            ))}
-        </div>
-      </section>
-
-      {/* About Section */}
-      <section id="features" className="py-32 px-6 relative">
+      {/* 3. About Section (परिचय) */}
+      <section id="about" className="py-32 px-6 relative">
         <div className="max-w-5xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -299,386 +543,15 @@ function App() {
         </div>
       </section>
 
-      {/* Honest Question / Regional Challenges */}
-      <section className="py-32 px-6 bg-odysser-surfaceLight relative overflow-hidden">
-        <div className="max-w-4xl mx-auto">
-          <div className="mb-16">
-            <p className="font-handwriting text-3xl md:text-4xl text-odysser-primary mb-4">क्षेत्रीय चुनौतियाँ</p>
-            <h2 className="text-4xl md:text-5xl font-display font-bold tracking-tight mb-6">
-              क्या आप अपने क्षेत्र में<br/>बदलाव के लिए तैयार हैं?
-            </h2>
-            <p className="text-xl text-odysser-muted text-balance">
-              हमारा लक्ष्य है क्षेत्र की समस्याओं का समाधान करना और हर नागरिक तक विकास की पहुँच सुनिश्चित करना।
-            </p>
-          </div>
-
-          <div className="space-y-4">
-            {[
-              "शिक्षा और स्वास्थ्य सेवाओं की सुलभता में सुधार",
-              "ग्रामीण बुनियादी ढांचे का आधुनिकरण और सुदृढ़ीकरण",
-              "युवाओं के लिए स्थानीय रोज़गार और कौशल विकास के अवसर",
-              "किसानों के लिए न्यायोचित दाम और उन्नत कृषि सुविधाएं"
-            ].map((point, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: i * 0.1 }}
-                className="flex items-start gap-4 p-5 md:p-6 bg-white rounded-2xl shadow-sm border border-gray-100"
-              >
-                <div className="min-w-[32px] h-8 rounded-full bg-red-50 text-red-500 flex items-center justify-center font-bold text-lg">×</div>
-                <p className="text-lg md:text-xl font-medium text-gray-800 leading-snug">{point}</p>
-              </motion.div>
-            ))}
-          </div>
-
-          <div className="mt-16 text-center">
-            <p className="font-handwriting text-3xl md:text-4xl text-black transform rotate-2">
-              यह केवल वादों की बात नहीं है। यह सही प्रयासों और मज़बूत इरादों की बात है।
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Our Priorities */}
-      <section id="process" className="py-32 px-6 relative border-b border-gray-200">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-24">
-            <p className="font-handwriting text-3xl md:text-4xl text-odysser-primary mb-4">हमारी प्राथमिकताएं</p>
-            <h2 className="text-4xl md:text-6xl font-display font-bold tracking-tight">
-              समृद्ध क्षेत्र। सशक्त नागरिक।<br/>
-              <span className="text-odysser-muted">हर कदम आपके साथ।</span>
-            </h2>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-16 md:gap-24 mb-24 items-center">
-            <div className="order-2 md:order-1">
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.8 }}
-                className="bg-gray-100 rounded-3xl p-4 md:p-8 aspect-[4/3] flex items-center justify-center border border-gray-200"
-              >
-                <div className="w-full h-full bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col overflow-hidden">
-                  <div className="h-10 bg-gray-50 border-b border-gray-200 flex items-center px-4 gap-2">
-                    <div className="w-3 h-3 rounded-full bg-red-400"></div>
-                    <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
-                    <div className="w-3 h-3 rounded-full bg-green-400"></div>
-                    <div className="ml-4 h-4 w-32 bg-gray-200 rounded"></div>
-                  </div>
-                  <div className="p-4 flex-1 flex flex-col gap-3">
-                    <div className="h-6 w-full bg-blue-50 rounded"></div>
-                    <div className="flex gap-2"><div className="h-8 w-1/4 bg-gray-100 rounded"></div><div className="h-8 flex-1 bg-gray-100 rounded"></div><div className="h-8 w-1/6 bg-green-100 rounded"></div></div>
-                    <div className="flex gap-2"><div className="h-8 w-1/4 bg-gray-100 rounded"></div><div className="h-8 flex-1 bg-gray-100 rounded"></div><div className="h-8 w-1/6 bg-yellow-100 rounded"></div></div>
-                    <div className="flex gap-2"><div className="h-8 w-1/4 bg-gray-100 rounded"></div><div className="h-8 flex-1 bg-gray-100 rounded"></div><div className="h-8 w-1/6 bg-green-100 rounded"></div></div>
-                  </div>
-                </div>
-              </motion.div>
-            </div>
-            <div className="order-1 md:order-2 space-y-12">
-              <div>
-                <h3 className="text-3xl font-bold mb-4 font-display">जनसंपर्क और सेवा</h3>
-                <p className="text-xl font-handwriting text-odysser-primary mb-4 transform -rotate-2">हर व्यक्ति की बात। एक आवाज़।</p>
-                <p className="text-lg text-odysser-muted mb-6">हमारा उद्देश्य है कि क्षेत्र के हर व्यक्ति की समस्या सुनी जाए और उसका त्वरित समाधान निकाला जाए।</p>
-                <ul className="space-y-3 font-bold text-gray-800 text-lg">
-                  <li className="flex items-center gap-3"><CheckCircle2 className="w-5 h-5 text-odysser-primary" /> नियमित जन चौपाल और सीधा संवाद</li>
-                  <li className="flex items-center gap-3"><CheckCircle2 className="w-5 h-5 text-odysser-primary" /> डिजिटल माध्यमों से त्वरित जनसुनवाई</li>
-                  <li className="flex items-center gap-3"><CheckCircle2 className="w-5 h-5 text-odysser-primary" /> क्षेत्र की हर समस्या का समाधान सुनिश्चित करना</li>
-                  <li className="flex items-center gap-3"><CheckCircle2 className="w-5 h-5 text-odysser-primary" /> सामुदायिक सशक्तिकरण और समावेशी विकास</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-16 md:gap-24 mb-24 items-center">
-            <div className="space-y-12">
-              <div>
-                <h3 className="text-3xl font-bold mb-4 font-display">विकास कार्य डैशबोर्ड</h3>
-                <p className="text-xl font-handwriting text-odysser-primary mb-4 transform -rotate-2">प्रगति की निगरानी। हर पल।</p>
-                <p className="text-lg text-odysser-muted mb-6">क्षेत्र में चल रहे विकास कार्यों, स्वीकृत बजट और पूर्ण योजनाओं का पूरा विवरण। पारदर्शिता और जवाबदेही के साथ।</p>
-                <ul className="space-y-3 font-bold text-gray-800 text-lg">
-                  <li className="flex items-center gap-3"><CheckCircle2 className="w-5 h-5 text-odysser-primary" /> कुल स्वीकृत विकास योजनाएं</li>
-                  <li className="flex items-center gap-3"><CheckCircle2 className="w-5 h-5 text-odysser-primary" /> पूर्ण बनाम जारी कार्यों का विवरण</li>
-                  <li className="flex items-center gap-3"><CheckCircle2 className="w-5 h-5 text-odysser-primary" /> बजट आवंटन में पारदर्शिता</li>
-                  <li className="flex items-center gap-3"><CheckCircle2 className="w-5 h-5 text-odysser-primary" /> मासिक प्रगति रिपोर्ट</li>
-                </ul>
-              </div>
-            </div>
-            <div>
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.8 }}
-                className="bg-gray-100 rounded-3xl p-4 md:p-8 aspect-[4/3] flex items-center justify-center border border-gray-200"
-              >
-                 <div className="w-full h-full bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col overflow-hidden p-6 gap-6">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="bg-green-50 rounded-lg p-4 border border-green-100"><div className="text-sm text-green-700 font-medium mb-1">कुल स्वीकृत राशि</div><div className="text-2xl font-bold">₹12.4 करोड़</div></div>
-                      <div className="bg-orange-50 rounded-lg p-4 border border-orange-100"><div className="text-sm text-orange-700 font-medium mb-1">जारी कार्य</div><div className="text-2xl font-bold">₹3.2 करोड़</div></div>
-                    </div>
-                    <div className="flex-1 bg-gray-50 rounded-lg border border-gray-100 p-4">
-                      <div className="h-full w-full flex items-end gap-2">
-                        {[40, 70, 45, 90, 65, 80].map((h, i) => (
-                          <div key={i} className="flex-1 bg-odysser-primary rounded-t-sm" style={{ height: `${h}%` }}></div>
-                        ))}
-                      </div>
-                    </div>
-                 </div>
-              </motion.div>
-            </div>
-          </div>
-
-           <div className="grid md:grid-cols-2 gap-16 md:gap-24 items-center">
-            <div className="order-2 md:order-1">
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.8 }}
-                className="bg-gray-100 rounded-3xl p-4 md:p-8 aspect-[4/3] flex items-center justify-center border border-gray-200"
-              >
-                 <div className="w-full h-full bg-white rounded-xl shadow-sm border border-gray-200 flex overflow-hidden p-4 gap-4">
-                   {['प्रस्ताव', 'योजना', 'समीक्षा', 'पूर्ण'].map((col, i) => (
-                      <div key={i} className="flex-1 bg-gray-50 rounded border border-gray-100 p-2 flex flex-col gap-2">
-                        <div className="text-xs font-bold text-gray-500 uppercase">{col}</div>
-                        <div className="bg-white p-2 rounded shadow-sm border border-gray-100 h-16"></div>
-                        {i % 2 === 0 && <div className="bg-white p-2 rounded shadow-sm border border-gray-100 h-20"></div>}
-                      </div>
-                   ))}
-                 </div>
-              </motion.div>
-            </div>
-            <div className="order-1 md:order-2 space-y-12">
-              <div>
-                <h3 className="text-3xl font-bold mb-4 font-display">कार्य प्रगति पाइपलाइन</h3>
-                <p className="text-xl font-handwriting text-odysser-primary mb-4 transform -rotate-2">प्रस्ताव से पूर्णता तक।</p>
-                <p className="text-lg text-odysser-muted mb-6">हर कार्य को उसके विभिन्न चरणों में ट्रैक करें — प्रस्ताव से लेकर योजना, समीक्षा और अंत में सफलतापूर्वक पूर्ण होने तक।</p>
-                <ul className="space-y-3 font-bold text-gray-800 text-lg">
-                  <li className="flex items-center gap-3"><CheckCircle2 className="w-5 h-5 text-odysser-primary" /> 4-चरणीय कार्य ट्रैकिंग</li>
-                  <li className="flex items-center gap-3"><CheckCircle2 className="w-5 h-5 text-odysser-primary" /> क्षेत्रवार कार्यों का वर्गीकरण</li>
-                  <li className="flex items-center gap-3"><CheckCircle2 className="w-5 h-5 text-odysser-primary" /> समय सीमा की स्पष्टता</li>
-                  <li className="flex items-center gap-3"><CheckCircle2 className="w-5 h-5 text-odysser-primary" /> चरणबद्ध प्रगति की निगरानी</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </section>
-
-      {/* Photo Gallery Section */}
-      <section id="gallery" className="py-32 px-6 bg-white overflow-hidden">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16 relative">
-            <p className="font-handwriting text-3xl md:text-4xl text-odysser-primary mb-4 transform -rotate-2">फोटो गैलरी</p>
-            <h2 className="text-4xl md:text-6xl font-display font-bold tracking-tight">क्षेत्र की <span className="text-odysser-muted">झलकियाँ।</span></h2>
-
-            {/* Upload Button */}
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              className="mt-8 mx-auto h-16 w-16 rounded-full bg-odysser-primary text-white flex items-center justify-center shadow-lg hover:scale-110 transition-transform cursor-pointer group relative overflow-hidden"
-            >
-              <Plus className="w-8 h-8 relative z-10" />
-              <span className="absolute inset-0 shimmer-bg opacity-0 group-hover:opacity-100 transition-opacity"></span>
-            </button>
-            <input
-              type="file"
-              ref={fileInputRef}
-              onChange={handleFileUpload}
-              multiple
-              accept="image/*,video/*"
-              className="hidden"
-            />
-          </div>
-
-          <div className="relative aspect-[16/9] md:aspect-[21/9] w-full max-w-6xl mx-auto rounded-[2rem] md:rounded-[3rem] overflow-hidden glass-card border-4 border-white shadow-2xl group">
-            {galleryMedia.length > 0 ? (
-              <>
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={currentSlide}
-                    initial={{ opacity: 0, x: 100 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -100 }}
-                    transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                    className="absolute inset-0"
-                  >
-                    {galleryMedia[currentSlide].type === 'image' ? (
-                      <img
-                        src={currentBlobUrl}
-                        alt="गैलरी"
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <video
-                        src={currentBlobUrl}
-                        autoPlay
-                        muted
-                        loop
-                        playsInline
-                        className="w-full h-full object-cover"
-                      />
-                    )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
-                  </motion.div>
-                </AnimatePresence>
-
-                {/* Navigation Buttons */}
-                <button
-                  onClick={prevSlide}
-                  className="absolute left-6 top-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white flex items-center justify-center hover:bg-white hover:text-black transition-all z-20 opacity-0 group-hover:opacity-100"
-                >
-                  <ChevronLeft className="w-6 h-6" />
-                </button>
-                <button
-                  onClick={nextSlide}
-                  className="absolute right-6 top-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white flex items-center justify-center hover:bg-white hover:text-black transition-all z-20 opacity-0 group-hover:opacity-100"
-                >
-                  <ChevronRight className="w-6 h-6" />
-                </button>
-
-                {/* Indicators */}
-                <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2 z-20">
-                  {galleryMedia.map((_, i) => (
-                    <button
-                      key={i}
-                      onClick={() => {
-                        setIsAutoPlaying(false);
-                        setCurrentSlide(i);
-                      }}
-                      className={`h-1.5 rounded-full transition-all duration-500 ${
-                        currentSlide === i ? 'w-8 bg-white' : 'w-2 bg-white/40 hover:bg-white/60'
-                      }`}
-                    />
-                  ))}
-                </div>
-
-                {/* Media Type Icon */}
-                <div className="absolute top-8 right-8 z-20 p-3 rounded-2xl bg-black/20 backdrop-blur-md border border-white/20 text-white">
-                  {galleryMedia[currentSlide].type === 'image' ? <ImageIcon className="w-5 h-5" /> : <Film className="w-5 h-5" />}
-                </div>
-              </>
-            ) : (
-              <div className="absolute inset-0 flex flex-col items-center justify-center text-odysser-muted bg-gray-50">
-                <ImageIcon className="w-16 h-16 mb-4 opacity-20" />
-                <p className="text-xl font-medium">कोई फोटो या वीडियो नहीं है।</p>
-                <p className="text-sm">ऊपर दिए गए बटन से मीडिया जोड़ें।</p>
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
-
-      {/* Janmat (Testimonials) */}
-      <section id="testimonials" className="py-32 px-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-20">
-            <p className="font-handwriting text-3xl md:text-4xl text-odysser-primary mb-4">जनता की आवाज़</p>
-            <h2 className="text-4xl md:text-5xl font-display font-bold tracking-tight">हमारे कार्यों की झलक।</h2>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[
-              { text: "कमलेश भैया के नेतृत्व में क्षेत्र में जो विकास कार्य हुए हैं, उन्होंने हमारे गांव की तस्वीर बदल दी है।", author: "रामेश्वर साहू", role: "किसान", rev: "मुंगेली" },
-              { text: "शिक्षा और स्वास्थ्य के क्षेत्र में उनके प्रयास सराहनीय हैं। वे हमेशा युवाओं की बात सुनते हैं।", author: "अमित कुमार", role: "छात्र", rev: "मुंगेली" },
-              { text: "सड़कों का जाल बिछाने से लेकर बिजली की समस्या के समाधान तक, उनका हर कार्य प्रमाण है उनके समर्पण का।", author: "सुनीता बाई", role: "गृहिणी", rev: "पथरिया" },
-              { text: "एक ऐसा नेता जो हमेशा सुलभ है और हर छोटे-बड़े कार्यकर्ता की बात को महत्व देता है।", author: "राजेश गुप्ता", role: "व्यापारी", rev: "मुंगेली" },
-              { text: "उनकी कार्यशैली में पारदर्शिता और ईमानदारी साफ़ झलकती है। वे क्षेत्र के लिए एक वरदान हैं।", author: "विमल पटेल", role: "समाजसेवी", rev: "लोरमी" },
-              { text: "संगठन निर्माण और जनसेवा के प्रति कमलेश जी का अटूट विश्वास हमें गर्व महसूस कराता है।", author: "डॉ. सीमा वर्मा", role: "शिक्षक", rev: "मुंगेली" },
-            ].map((t, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: i * 0.1 }}
-                className="bg-white p-8 rounded-3xl shadow-sm border border-gray-200 flex flex-col justify-between"
-              >
-                <p className="text-lg text-gray-800 font-medium mb-8 leading-relaxed">"{t.text}"</p>
-                <div className="flex items-center justify-between border-t border-gray-100 pt-4 mt-auto">
-                  <div>
-                    <div className="font-bold text-black">{t.author}</div>
-                    <div className="text-sm text-odysser-muted">{t.role}</div>
-                  </div>
-                  <div className="text-sm font-bold bg-gray-50 border border-gray-200 px-3 py-1 rounded-full text-odysser-muted">
-                    {t.rev}
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Volunteer Form */}
-      <section id="pricing" className="py-32 px-6 bg-[#f0ece7] border-y border-gray-200">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-16">
-             <p className="font-handwriting text-3xl md:text-4xl text-odysser-primary mb-4">भागीदारी</p>
-            <h2 className="text-4xl md:text-6xl font-display font-bold tracking-tight">स्वयंसेवक बनें</h2>
-          </div>
-
-          <div className="glass-card overflow-hidden border-2 border-white shadow-[0_30px_60px_rgba(0,0,0,0.08)]">
-            <div className="p-8 md:p-12">
-              <form className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold text-odysser-muted uppercase tracking-wider">नाम</label>
-                    <input type="text" placeholder="आपका नाम लिखें" className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-odysser-primary/20 transition-all" />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold text-odysser-muted uppercase tracking-wider">मोबाइल नंबर</label>
-                    <input type="tel" placeholder="अपना मोबाइल नंबर लिखें" className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-odysser-primary/20 transition-all" />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                    <label className="text-sm font-bold text-odysser-muted uppercase tracking-wider">पता</label>
-                    <input type="text" placeholder="आपका पता लिखें" className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-odysser-primary/20 transition-all" />
-                </div>
-                <div className="space-y-2">
-                    <label className="text-sm font-bold text-odysser-muted uppercase tracking-wider">विधानसभा क्षेत्र</label>
-                    <input type="text" placeholder="अपने विधानसभा क्षेत्र का नाम लिखें" className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-odysser-primary/20 transition-all" />
-                </div>
-                <div className="space-y-2">
-                    <label className="text-sm font-bold text-odysser-muted uppercase tracking-wider">संदेश</label>
-                    <textarea rows={4} placeholder="अपना संदेश लिखें" className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-odysser-primary/20 transition-all"></textarea>
-                </div>
-
-                <div className="pt-4">
-                  <button
-                    type="submit"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      console.log('Volunteer registration submitted');
-                      alert('पंजीकरण के लिए धन्यवाद! हम जल्द ही आपसे संपर्क करेंगे।');
-                    }}
-                    className="btn-odysser w-full px-12 py-5 text-xl group relative"
-                  >
-                    <span className="relative z-10 flex items-center justify-center gap-2">
-                      स्वयंसेवक के रूप में जुड़ें
-                      <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                    </span>
-                    <span className="absolute inset-0 shimmer-bg pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity"></span>
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Contact Section */}
-      <section className="py-32 px-6 bg-odysser-surface text-white text-center relative overflow-hidden">
+      {/* 4. Contact Section (संपर्क करें) */}
+      <section id="contact" className="py-32 px-6 bg-odysser-surface text-white text-center relative overflow-hidden">
         <div className="absolute inset-0 z-0 opacity-20" style={{ background: 'radial-gradient(circle at center, var(--color-odysser-primary) 0%, transparent 70%)' }}></div>
         <div className="max-w-3xl mx-auto relative z-10">
           <p className="font-handwriting text-3xl md:text-4xl text-blue-400 mb-4">संपर्क करें</p>
           <h2 className="text-5xl md:text-7xl font-display font-bold tracking-tight mb-8">
             क्षेत्र के विकास के लिए<br/>हमसे जुड़ें।
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="p-8 bg-white/5 rounded-[2rem] backdrop-blur-md border border-white/10 flex flex-col items-center gap-6">
                <div className="w-16 h-16 rounded-2xl bg-blue-500/20 flex items-center justify-center text-blue-400">
                  <Phone className="w-8 h-8" />
@@ -715,40 +588,110 @@ function App() {
                </div>
             </div>
           </div>
-          <div className="flex flex-col items-center gap-4">
-            <a href="tel:9406122222" className="btn-odysser bg-white text-black px-10 py-5 text-lg group hover:bg-gray-50 w-full sm:w-auto shadow-none border-0 inline-flex items-center justify-center">
-              <span className="relative z-10 font-bold">अभी कॉल करें</span>
-            </a>
-            <div className="text-sm text-gray-400 font-bold flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
-              <span>निरंतर उपलब्ध</span>
-              <span>•</span>
-              <span>जनसेवा प्रथम</span>
-              <span>•</span>
-              <span>सकारात्मक बदलाव</span>
+        </div>
+      </section>
+
+      {/* 5. Volunteer Form (स्वयंसेवक बनें) */}
+      <section id="volunteer" className="py-32 px-6 bg-[#f0ece7] border-y border-gray-200">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-16">
+             <p className="font-handwriting text-3xl md:text-4xl text-odysser-primary mb-4">स्वयंसेवक बनें</p>
+            <h2 className="text-4xl md:text-6xl font-display font-bold tracking-tight">विकास की यात्रा में जुड़ें</h2>
+          </div>
+
+          <div className="glass-card overflow-hidden border-2 border-white shadow-[0_30px_60px_rgba(0,0,0,0.08)]">
+            <div className="p-8 md:p-12">
+              <form onSubmit={handleFormSubmit} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-odysser-muted uppercase tracking-wider">नाम</label>
+                    <input
+                      type="text"
+                      value={formName}
+                      onChange={(e) => setFormName(e.target.value)}
+                      placeholder="आपका नाम लिखें"
+                      className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-odysser-primary/20 transition-all"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-odysser-muted uppercase tracking-wider">मोबाइल नंबर</label>
+                    <input
+                      type="tel"
+                      value={formPhone}
+                      onChange={(e) => setFormPhone(e.target.value)}
+                      placeholder="अपना मोबाइल नंबर लिखें"
+                      className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-odysser-primary/20 transition-all"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                    <label className="text-sm font-bold text-odysser-muted uppercase tracking-wider">पता</label>
+                    <input
+                      type="text"
+                      value={formAddress}
+                      onChange={(e) => setFormAddress(e.target.value)}
+                      placeholder="आपका पता लिखें"
+                      className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-odysser-primary/20 transition-all"
+                    />
+                </div>
+                <div className="space-y-2">
+                    <label className="text-sm font-bold text-odysser-muted uppercase tracking-wider">विधानसभा क्षेत्र</label>
+                    <input
+                      type="text"
+                      value={formConstituency}
+                      onChange={(e) => setFormConstituency(e.target.value)}
+                      placeholder="अपने विधानसभा क्षेत्र का नाम लिखें"
+                      className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-odysser-primary/20 transition-all"
+                    />
+                </div>
+                <div className="space-y-2">
+                    <label className="text-sm font-bold text-odysser-muted uppercase tracking-wider">संदेश</label>
+                    <textarea
+                      rows={4}
+                      value={formMessage}
+                      onChange={(e) => setFormMessage(e.target.value)}
+                      placeholder="अपना संदेश लिखें"
+                      className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-odysser-primary/20 transition-all"
+                    ></textarea>
+                </div>
+
+                <div className="pt-4">
+                  <button
+                    type="submit"
+                    className="btn-odysser w-full px-12 py-5 text-xl group relative"
+                  >
+                    <span className="relative z-10 flex items-center justify-center gap-2">
+                      स्वयंसेवक के रूप में जुड़ें
+                      <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                    </span>
+                    <span className="absolute inset-0 shimmer-bg pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity"></span>
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Footer */}
+      {/* 6. Footer */}
       <footer className="py-12 px-6 border-t border-gray-200">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-xl bg-odysser-surface flex items-center justify-center">
-              <Hand className="text-white w-6 h-6" />
+              <img src="/congress-logo.png" alt="Congress Logo" className="w-8 h-8 object-contain brightness-0 invert" />
             </div>
             <span className="font-display font-black text-2xl tracking-tight">कमलेश मिश्रा</span>
           </div>
 
           <div className="flex items-center gap-6">
-            <a href="#features" className="text-sm font-bold text-odysser-muted hover:text-black transition-colors">परिचय</a>
             <a href="#gallery" className="text-sm font-bold text-odysser-muted hover:text-black transition-colors">फोटो गैलरी</a>
-            <a href="#process" className="text-sm font-bold text-odysser-muted hover:text-black transition-colors">प्राथमिकताएं</a>
-            <a href="#pricing" className="text-sm font-bold text-odysser-muted hover:text-black transition-colors">स्वयंसेवक बनें</a>
-            <a href="#testimonials" className="text-sm font-bold text-odysser-muted hover:text-black transition-colors">जनमत</a>
+            <a href="#about" className="text-sm font-bold text-odysser-muted hover:text-black transition-colors">परिचय</a>
+            <a href="#contact" onClick={(e) => { e.preventDefault(); setIsContactModalOpen(true); }} className="text-sm font-bold text-odysser-muted hover:text-black transition-colors">संपर्क करें</a>
+            <a href="#volunteer" className="text-sm font-bold text-odysser-muted hover:text-black transition-colors">स्वयंसेवक बनें</a>
           </div>
 
-          <div className="flex flex-col items-center md:items-end gap-2">
+          <div className="flex flex-col items-center md:items-center gap-2">
+            <div className="text-sm font-bold text-odysser-muted">संपर्क: 9406122222, 9644950000</div>
             <div className="text-sm text-odysser-muted font-bold">
               © {new Date().getFullYear()} कमलेश मिश्रा। सर्वाधिकार सुरक्षित।
             </div>
