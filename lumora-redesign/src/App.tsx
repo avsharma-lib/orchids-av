@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
-import { CheckCircle2, ArrowRight, Plus, ChevronLeft, ChevronRight, Image as ImageIcon, Film } from 'lucide-react';
+import { CheckCircle2, ArrowRight, Plus, ChevronLeft, ChevronRight, Image as ImageIcon, Film, Hand, MessageCircle, Phone } from 'lucide-react';
 import { saveMedia, getAllMedia, type MediaItem } from './utils/db';
 
 function App() {
@@ -102,10 +102,10 @@ function App() {
       >
         <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="h-8 w-8 rounded bg-gradient-to-br from-odysser-primary to-blue-400 flex items-center justify-center">
-              <span className="text-white font-bold text-sm tracking-tighter">जन</span>
+            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-[#0099ff] to-blue-600 flex items-center justify-center shadow-lg shadow-blue-200">
+              <Hand className="text-white w-6 h-6" />
             </div>
-            <span className="font-display font-bold text-lg tracking-tight">जनसेवक</span>
+            <span className="font-display font-black text-2xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-black to-gray-600">कमलेश मिश्रा</span>
           </div>
 
           <div className="hidden md:flex items-center gap-8 text-[15px] font-medium text-odysser-muted">
@@ -150,9 +150,7 @@ function App() {
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
             className="text-5xl md:text-7xl lg:text-8xl font-display font-bold tracking-[-0.03em] leading-[1.05] max-w-[1000px] mx-auto text-balance"
           >
-            जनता की सेवा,
-            <br />
-            क्षेत्र का <span className="text-odysser-primary">विकास।</span>
+            कमलेश <span className="text-odysser-primary">मिश्रा</span>
           </motion.h1>
 
           <motion.p
@@ -211,7 +209,7 @@ function App() {
             whileHover={{ y: -10, rotate: -2, transition: { duration: 0.4 } }}
             className="w-full max-w-[280px] rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.1)] border-4 border-white bg-white origin-bottom"
           >
-            <img src="/politician.webp" alt="जनसेवक" className="w-full h-auto object-cover" />
+            <img src="/politician.webp" alt="कमलेश मिश्रा" className="w-full h-auto object-cover" />
           </motion.div>
 
           {/* Central Image */}
@@ -223,7 +221,7 @@ function App() {
           >
              <img
                 src="/politician.webp"
-                alt="जनसेवक"
+                alt="कमलेश मिश्रा"
                 className="w-full h-auto object-cover"
              />
           </motion.div>
@@ -235,7 +233,7 @@ function App() {
             whileHover={{ y: -10, rotate: 2, transition: { duration: 0.4 } }}
             className="w-full max-w-[280px] rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.1)] border-4 border-white bg-white origin-bottom"
           >
-            <img src="/politician.webp" alt="जनसेवक" className="w-full h-auto object-cover" />
+            <img src="/politician.webp" alt="कमलेश मिश्रा" className="w-full h-auto object-cover" />
           </motion.div>
         </div>
       </section>
@@ -270,9 +268,12 @@ function App() {
               समर्पण और सेवा का<br/>
               <span className="text-odysser-muted">एक नया अध्याय।</span>
             </h2>
-            <p className="mt-6 text-xl text-odysser-muted max-w-2xl mx-auto">
-              छत्तीसगढ़ प्रदेश कांग्रेस कमेटी के सचिव और मुंगेली विधानसभा के पूर्व प्रभारी। जनसेवा, संगठन निर्माण और क्षेत्रीय विकास के लिए सदैव तत्पर।
-            </p>
+            <div className="mt-6 text-xl text-odysser-muted max-w-3xl mx-auto space-y-4">
+              <p>छत्तीसगढ़ प्रदेश कांग्रेस कमेटी के सचिव।</p>
+              <p>मुंगेली विधानसभा के प्रभारी रह चुके हैं।</p>
+              <p>पूर्व प्रदेश सचिव, छत्तीसगढ़ युवा कांग्रेस।</p>
+              <p>जनसेवा, संगठन निर्माण और क्षेत्रीय विकास के लिए निरंतर कार्यरत।</p>
+            </div>
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
@@ -280,7 +281,7 @@ function App() {
               { stat: 'सचिव', label: 'छत्तीसगढ़ प्रदेश कांग्रेस कमेटी' },
               { stat: 'मुंगेली', label: 'पूर्व विधानसभा प्रभारी' },
               { stat: 'पूर्व प्रदेश सचिव', label: 'छत्तीसगढ़ युवा कांग्रेस' },
-              { stat: 'क्षेत्रीय विकास', label: 'निरंतर कार्यरत' }
+              { stat: 'जनसेवा', label: 'निरंतर कार्यरत' }
             ].map((item, i) => (
               <motion.div
                 key={i}
@@ -313,10 +314,10 @@ function App() {
 
           <div className="space-y-4">
             {[
-              "बेहतर स्वास्थ्य सुविधाओं का अभाव",
-              "युवाओं के लिए रोज़गार के सीमित अवसर",
-              "किसानों की समस्याओं का उचित समाधान",
-              "बुनियादी ढांचे और सड़कों का विकास"
+              "शिक्षा और स्वास्थ्य सेवाओं की सुलभता में सुधार",
+              "ग्रामीण बुनियादी ढांचे का आधुनिकरण और सुदृढ़ीकरण",
+              "युवाओं के लिए स्थानीय रोज़गार और कौशल विकास के अवसर",
+              "किसानों के लिए न्यायोचित दाम और उन्नत कृषि सुविधाएं"
             ].map((point, i) => (
               <motion.div
                 key={i}
@@ -382,10 +383,10 @@ function App() {
                 <p className="text-xl font-handwriting text-odysser-primary mb-4 transform -rotate-2">हर व्यक्ति की बात। एक आवाज़।</p>
                 <p className="text-lg text-odysser-muted mb-6">हमारा उद्देश्य है कि क्षेत्र के हर व्यक्ति की समस्या सुनी जाए और उसका त्वरित समाधान निकाला जाए।</p>
                 <ul className="space-y-3 font-bold text-gray-800 text-lg">
-                  <li className="flex items-center gap-3"><CheckCircle2 className="w-5 h-5 text-odysser-primary" /> नियमित जन चौपाल का आयोजन</li>
-                  <li className="flex items-center gap-3"><CheckCircle2 className="w-5 h-5 text-odysser-primary" /> त्वरित शिकायत निवारण तंत्र</li>
-                  <li className="flex items-center gap-3"><CheckCircle2 className="w-5 h-5 text-odysser-primary" /> निरंतर जनसंपर्क और संवाद</li>
-                  <li className="flex items-center gap-3"><CheckCircle2 className="w-5 h-5 text-odysser-primary" /> सामुदायिक विकास के प्रति प्रतिबद्धता</li>
+                  <li className="flex items-center gap-3"><CheckCircle2 className="w-5 h-5 text-odysser-primary" /> नियमित जन चौपाल और सीधा संवाद</li>
+                  <li className="flex items-center gap-3"><CheckCircle2 className="w-5 h-5 text-odysser-primary" /> डिजिटल माध्यमों से त्वरित जनसुनवाई</li>
+                  <li className="flex items-center gap-3"><CheckCircle2 className="w-5 h-5 text-odysser-primary" /> क्षेत्र की हर समस्या का समाधान सुनिश्चित करना</li>
+                  <li className="flex items-center gap-3"><CheckCircle2 className="w-5 h-5 text-odysser-primary" /> सामुदायिक सशक्तिकरण और समावेशी विकास</li>
                 </ul>
               </div>
             </div>
@@ -415,8 +416,8 @@ function App() {
               >
                  <div className="w-full h-full bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col overflow-hidden p-6 gap-6">
                     <div className="grid grid-cols-2 gap-4">
-                      <div className="bg-green-50 rounded-lg p-4 border border-green-100"><div className="text-sm text-green-700 font-medium mb-1">कुल स्वीकृत राशि</div><div className="text-2xl font-bold">₹12.4 Cr</div></div>
-                      <div className="bg-orange-50 rounded-lg p-4 border border-orange-100"><div className="text-sm text-orange-700 font-medium mb-1">जारी कार्य</div><div className="text-2xl font-bold">₹3.2 Cr</div></div>
+                      <div className="bg-green-50 rounded-lg p-4 border border-green-100"><div className="text-sm text-green-700 font-medium mb-1">कुल स्वीकृत राशि</div><div className="text-2xl font-bold">₹12.4 करोड़</div></div>
+                      <div className="bg-orange-50 rounded-lg p-4 border border-orange-100"><div className="text-sm text-orange-700 font-medium mb-1">जारी कार्य</div><div className="text-2xl font-bold">₹3.2 करोड़</div></div>
                     </div>
                     <div className="flex-1 bg-gray-50 rounded-lg border border-gray-100 p-4">
                       <div className="h-full w-full flex items-end gap-2">
@@ -508,7 +509,7 @@ function App() {
                     {galleryMedia[currentSlide].type === 'image' ? (
                       <img
                         src={currentBlobUrl}
-                        alt="Gallery"
+                        alt="गैलरी"
                         className="w-full h-full object-cover"
                       />
                     ) : (
@@ -581,12 +582,12 @@ function App() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
-              { text: "क्षेत्र में सड़कों और बिजली की समस्या का जो समाधान हुआ है, वह काबिले तारीफ है।", author: "रामेश्वर साहू", role: "किसान", rev: "मुंगेली" },
-              { text: "युवाओं के कौशल विकास के लिए किए गए प्रयास हमारे भविष्य के लिए बहुत महत्वपूर्ण हैं।", author: "अमित कुमार", role: "छात्र", rev: "बिलासपुर" },
-              { text: "हर सुख-दुख में हमारे साथ खड़े रहने वाले नेता की हमें ज़रूरत थी, जो आज हमारे पास है।", author: "सुनीता बाई", role: "गृहिणी", rev: "पथरिया" },
-              { text: "संगठन निर्माण और जनसेवा के प्रति इनका समर्पण प्रेरणादायक है।", author: "राजेश गुप्ता", role: "व्यापारी", rev: "मुंगेली" },
-              { text: "विकास कार्यों में पारदर्शिता और ईमानदारी ही इनकी असली पहचान है।", author: "विमल पटेल", role: "समाजसेवी", rev: "लोरमी" },
-              { text: "शिक्षा के क्षेत्र में जो सुधार हुए हैं, उससे हमारे बच्चों का भविष्य सुरक्षित हो रहा है।", author: "डॉ. सीमा वर्मा", role: "शिक्षक", rev: "मुंगेली" },
+              { text: "कमलेश भैया के नेतृत्व में क्षेत्र में जो विकास कार्य हुए हैं, उन्होंने हमारे गांव की तस्वीर बदल दी है।", author: "रामेश्वर साहू", role: "किसान", rev: "मुंगेली" },
+              { text: "शिक्षा और स्वास्थ्य के क्षेत्र में उनके प्रयास सराहनीय हैं। वे हमेशा युवाओं की बात सुनते हैं।", author: "अमित कुमार", role: "छात्र", rev: "मुंगेली" },
+              { text: "सड़कों का जाल बिछाने से लेकर बिजली की समस्या के समाधान तक, उनका हर कार्य प्रमाण है उनके समर्पण का।", author: "सुनीता बाई", role: "गृहिणी", rev: "पथरिया" },
+              { text: "एक ऐसा नेता जो हमेशा सुलभ है और हर छोटे-बड़े कार्यकर्ता की बात को महत्व देता है।", author: "राजेश गुप्ता", role: "व्यापारी", rev: "मुंगेली" },
+              { text: "उनकी कार्यशैली में पारदर्शिता और ईमानदारी साफ़ झलकती है। वे क्षेत्र के लिए एक वरदान हैं।", author: "विमल पटेल", role: "समाजसेवी", rev: "लोरमी" },
+              { text: "संगठन निर्माण और जनसेवा के प्रति कमलेश जी का अटूट विश्वास हमें गर्व महसूस कराता है।", author: "डॉ. सीमा वर्मा", role: "शिक्षक", rev: "मुंगेली" },
             ].map((t, i) => (
               <motion.div
                 key={i}
@@ -677,20 +678,47 @@ function App() {
           <h2 className="text-5xl md:text-7xl font-display font-bold tracking-tight mb-8">
             क्षेत्र के विकास के लिए<br/>हमसे जुड़ें।
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-            <div className="p-6 bg-white/5 rounded-2xl backdrop-blur-sm border border-white/10">
-               <div className="text-blue-400 font-bold mb-2">मोबाइल नंबर 1</div>
-               <div className="text-3xl font-display font-bold">9406122222</div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+            <div className="p-8 bg-white/5 rounded-[2rem] backdrop-blur-md border border-white/10 flex flex-col items-center gap-6">
+               <div className="w-16 h-16 rounded-2xl bg-blue-500/20 flex items-center justify-center text-blue-400">
+                 <Phone className="w-8 h-8" />
+               </div>
+               <div>
+                 <div className="text-blue-400 font-bold mb-1 uppercase tracking-wider text-sm">संपर्क सूत्र 1</div>
+                 <div className="text-3xl md:text-4xl font-display font-black">9406122222</div>
+               </div>
+               <div className="flex gap-4 w-full">
+                 <a href="tel:9406122222" className="flex-1 py-3 bg-white text-black rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-blue-50 transition-colors">
+                   <Phone className="w-4 h-4" /> कॉल करें
+                 </a>
+                 <a href="https://wa.me/919406122222" target="_blank" rel="noopener noreferrer" className="flex-1 py-3 bg-[#25D366] text-white rounded-xl font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
+                   <MessageCircle className="w-4 h-4" /> व्हाट्सएप
+                 </a>
+               </div>
             </div>
-            <div className="p-6 bg-white/5 rounded-2xl backdrop-blur-sm border border-white/10">
-               <div className="text-blue-400 font-bold mb-2">मोबाइल नंबर 2</div>
-               <div className="text-3xl font-display font-bold">9644950000</div>
+
+            <div className="p-8 bg-white/5 rounded-[2rem] backdrop-blur-md border border-white/10 flex flex-col items-center gap-6">
+               <div className="w-16 h-16 rounded-2xl bg-blue-500/20 flex items-center justify-center text-blue-400">
+                 <Phone className="w-8 h-8" />
+               </div>
+               <div>
+                 <div className="text-blue-400 font-bold mb-1 uppercase tracking-wider text-sm">संपर्क सूत्र 2</div>
+                 <div className="text-3xl md:text-4xl font-display font-black">9644950000</div>
+               </div>
+               <div className="flex gap-4 w-full">
+                 <a href="tel:9644950000" className="flex-1 py-3 bg-white text-black rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-blue-50 transition-colors">
+                   <Phone className="w-4 h-4" /> कॉल करें
+                 </a>
+                 <a href="https://wa.me/919644950000" target="_blank" rel="noopener noreferrer" className="flex-1 py-3 bg-[#25D366] text-white rounded-xl font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
+                   <MessageCircle className="w-4 h-4" /> व्हाट्सएप
+                 </a>
+               </div>
             </div>
           </div>
           <div className="flex flex-col items-center gap-4">
-            <button className="btn-odysser bg-white text-black px-10 py-5 text-lg group hover:bg-gray-50 w-full sm:w-auto shadow-none border-0">
-              <span className="relative z-10 font-bold">संपर्क सूत्र</span>
-            </button>
+            <a href="tel:9406122222" className="btn-odysser bg-white text-black px-10 py-5 text-lg group hover:bg-gray-50 w-full sm:w-auto shadow-none border-0 inline-flex items-center justify-center">
+              <span className="relative z-10 font-bold">अभी कॉल करें</span>
+            </a>
             <div className="text-sm text-gray-400 font-bold flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
               <span>निरंतर उपलब्ध</span>
               <span>•</span>
@@ -706,10 +734,10 @@ function App() {
       <footer className="py-12 px-6 border-t border-gray-200">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">
-            <div className="h-8 w-8 rounded bg-odysser-surface flex items-center justify-center">
-              <span className="text-white font-bold text-sm tracking-tighter">जन</span>
+            <div className="h-10 w-10 rounded-xl bg-odysser-surface flex items-center justify-center">
+              <Hand className="text-white w-6 h-6" />
             </div>
-            <span className="font-display font-bold text-lg tracking-tight">जनसेवक</span>
+            <span className="font-display font-black text-2xl tracking-tight">कमलेश मिश्रा</span>
           </div>
 
           <div className="flex items-center gap-6">
@@ -720,8 +748,15 @@ function App() {
             <a href="#testimonials" className="text-sm font-bold text-odysser-muted hover:text-black transition-colors">जनमत</a>
           </div>
 
-          <div className="text-sm text-odysser-muted font-bold">
-            © {new Date().getFullYear()} जनसेवक। सर्वाधिकार सुरक्षित।
+          <div className="flex flex-col items-center md:items-end gap-2">
+            <div className="text-sm text-odysser-muted font-bold">
+              © {new Date().getFullYear()} कमलेश मिश्रा। सर्वाधिकार सुरक्षित।
+            </div>
+            <div className="flex gap-4">
+              <span className="text-xs font-bold text-gray-400">फेसबुक</span>
+              <span className="text-xs font-bold text-gray-400">एक्स (ट्विटर)</span>
+              <span className="text-xs font-bold text-gray-400">इंस्टाग्राम</span>
+            </div>
           </div>
         </div>
       </footer>
