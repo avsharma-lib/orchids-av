@@ -8,6 +8,12 @@ import {
 } from 'lucide-react';
 import { saveMedia, getAllMedia, deleteMedia, updateMediaOrder, type MediaItem } from './utils/db';
 
+const STATIC_MEDIA = [
+  { url: '/gallery/IMG_20260617_174551_801.webp', type: 'image' as const },
+  { url: '/gallery/Screenshot_2026-06-18-20-36-39-62_1c337646f29875672b5a61192b9010f9.jpg', type: 'image' as const },
+  { url: '/gallery/indian-national-congress-logo-png_seeklogo-466896.png', type: 'image' as const }
+];
+
 function App() {
   const { scrollYProgress } = useScroll();
   const y1 = useTransform(scrollYProgress, [0, 1], [0, -100]);
@@ -15,9 +21,11 @@ function App() {
 
   const [isScrolled, setIsScrolled] = useState(false);
   const [galleryMedia, setGalleryMedia] = useState<MediaItem[]>([]);
+  const [allMedia, setAllMedia] = useState<{url: string, type: 'image' | 'video', id?: number}[]>([]);
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [isGridOpen, setIsGridOpen] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
-  const [currentBlobUrl, setCurrentBlobUrl] = useState<string>('');
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
 
@@ -54,14 +62,24 @@ function App() {
   }, [isAutoPlaying, galleryMedia.length]);
 
   useEffect(() => {
-    if (galleryMedia.length > 0 && galleryMedia[currentSlide]) {
-      const url = URL.createObjectURL(galleryMedia[currentSlide].blob);
-      setCurrentBlobUrl(url);
-      return () => URL.revokeObjectURL(url);
-    } else {
-      setCurrentBlobUrl('');
-    }
-  }, [galleryMedia, currentSlide]);
+    const combined = [
+      ...STATIC_MEDIA.map((m, i) => ({ ...m, id: -1 - i })),
+      ...galleryMedia.map(m => ({
+        url: URL.createObjectURL(m.blob),
+        type: m.type,
+        id: m.id
+      }))
+    ];
+    setAllMedia(combined);
+
+    return () => {
+      combined.forEach(m => {
+        if (m.url.startsWith('blob:')) {
+          URL.revokeObjectURL(m.url);
+        }
+      });
+    };
+  }, [galleryMedia]);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -126,12 +144,14 @@ function App() {
 
   const nextSlide = () => {
     setIsAutoPlaying(false);
-    setCurrentSlide((prev) => (prev + 1) % galleryMedia.length);
+    if (allMedia.length === 0) return;
+    setCurrentSlide((prev) => (prev + 1) % allMedia.length);
   };
 
   const prevSlide = () => {
     setIsAutoPlaying(false);
-    setCurrentSlide((prev) => (prev - 1 + galleryMedia.length) % galleryMedia.length);
+    if (allMedia.length === 0) return;
+    setCurrentSlide((prev) => (prev - 1 + allMedia.length) % allMedia.length);
   };
 
   useEffect(() => {
@@ -155,9 +175,7 @@ function App() {
       >
         <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-[#0099ff] to-blue-600 flex items-center justify-center shadow-lg shadow-blue-200">
-              <img src="/congress-logo.png" alt="Congress Logo" className="w-8 h-8 object-contain brightness-0 invert" />
-            </div>
+            <img src="/logo.png" alt="Congress Logo" className="h-12 w-auto object-contain" />
             <span className="font-display font-black text-2xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-black to-gray-600">कमलेश मिश्रा</span>
           </div>
 
@@ -315,12 +333,84 @@ function App() {
         )}
       </AnimatePresence>
 
+      {/* Grid Modal */}
+      <AnimatePresence>
+        {isGridOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsGridOpen(false)}
+              className="absolute inset-0 bg-black/90 backdrop-blur-md"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              className="relative w-full max-w-6xl bg-white rounded-[3rem] shadow-2xl overflow-hidden max-h-[85vh] flex flex-col z-10"
+            >
+              <div className="p-8 border-b flex justify-between items-center bg-gray-50">
+                <h3 className="text-3xl font-display font-bold">फोटो गैलरी</h3>
+                <button onClick={() => setIsGridOpen(false)} className="p-3 hover:bg-gray-200 rounded-2xl transition-colors text-gray-500">
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+              <div className="p-8 overflow-y-auto flex-1 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {allMedia.map((item, idx) => (
+                  <div
+                    key={idx}
+                    className="aspect-square rounded-2xl overflow-hidden cursor-zoom-in hover:scale-[1.02] transition-transform shadow-md border-2 border-gray-100"
+                    onClick={() => setSelectedImage(item.url)}
+                  >
+                    {item.type === 'image' ? (
+                      <img src={item.url} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <video src={item.url} className="w-full h-full object-cover" />
+                    )}
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Zoom Modal */}
+      <AnimatePresence>
+        {selectedImage && (
+          <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSelectedImage(null)}
+              className="absolute inset-0 bg-black/95 backdrop-blur-xl"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.5 }}
+              className="relative max-w-full max-h-full z-20"
+            >
+              <img src={selectedImage} alt="" className="max-w-full max-h-[90vh] rounded-2xl shadow-2xl" />
+              <button
+                onClick={() => setSelectedImage(null)}
+                className="absolute -top-12 right-0 p-2 text-white hover:text-gray-300 transition-colors"
+              >
+                <X className="w-8 h-8" />
+              </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
       {/* 1. Photo Gallery Section */}
       <section id="gallery" className="pt-32 bg-white overflow-hidden">
         <div className="w-full">
           <div className="text-center mb-16 relative px-6">
             <p className="font-handwriting text-3xl md:text-4xl text-odysser-primary mb-4 transform -rotate-2">फोटो गैलरी</p>
-            <h2 className="text-4xl md:text-6xl font-display font-bold tracking-tight">क्षेत्र की <span className="text-odysser-muted">झलकियाँ।</span></h2>
+            <h2 className="text-4xl md:text-6xl font-display font-bold tracking-tight">फोटो <span className="text-odysser-muted">गैलरी।</span></h2>
 
             <input
               type="file"
@@ -332,8 +422,8 @@ function App() {
             />
           </div>
 
-          <div className="relative aspect-[16/9] md:aspect-[21/9] w-full overflow-hidden shadow-2xl group">
-            {galleryMedia.length > 0 ? (
+          <div className="relative aspect-[16/9] md:aspect-[21/9] w-full overflow-hidden shadow-2xl group cursor-pointer" onClick={() => setIsGridOpen(true)}>
+            {allMedia.length > 0 ? (
               <>
                 <AnimatePresence mode="wait">
                   <motion.div
@@ -344,15 +434,15 @@ function App() {
                     transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
                     className="absolute inset-0"
                   >
-                    {galleryMedia[currentSlide].type === 'image' ? (
+                    {allMedia[currentSlide].type === 'image' ? (
                       <img
-                        src={currentBlobUrl}
+                        src={allMedia[currentSlide].url}
                         alt="गैलरी"
                         className="w-full h-full object-cover"
                       />
                     ) : (
                       <video
-                        src={currentBlobUrl}
+                        src={allMedia[currentSlide].url}
                         autoPlay
                         muted
                         loop
@@ -365,23 +455,24 @@ function App() {
                 </AnimatePresence>
 
                 <button
-                  onClick={prevSlide}
+                  onClick={(e) => { e.stopPropagation(); prevSlide(); }}
                   className="absolute left-6 top-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white flex items-center justify-center hover:bg-white hover:text-black transition-all z-20 opacity-0 group-hover:opacity-100"
                 >
                   <ChevronLeft className="w-6 h-6" />
                 </button>
                 <button
-                  onClick={nextSlide}
+                  onClick={(e) => { e.stopPropagation(); nextSlide(); }}
                   className="absolute right-6 top-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white flex items-center justify-center hover:bg-white hover:text-black transition-all z-20 opacity-0 group-hover:opacity-100"
                 >
                   <ChevronRight className="w-6 h-6" />
                 </button>
 
                 <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2 z-20">
-                  {galleryMedia.map((_, i) => (
+                  {allMedia.map((_, i) => (
                     <button
                       key={i}
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.stopPropagation();
                         setIsAutoPlaying(false);
                         setCurrentSlide(i);
                       }}
@@ -393,7 +484,7 @@ function App() {
                 </div>
 
                 <div className="absolute top-8 right-8 z-20 p-3 rounded-2xl bg-black/20 backdrop-blur-md border border-white/20 text-white">
-                  {galleryMedia[currentSlide].type === 'image' ? <ImageIcon className="w-5 h-5" /> : <Film className="w-5 h-5" />}
+                  {allMedia[currentSlide].type === 'image' ? <ImageIcon className="w-5 h-5" /> : <Film className="w-5 h-5" />}
                 </div>
               </>
             ) : (
@@ -531,6 +622,12 @@ function App() {
             </h2>
             <div className="mt-6 text-2xl md:text-3xl text-odysser-muted max-w-4xl mx-auto font-sans leading-relaxed">
               कमलेश मिश्रा वर्तमान में छत्तीसगढ़ प्रदेश कांग्रेस कमेटी के सचिव हैं वे पूर्व में छत्तीसगढ़ युवा कांग्रेस के सचिव रह चुके हैं
+            </div>
+            <div className="mt-8 p-6 bg-white rounded-3xl border border-gray-100 shadow-sm inline-block">
+              <div className="text-odysser-muted font-bold text-sm uppercase tracking-wider mb-2">पता</div>
+              <div className="text-xl font-display font-bold">
+                भानपुरी मिश्रा कॉम्प्लेक्स, सुंदर नगर
+              </div>
             </div>
           </motion.div>
         </div>
@@ -670,9 +767,7 @@ function App() {
       <footer className="py-12 px-6 border-t border-gray-200">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-odysser-surface flex items-center justify-center">
-              <img src="/congress-logo.png" alt="Congress Logo" className="w-8 h-8 object-contain brightness-0 invert" />
-            </div>
+            <img src="/logo.png" alt="Congress Logo" className="h-10 w-auto object-contain" />
             <span className="font-display font-black text-2xl tracking-tight">कमलेश मिश्रा</span>
           </div>
 
