@@ -20,6 +20,6 @@ test('verify politician website changes', async ({ page }) => {
 
   // Verify About Address
   const address = page.locator('section#about');
-  await expect(address).toContainText('भानपुरी मिश्रा कॉम्प्लेक्स');
+  await expect(address).toContainText('भनपुरी मिश्रा कॉम्प्लेक्स');
   await page.screenshot({ path: 'verification/about_address.png' });
 });

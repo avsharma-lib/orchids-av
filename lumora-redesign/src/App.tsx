@@ -4,14 +4,16 @@ import {
   ArrowRight, Plus, ChevronLeft, ChevronRight,
   Image as ImageIcon, Film, MessageCircle, Phone,
   Trash2, ArrowUp, ArrowDown, X,
-  Smile, CheckCircle, Briefcase, Trophy
+  Smile, CheckCircle, Briefcase, Trophy,
+  Facebook, Instagram
 } from 'lucide-react';
 import { saveMedia, getAllMedia, deleteMedia, updateMediaOrder, type MediaItem } from './utils/db';
 
 const STATIC_MEDIA = [
   { url: '/gallery/IMG_20260617_174551_801.webp', type: 'image' as const },
   { url: '/gallery/Screenshot_2026-06-18-20-36-39-62_1c337646f29875672b5a61192b9010f9.jpg', type: 'image' as const },
-  { url: '/gallery/indian-national-congress-logo-png_seeklogo-466896.png', type: 'image' as const }
+  { url: '/gallery/Screenshot_2026-06-29-14-25-56-87_40deb401b9ffe8e1df2f1cc5ba480b12.jpg', type: 'image' as const },
+  { url: '/gallery/images (6).png', type: 'image' as const }
 ];
 
 function App() {
@@ -538,7 +540,7 @@ function App() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.35 }}
-            className="mt-8"
+            className="mt-8 flex flex-col items-center gap-6"
           >
             <button
               onClick={() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })}
@@ -546,6 +548,25 @@ function App() {
             >
               अधिक जानकारी
             </button>
+
+            <div className="flex gap-4">
+              <a
+                href="https://www.facebook.com/kamleshmishra_cg"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-5 py-2.5 bg-[#1877F2] text-white rounded-full hover:scale-105 transition-transform shadow-lg text-sm font-bold"
+              >
+                <Facebook className="w-4 h-4" /> फेसबुक
+              </a>
+              <a
+                href="https://www.instagram.com/kamleshmishra_cg"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-tr from-[#f09433] via-[#e6683c] via-[#dc2743] via-[#cc2366] to-[#bc1888] text-white rounded-full hover:scale-105 transition-transform shadow-lg text-sm font-bold"
+              >
+                <Instagram className="w-4 h-4" /> इंस्टाग्राम
+              </a>
+            </div>
           </motion.div>
 
           <motion.div
@@ -621,12 +642,12 @@ function App() {
               <span className="text-odysser-muted">एक नया अध्याय।</span>
             </h2>
             <div className="mt-6 text-2xl md:text-3xl text-odysser-muted max-w-4xl mx-auto font-sans leading-relaxed">
-              कमलेश मिश्रा वर्तमान में छत्तीसगढ़ प्रदेश कांग्रेस कमेटी के सचिव हैं वे पूर्व में छत्तीसगढ़ युवा कांग्रेस के सचिव रह चुके हैं
+              कमलेश मिश्रा छत्तीसगढ़ प्रदेश कांग्रेस कमेटी के सचिव हैं। वे मुंगेली विधानसभा के प्रभारी रह चुके हैं और पूर्व प्रदेश सचिव, छत्तीसगढ़ युवा कांग्रेस के रूप में भी अपनी सेवाएं दे चुके हैं। जनसेवा, संगठन निर्माण और क्षेत्रीय विकास के लिए वे निरंतर कार्यरत हैं।
             </div>
             <div className="mt-8 p-6 bg-white rounded-3xl border border-gray-100 shadow-sm inline-block">
               <div className="text-odysser-muted font-bold text-sm uppercase tracking-wider mb-2">पता</div>
               <div className="text-xl font-display font-bold">
-                भानपुरी मिश्रा कॉम्प्लेक्स, सुंदर नगर
+                भनपुरी मिश्रा कॉम्प्लेक्स, सुंदर नगर
               </div>
             </div>
           </motion.div>
