@@ -28,7 +28,13 @@ const STATIC_MEDIA = [
   { url: '/gallery/e02c4e64-dc77-4e75-84ff-50ba4b624708.jpeg', type: 'image' as const },
   { url: '/gallery/e1657072-e7ee-4f17-98e9-b2367af2832f.jpeg', type: 'image' as const },
   { url: '/gallery/ec00be5f-3246-4a3b-9adb-93c63f06cc66 (1).jpeg', type: 'image' as const },
-  { url: '/gallery/ec00be5f-3246-4a3b-9adb-93c63f06cc66.jpeg', type: 'image' as const }
+  { url: '/gallery/ec00be5f-3246-4a3b-9adb-93c63f06cc66.jpeg', type: 'image' as const },
+  { url: '/gallery/IMG_20260629_224517_240.jpg', type: 'image' as const },
+  { url: '/gallery/IMG_20260629_224517_242.jpg', type: 'image' as const },
+  { url: '/gallery/IMG_20260629_224718_492.jpg', type: 'image' as const },
+  { url: '/gallery/IMG_20260629_224720_986.jpg', type: 'image' as const },
+  { url: '/gallery/IMG_20260629_224722_730.jpg', type: 'image' as const },
+  { url: '/gallery/IMG_20260629_224728_120.jpg', type: 'image' as const }
 ];
 
 function App() {
