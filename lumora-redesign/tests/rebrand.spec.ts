@@ -29,7 +29,7 @@ test('verify rebrand and sections', async ({ page }) => {
   // Volunteer section
   const volunteer = page.locator('#volunteer');
   await expect(volunteer).toBeVisible();
-  await expect(volunteer).toContainText('स्वयंसेवक बनें');
+  await expect(volunteer).toContainText('हमसे जुड़ें');
 
   // Screenshots
   await page.screenshot({ path: 'verification/hero.png' });

@@ -10,10 +10,25 @@ import {
 import { saveMedia, getAllMedia, deleteMedia, updateMediaOrder, type MediaItem } from './utils/db';
 
 const STATIC_MEDIA = [
-  { url: '/gallery/IMG_20260617_174551_801.webp', type: 'image' as const },
-  { url: '/gallery/Screenshot_2026-06-18-20-36-39-62_1c337646f29875672b5a61192b9010f9.jpg', type: 'image' as const },
-  { url: '/gallery/Screenshot_2026-06-29-14-25-56-87_40deb401b9ffe8e1df2f1cc5ba480b12.jpg', type: 'image' as const },
-  { url: '/gallery/images (6).png', type: 'image' as const }
+  { url: '/gallery/0b098ce4-c11e-4f44-b879-b4c657e6170a.jpeg', type: 'image' as const },
+  { url: '/gallery/2d174889-db50-48df-9d51-cfc8d1249d47.jpeg', type: 'image' as const },
+  { url: '/gallery/4709e79f-c9ba-4535-b857-8ae0c719e8b5.jpeg', type: 'image' as const },
+  { url: '/gallery/4c6285fb-2696-45af-aefa-85915ab62d0c.jpeg', type: 'image' as const },
+  { url: '/gallery/53edfa1c-ba72-471b-9ed9-20d5ccd7b843.jpeg', type: 'image' as const },
+  { url: '/gallery/6546c5ac-56db-42d7-bf0f-388c477019cf.jpeg', type: 'image' as const },
+  { url: '/gallery/79529c19-8484-4869-8922-c4dc898b0833.jpeg', type: 'image' as const },
+  { url: '/gallery/79e32a52-ec68-41fe-8c31-a3b0b56ef77b.jpeg', type: 'image' as const },
+  { url: '/gallery/84a5401a-394a-458b-8995-2067d9eb99c9.jpeg', type: 'image' as const },
+  { url: '/gallery/977ed0f5-d40d-4d5a-9639-9e48762aa67d.jpeg', type: 'image' as const },
+  { url: '/gallery/9b4d1de4-515b-4b7d-87a1-c780e37d51cb.jpeg', type: 'image' as const },
+  { url: '/gallery/a3ff7171-55e6-49c1-9d1d-bd81655bacec.jpeg', type: 'image' as const },
+  { url: '/gallery/b1cdc669-94f6-4210-a880-150be03c9ef7.jpeg', type: 'image' as const },
+  { url: '/gallery/bb0ee29e-7933-47ba-bf8d-6fd003a89781.jpeg', type: 'image' as const },
+  { url: '/gallery/d6d76f32-460f-4b07-b057-b789c43b5df2.jpeg', type: 'image' as const },
+  { url: '/gallery/e02c4e64-dc77-4e75-84ff-50ba4b624708.jpeg', type: 'image' as const },
+  { url: '/gallery/e1657072-e7ee-4f17-98e9-b2367af2832f.jpeg', type: 'image' as const },
+  { url: '/gallery/ec00be5f-3246-4a3b-9adb-93c63f06cc66 (1).jpeg', type: 'image' as const },
+  { url: '/gallery/ec00be5f-3246-4a3b-9adb-93c63f06cc66.jpeg', type: 'image' as const }
 ];
 
 function App() {
@@ -185,7 +200,7 @@ function App() {
             <a href="#gallery" className="hover:text-black transition-colors">फोटो गैलरी</a>
             <a href="#about" className="hover:text-black transition-colors">परिचय</a>
             <a href="#contact" className="hover:text-black transition-colors">संपर्क करें</a>
-            <a href="#volunteer" className="hover:text-black transition-colors">स्वयंसेवक बनें</a>
+            <a href="#volunteer" className="hover:text-black transition-colors">हमसे जुड़ें</a>
           </div>
 
           <div className="flex items-center gap-4">
@@ -702,11 +717,11 @@ function App() {
         </div>
       </section>
 
-      {/* 5. Volunteer Form (स्वयंसेवक बनें) */}
+      {/* 5. Volunteer Form (हमसे जुड़ें) */}
       <section id="volunteer" className="py-32 px-6 bg-[#f0ece7] border-y border-gray-200">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-16">
-             <p className="font-handwriting text-3xl md:text-4xl text-odysser-primary mb-4">स्वयंसेवक बनें</p>
+             <p className="font-handwriting text-3xl md:text-4xl text-odysser-primary mb-4">हमसे जुड़ें</p>
             <h2 className="text-4xl md:text-6xl font-display font-bold tracking-tight">विकास की यात्रा में जुड़ें</h2>
           </div>
 
@@ -796,7 +811,7 @@ function App() {
             <a href="#gallery" className="text-sm font-bold text-odysser-muted hover:text-black transition-colors">फोटो गैलरी</a>
             <a href="#about" className="text-sm font-bold text-odysser-muted hover:text-black transition-colors">परिचय</a>
             <a href="#contact" onClick={(e) => { e.preventDefault(); setIsContactModalOpen(true); }} className="text-sm font-bold text-odysser-muted hover:text-black transition-colors">संपर्क करें</a>
-            <a href="#volunteer" className="text-sm font-bold text-odysser-muted hover:text-black transition-colors">स्वयंसेवक बनें</a>
+            <a href="#volunteer" className="text-sm font-bold text-odysser-muted hover:text-black transition-colors">हमसे जुड़ें</a>
           </div>
 
           <div className="flex flex-col items-center md:items-center gap-2">
