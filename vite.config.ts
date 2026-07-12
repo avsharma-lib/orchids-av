@@ -7,6 +7,11 @@ export default defineConfig({
   preview: {
     host: true,
     port: Number(process.env.PORT) || 4173,
-    allowedHosts: ["ls.aaryaveersharma.in"]
+    allowedHosts: [
+      "ls.aaryaveersharma.in",
+      "sai.sovereignsites.in",
+      "orchids-av-1.onrender.com",
+      "kamleshmishracgcongress.in"
+    ]
   }
 })
