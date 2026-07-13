@@ -24,7 +24,8 @@ import {
   DollarSign,
   TrendingUp,
   Hash,
-  FileSpreadsheet
+  FileSpreadsheet,
+  Home
 } from 'lucide-react';
 
 // Types
@@ -339,13 +340,23 @@ function App() {
       </div>
 
       {/* SEARCH PRODUCTS BAR AT THE VERY TOP */}
-      <div className="bg-gray-900 text-white py-2 px-6 border-b border-gray-800 relative z-50">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
-          <div className="text-xs text-gray-400 font-semibold tracking-wider uppercase flex items-center gap-1">
-            <Hash className="w-3.5 h-3.5 text-[#0099ff]" /> GST Number: 22AADCS3777J1Z6
+      <div className="bg-gray-900 text-white py-3 px-6 border-b border-gray-800 relative z-50">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+          {/* Company identity neatly below search bar or in top bar */}
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 text-xs text-gray-300">
+            <div className="font-extrabold tracking-tight text-white flex items-center gap-2 uppercase">
+              <img src="/favicon.jpg" alt="Sai Baba Icon" className="w-5 h-5 rounded-full object-contain" />
+              Sai Chemicals Private Limited
+            </div>
+            <div className="flex items-center gap-1 text-gray-400">
+              <MapPin className="w-3.5 h-3.5 text-[#0099ff]" /> Rajnandgaon, Chhattisgarh
+            </div>
+            <div className="flex items-center gap-1 text-gray-400 font-semibold">
+              <Hash className="w-3.5 h-3.5 text-[#0099ff]" /> GST: 22AADCS3777J1Z6
+            </div>
           </div>
 
-          <form onSubmit={handleSearchSubmit} className="relative flex items-center w-full max-w-sm shrink-0">
+          <form onSubmit={handleSearchSubmit} className="relative flex items-center w-full max-w-xs shrink-0">
             <input
               type="text"
               value={searchQuery}
@@ -368,19 +379,19 @@ function App() {
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-        className={`fixed top-11 left-0 right-0 z-50 transition-all duration-300 ${
-          isScrolled ? 'bg-white/85 backdrop-blur-md shadow-sm py-3 border-b border-gray-100' : 'bg-transparent py-5'
+        className={`fixed top-14 left-0 right-0 z-40 transition-all duration-300 ${
+          isScrolled ? 'bg-white/85 backdrop-blur-md shadow-sm py-3 border-b border-gray-100' : 'bg-white/20 backdrop-blur-md py-5 border-b border-gray-100/10'
         }`}
       >
         <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
 
           {/* Logo Brand area */}
-          <div className="flex items-center cursor-pointer" onClick={() => navigateTo('home')}>
+          <div className="flex items-center cursor-pointer animate-fade-in" onClick={() => navigateTo('home')}>
             <div className="relative flex items-center gap-3">
               <img
-                src="https://catalog.wlimg.com/1/6819962/other-images/12577-inner-comp-image.png"
+                src="/favicon.jpg"
                 alt="Sai Chemicals Logo"
-                className="h-10 w-auto object-contain"
+                className="h-10 w-10 object-contain rounded-full"
               />
               <div>
                 <span className="font-display font-bold text-lg md:text-xl tracking-tight text-gray-900 block leading-tight">
@@ -572,17 +583,17 @@ function App() {
       </motion.nav>
 
       {/* Main Dynamic Viewport Container */}
-      <div className="pt-32 md:pt-36 pb-10">
+      <div className="pt-28 md:pt-32 pb-10">
 
         {/* ================= HOME PAGE ================= */}
         {currentPage === 'home' && selectedProductId === null && (
           <div>
             {/* Hero Header Area Reorganized */}
-            <section className="relative pt-6 pb-12 px-6 text-center">
+            <section className="relative pt-12 pb-12 px-6 text-center">
               <div className="max-w-4xl mx-auto space-y-6">
 
                 {/* Certified Manufacturer badge */}
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 border border-blue-100 shadow-sm">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 border border-blue-100 shadow-sm animate-pulse-slow">
                   <span className="relative flex h-2.5 w-2.5">
                     <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-blue-400 opacity-75"></span>
                     <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[#0099ff]"></span>
@@ -592,25 +603,13 @@ function App() {
                   </span>
                 </div>
 
-                {/* Brand Showcase Area */}
-                <div className="glass-card p-6 md:p-8 bg-white/80 border border-gray-100 flex flex-col md:flex-row items-center justify-center gap-6 max-w-3xl mx-auto shadow-md">
-                  <img
-                    src="https://catalog.wlimg.com/1/6819962/other-images/12577-inner-comp-image.png"
-                    alt="Sai Chemicals Official Logo"
-                    className="h-16 w-auto object-contain shrink-0"
-                  />
-                  <div className="text-center md:text-left">
-                    <h2 className="text-2xl md:text-3xl font-display font-extrabold text-gray-900 tracking-tight leading-tight uppercase">
-                      Sai Chemicals Private Limited
-                    </h2>
-                    <p className="text-[#0099ff] font-semibold text-sm mt-1 flex items-center justify-center md:justify-start gap-1">
-                      <MapPin className="w-4 h-4" /> Rajnandgaon, Chhattisgarh
-                    </p>
-                    <p className="text-xs text-gray-400 font-semibold mt-1 tracking-wider">
-                      GST Number: 22AADCS3777J1Z6
-                    </p>
-                  </div>
-                </div>
+                <h1 className="text-4xl md:text-6xl font-display font-extrabold text-gray-900 tracking-tight leading-tight uppercase max-w-3xl mx-auto">
+                  Premium Silico Manganese & Pig Iron Lumps
+                </h1>
+
+                <p className="text-gray-500 max-w-2xl mx-auto text-sm md:text-base leading-relaxed">
+                  Leading manufacturer, exporter, and supplier of high-grade Ferro Silico Manganese Lumps and Pig Iron Lumps based in Rajnandgaon, Chhattisgarh. We deliver superior chemical consistency and metallurgy toughness globally.
+                </p>
 
                 {/* Call to Actions Only below */}
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
@@ -636,73 +635,49 @@ function App() {
               </div>
             </section>
 
-            {/* SMOOTH PRODUCT SLIDESHOW */}
+            {/* SMOOTH PRODUCT SLIDESHOW - TEXT AND BUTTONS REMOVED AS REQUESTED */}
             <section className="py-6 px-6 max-w-5xl mx-auto">
-              <div className="relative glass-card overflow-hidden bg-gradient-to-tr from-gray-900 to-slate-800 text-white rounded-3xl aspect-[16/9] md:aspect-[21/9] flex items-center justify-between group shadow-xl">
+              <div className="relative glass-card overflow-hidden rounded-3xl min-h-[480px] md:h-[520px] flex items-center justify-center group shadow-2xl border-0 bg-gray-50">
 
                 {/* Slide Viewport */}
                 <div className="absolute inset-0 z-0">
                   <AnimatePresence mode="wait">
                     <motion.div
                       key={activeSlide}
-                      initial={{ opacity: 0, scale: 1.05 }}
-                      animate={{ opacity: 0.35, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.95 }}
+                      initial={{ opacity: 0, scale: 1.02 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.98 }}
                       transition={{ duration: 0.6 }}
-                      className="absolute inset-0 bg-cover bg-center"
+                      className="absolute inset-0 bg-contain bg-center bg-no-repeat bg-gray-50 cursor-pointer"
                       style={{ backgroundImage: `url(${PRODUCTS[activeSlide].imageUrl})` }}
+                      onClick={() => navigateTo('products', PRODUCTS[activeSlide].category, PRODUCTS[activeSlide].id)}
                     />
                   </AnimatePresence>
-                  {/* Subtle vignette gradient */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-900/40 to-gray-950/20" />
                 </div>
 
-                {/* Slide content overlay */}
-                <div className="relative z-10 p-6 md:p-12 max-w-lg space-y-4">
-                  <span className="px-3 py-1 bg-[#0099ff] text-white text-[10px] font-bold uppercase rounded-full tracking-widest">
-                    {PRODUCTS[activeSlide].categoryLabel}
-                  </span>
-                  <h3 className="text-2xl md:text-4xl font-display font-extrabold tracking-tight text-white">
-                    {PRODUCTS[activeSlide].name}
-                  </h3>
-                  <p className="text-gray-300 text-xs md:text-sm leading-relaxed line-clamp-2">
-                    {PRODUCTS[activeSlide].description}
-                  </p>
-                  <div className="flex flex-wrap items-center gap-4 text-xs">
-                    <span className="font-bold text-[#0099ff]">{PRODUCTS[activeSlide].price}</span>
-                    <span className="text-gray-400">MOQ: {PRODUCTS[activeSlide].moq}</span>
-                  </div>
+                {/* Slider UI controls (Arrows and Dots) */}
+                <div className="absolute bottom-6 right-6 z-20 flex gap-2">
                   <button
-                    onClick={() => navigateTo('products', PRODUCTS[activeSlide].category, PRODUCTS[activeSlide].id)}
-                    className="px-4 py-2 bg-white text-black font-semibold text-xs rounded-lg hover:bg-gray-100 transition-all cursor-pointer"
+                    onClick={handlePrevSlide}
+                    className="p-3 rounded-full bg-black/50 hover:bg-black/70 text-white transition-all cursor-pointer shadow-md backdrop-blur-md"
                   >
-                    View Specifications &rarr;
+                    <ChevronLeft className="w-5 h-5" />
+                  </button>
+                  <button
+                    onClick={handleNextSlide}
+                    className="p-3 rounded-full bg-black/50 hover:bg-black/70 text-white transition-all cursor-pointer shadow-md backdrop-blur-md"
+                  >
+                    <ChevronRight className="w-5 h-5" />
                   </button>
                 </div>
 
-                {/* Left arrow controls */}
-                <button
-                  onClick={handlePrevSlide}
-                  className="absolute left-4 z-20 p-2 rounded-full bg-black/40 hover:bg-black/60 text-white opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
-                >
-                  <ChevronLeft className="w-5 h-5" />
-                </button>
-
-                {/* Right arrow controls */}
-                <button
-                  onClick={handleNextSlide}
-                  className="absolute right-4 z-20 p-2 rounded-full bg-black/40 hover:bg-black/60 text-white opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
-                >
-                  <ChevronRight className="w-5 h-5" />
-                </button>
-
-                {/* Navigation Dots */}
-                <div className="absolute bottom-4 left-0 right-0 z-20 flex justify-center gap-1.5">
+                {/* Top indicators: Navigation Dots */}
+                <div className="absolute bottom-8 left-8 z-20 flex gap-2">
                   {PRODUCTS.map((_, idx) => (
                     <button
                       key={idx}
                       onClick={() => setActiveSlide(idx)}
-                      className={`w-2 h-2 rounded-full transition-all cursor-pointer ${activeSlide === idx ? 'bg-[#0099ff] w-5' : 'bg-white/40'}`}
+                      className={`h-2 rounded-full transition-all cursor-pointer ${activeSlide === idx ? 'bg-[#0099ff] w-8' : 'bg-black/30 w-2'}`}
                     />
                   ))}
                 </div>
@@ -1441,33 +1416,38 @@ function App() {
       <div className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-gray-100 py-2.5 px-6 shadow-[0_-5px_15px_rgba(0,0,0,0.03)] md:hidden flex justify-around items-center">
         <button
           onClick={() => navigateTo('home')}
-          className="flex flex-col items-center gap-1 text-gray-400 hover:text-[#0099ff] transition-all cursor-pointer"
+          className="flex flex-col items-center gap-1 text-gray-600 hover:text-[#0099ff] transition-all cursor-pointer"
         >
-          <span className="text-[10px] font-bold tracking-wider uppercase">Home</span>
+          <Home className="w-5 h-5 text-[#0099ff]" />
+          <span className="text-[9px] font-bold tracking-wider uppercase">Home</span>
         </button>
         <button
           onClick={() => navigateTo('about')}
-          className="flex flex-col items-center gap-1 text-gray-400 hover:text-[#0099ff] transition-all cursor-pointer"
+          className="flex flex-col items-center gap-1 text-gray-600 hover:text-[#0099ff] transition-all cursor-pointer"
         >
-          <span className="text-[10px] font-bold tracking-wider uppercase">Profile</span>
+          <Info className="w-5 h-5 text-[#0099ff]" />
+          <span className="text-[9px] font-bold tracking-wider uppercase">Profile</span>
         </button>
         <button
           onClick={() => navigateTo('products')}
-          className="flex flex-col items-center gap-1 text-gray-400 hover:text-[#0099ff] transition-all cursor-pointer"
+          className="flex flex-col items-center gap-1 text-gray-600 hover:text-[#0099ff] transition-all cursor-pointer"
         >
-          <span className="text-[10px] font-bold tracking-wider uppercase">Products</span>
+          <Briefcase className="w-5 h-5 text-[#0099ff]" />
+          <span className="text-[9px] font-bold tracking-wider uppercase">Products</span>
         </button>
         <button
           onClick={() => navigateTo('contact')}
-          className="flex flex-col items-center gap-1 text-gray-400 hover:text-[#0099ff] transition-all cursor-pointer"
+          className="flex flex-col items-center gap-1 text-gray-600 hover:text-[#0099ff] transition-all cursor-pointer"
         >
-          <span className="text-[10px] font-bold tracking-wider uppercase">Contact</span>
+          <MessageSquare className="w-5 h-5 text-[#0099ff]" />
+          <span className="text-[9px] font-bold tracking-wider uppercase">Contact</span>
         </button>
         <a
           href="tel:+919425234682"
-          className="flex flex-col items-center gap-1 text-gray-400 hover:text-[#0099ff] transition-all cursor-pointer"
+          className="flex flex-col items-center gap-1 text-gray-600 hover:text-[#0099ff] transition-all cursor-pointer"
         >
-          <span className="text-[10px] font-bold tracking-wider uppercase">Call Us</span>
+          <Phone className="w-5 h-5 text-[#0099ff]" />
+          <span className="text-[9px] font-bold tracking-wider uppercase">Call Us</span>
         </a>
       </div>
 
@@ -1612,9 +1592,9 @@ function App() {
           <div className="space-y-4">
             <div className="flex items-center gap-2">
               <img
-                src="https://catalog.wlimg.com/1/6819962/other-images/12577-inner-comp-image.png"
+                src="/favicon.jpg"
                 alt="Sai Chemicals Logo"
-                className="h-8 w-auto object-contain"
+                className="h-8 w-8 object-contain rounded-full"
               />
               <span className="font-display font-bold text-base tracking-tight text-gray-900 uppercase">
                 Sai Chemicals
@@ -1689,7 +1669,7 @@ function App() {
               <a href="https://www.saichemicalsindia.in" className="hover:underline text-gray-500">saichemicalsindia.in</a>
             </div>
             <div className="flex items-center gap-2">
-              <span>Developed & Managed By Weblink.In Pvt. Ltd.</span>
+              <span>Developed & Managed By sovereignsites.in</span>
             </div>
           </div>
         </div>
