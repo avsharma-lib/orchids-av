@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowRight,
@@ -16,9 +16,15 @@ import {
   Award,
   ShieldCheck,
   Check,
-  FileText,
   ChevronRight,
-  Briefcase
+  Briefcase,
+  Search,
+  ChevronLeft,
+  Info,
+  DollarSign,
+  TrendingUp,
+  Hash,
+  FileSpreadsheet
 } from 'lucide-react';
 
 // Types
@@ -27,26 +33,37 @@ interface Product {
   name: string;
   category: 'silico-manganese' | 'pig-iron';
   categoryLabel: string;
+  price: string;
+  moq: string;
+  imageUrl: string;
   specs: Record<string, string>;
   description: string;
   features: string[];
 }
 
-// 5 exact products from Sai Chemicals India
+// 5 exact products with full specifications, images, and prices from Sai Chemicals India
 const PRODUCTS: Product[] = [
   {
     id: 'silico-manganese-lumps',
     name: 'Silico Manganese Lumps',
     category: 'silico-manganese',
     categoryLabel: 'Silico Manganese',
+    price: 'Rs. 80,000.00',
+    moq: '30 Ton',
+    imageUrl: 'https://2.wlimg.com/product_images/bc-500/2022/8/6819962/silico-manganese-lumps-1660735377-6494420.jpeg',
     description: 'High-quality Silico Manganese Lumps procured from trusted vendors, rich in silicon and manganese, ideal for steel manufacturing to provide toughness and hardness.',
-    features: ['Provides excellent toughness & hardness', 'Acts as a critical deoxidizer', 'Premium Grade 60/15 specifications'],
+    features: ['Provides excellent toughness & hardness', 'Acts as a critical deoxidizer', 'Premium Grade specifications'],
     specs: {
+      'Business Type': 'Manufacturer, Exporter, Supplier',
       'Country of Origin': 'India',
       'Packaging Type': 'Loose',
       'Grade': '60/15',
       'Silicon': '15% Min',
-      'Manganese': '60% Min'
+      'Manganese': '60% min',
+      'Phosphorus': '0.35% Max',
+      'Sulphur': '0.05%',
+      'Size': '100mm',
+      'Carbon': '2.50% Max'
     }
   },
   {
@@ -54,14 +71,24 @@ const PRODUCTS: Product[] = [
     name: 'Ferro Silico Manganese Lumps',
     category: 'silico-manganese',
     categoryLabel: 'Silico Manganese',
+    price: 'Rs. 69,000.00 / Metric Ton',
+    moq: '30 Metric Tons',
+    imageUrl: 'https://2.wlimg.com/product_images/bc-500/2022/8/6819962/ferro-silico-manganese-lumps-1660735501-6494430.jpeg',
     description: 'Specially engineered Ferro Silico Manganese Lumps, perfect for industrial metallurgy. Used as a high-performance alloy in steelmaking.',
     features: ['High-grade industrial application', 'Standard size distribution', 'Consistent chemical composition'],
     specs: {
+      'Business Type': 'Manufacturer, Exporter, Supplier',
       'Country of Origin': 'India',
       'Material': 'Ferro Silico',
       'Shape': 'Lumps',
       'Size': '150 mm',
-      'Application': 'Industrial'
+      'Application': 'Industrial',
+      'Grade': '60/14',
+      'Packaging Type': 'Loose',
+      'Silicon': '14% Max',
+      'Manganese': '60% Min',
+      'Phosphorus': '0.35% max',
+      'Sulphur': '0.05% max'
     }
   },
   {
@@ -69,14 +96,21 @@ const PRODUCTS: Product[] = [
     name: 'Grade 65-16 Silico Manganese',
     category: 'silico-manganese',
     categoryLabel: 'Silico Manganese',
+    price: 'Rs. 80,000.00 / Ton',
+    moq: '30 Ton',
+    imageUrl: 'https://2.wlimg.com/product_images/bc-500/2022/8/6819962/grade-65-16-silico-manganese-1660735684-6494448.jpeg',
     description: 'Premium-grade Silico Manganese with rich 65% manganese content. Safe to use with accurate chemical and physical compositions.',
     features: ['Pure & accurate composition', 'Low ash content (10%)', 'Safe and efficient for complex steel mills'],
     specs: {
+      'Business Type': 'Manufacturer, Exporter, Supplier',
       'Country of Origin': 'India',
       'Material': 'Manganese',
       'Shape': 'Lump',
       'Feature': 'Pure Accurate, Physical And Chemical Composition, Safe To Use',
-      'Ash': '10%'
+      'Ash': '10%',
+      'Moisture': '20%',
+      'Grade': '65/16',
+      'Size': '25 to 150mm or as per buyer specification'
     }
   },
   {
@@ -84,14 +118,23 @@ const PRODUCTS: Product[] = [
     name: 'Pig Iron Lumps',
     category: 'pig-iron',
     categoryLabel: 'Pig Iron Lumps',
+    price: 'Rs. 30,000.00 / Metric Ton',
+    moq: '30 Ton',
+    imageUrl: 'https://2.wlimg.com/product_images/bc-500/2022/8/6819962/pig-iron-lumps-1660735795-6494459.jpeg',
     description: 'Excellent Grade A Pig Iron Lumps designed for high-end metallurgical processes. Helps in crafting superior steel castings and other iron alloy products.',
     features: ['Consistent solid lumps format', 'Highly pure metallurgical iron', 'Ensures high quality in finished castings'],
     specs: {
+      'Business Type': 'Manufacturer, Exporter, Supplier',
       'Country of Origin': 'India',
       'Material': 'Pig Iron',
       'Packaging Type': 'Loose',
       'Grade': 'A',
-      'Form': 'Solid Lumps'
+      'Form': 'Solid Lumps',
+      'Usage/Application': 'Industrial',
+      'Silicon': '3.5% Min',
+      'Manganese': '0.5% Min',
+      'Phosphorus': '0.120% Max',
+      'Sulphur': '0.05% Max'
     }
   },
   {
@@ -99,14 +142,22 @@ const PRODUCTS: Product[] = [
     name: 'High Carbon Silico Manganese',
     category: 'silico-manganese',
     categoryLabel: 'Silico Manganese',
+    price: 'Rs. 78,000.00 - 85,000.00 / Metric Ton',
+    moq: '30 Ton',
+    imageUrl: 'https://2.wlimg.com/product_images/bc-full/2022/8/6819962/high-carbon-silico-manganese-1659978112-2879958.jpg',
     description: 'High Carbon Silico Manganese of natural grey color with a minimum of 60% manganese, manufactured to deliver maximum efficiency in high-temperature blast furnaces.',
     features: ['Natural-grey premium aesthetics', 'Minimum 60% Manganese richness', 'Perfect for heavy duty alloy applications'],
     specs: {
+      'Business Type': 'Manufacturer, Exporter, Supplier',
       'Country of Origin': 'India',
       'Type': 'Silico Manganese',
       'Application': 'Industrial',
       'Color': 'Natural-grey',
-      'Manganese': '60% Min'
+      'Manganese': '60% Min',
+      'Silicon': '14% Min',
+      'Carbon': '2.5% Max',
+      'Phosphorus': '0.35% Max',
+      'Sulphur': '0.05% Max'
     }
   }
 ];
@@ -178,6 +229,13 @@ function App() {
   });
   const [enquirySuccess, setEnquirySuccess] = useState(false);
 
+  // Product Search State
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Slideshow States
+  const [activeSlide, setActiveSlide] = useState(0);
+  const autoSlideTimer = useRef<number | null>(null);
+
   // Scroll detection for Navbar styling
   useEffect(() => {
     const handleScroll = () => {
@@ -186,6 +244,27 @@ function App() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Handle Slideshow auto-rotation
+  useEffect(() => {
+    autoSlideTimer.current = window.setInterval(() => {
+      setActiveSlide(prev => (prev + 1) % PRODUCTS.length);
+    }, 5000);
+
+    return () => {
+      if (autoSlideTimer.current) {
+        window.clearInterval(autoSlideTimer.current);
+      }
+    };
+  }, []);
+
+  const handleNextSlide = () => {
+    setActiveSlide(prev => (prev + 1) % PRODUCTS.length);
+  };
+
+  const handlePrevSlide = () => {
+    setActiveSlide(prev => (prev - 1 + PRODUCTS.length) % PRODUCTS.length);
+  };
 
   // Custom function to navigate to pages and reset top view scroll
   const navigateTo = (page: 'home' | 'about' | 'products' | 'contact', category?: 'all' | 'silico-manganese' | 'pig-iron', productId?: string | null) => {
@@ -233,8 +312,25 @@ function App() {
     }
   };
 
+  // Handle Search Submission
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      // Find matches
+      const query = searchQuery.toLowerCase();
+      const match = PRODUCTS.find(p => p.name.toLowerCase().includes(query) || p.description.toLowerCase().includes(query));
+      if (match) {
+        // Direct to that product
+        navigateTo('products', match.category, match.id);
+      } else {
+        // Direct to products tab
+        navigateTo('products', 'all');
+      }
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-[#fafafb] text-[#111111] font-sans antialiased overflow-x-hidden selection:bg-[#0099ff] selection:text-white">
+    <div className="min-h-screen bg-[#fafafb] text-[#111111] font-sans antialiased overflow-x-hidden selection:bg-[#0099ff] selection:text-white pb-20 md:pb-0">
       {/* Decorative Orbs in background to capture the gorgeous "Orchids-AV" / "Lumora" premium vibe */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden -z-10">
         <div className="absolute top-[10%] left-[-10%] w-[500px] h-[500px] bg-gradient-to-tr from-blue-200/40 to-transparent rounded-full blur-[100px] opacity-70 animate-[pulse_10s_infinite]" />
@@ -242,12 +338,37 @@ function App() {
         <div className="absolute bottom-[10%] left-[5%] w-[450px] h-[450px] bg-gradient-to-r from-gray-200/55 to-transparent rounded-full blur-[90px] opacity-60" />
       </div>
 
+      {/* SEARCH PRODUCTS BAR AT THE VERY TOP */}
+      <div className="bg-gray-900 text-white py-2 px-6 border-b border-gray-800 relative z-50">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className="text-xs text-gray-400 font-semibold tracking-wider uppercase flex items-center gap-1">
+            <Hash className="w-3.5 h-3.5 text-[#0099ff]" /> GST Number: 22AADCS3777J1Z6
+          </div>
+
+          <form onSubmit={handleSearchSubmit} className="relative flex items-center w-full max-w-sm shrink-0">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search Products..."
+              className="w-full bg-gray-800 text-xs text-white rounded-full pl-4 pr-10 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#0099ff] border border-gray-700"
+            />
+            <button
+              type="submit"
+              className="absolute right-1 p-1 bg-[#0099ff] hover:bg-blue-600 rounded-full transition-all text-white cursor-pointer"
+            >
+              <Search className="w-3 h-3" />
+            </button>
+          </form>
+        </div>
+      </div>
+
       {/* Navigation Bar */}
       <motion.nav
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        className={`fixed top-11 left-0 right-0 z-50 transition-all duration-300 ${
           isScrolled ? 'bg-white/85 backdrop-blur-md shadow-sm py-3 border-b border-gray-100' : 'bg-transparent py-5'
         }`}
       >
@@ -255,10 +376,12 @@ function App() {
 
           {/* Logo Brand area */}
           <div className="flex items-center cursor-pointer" onClick={() => navigateTo('home')}>
-            <div className="relative flex items-center gap-2">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#0099ff] to-[#0055ff] flex items-center justify-center text-white font-bold text-xl shadow-[0_4px_15px_rgba(0,153,255,0.3)]">
-                S
-              </div>
+            <div className="relative flex items-center gap-3">
+              <img
+                src="https://catalog.wlimg.com/1/6819962/other-images/12577-inner-comp-image.png"
+                alt="Sai Chemicals Logo"
+                className="h-10 w-auto object-contain"
+              />
               <div>
                 <span className="font-display font-bold text-lg md:text-xl tracking-tight text-gray-900 block leading-tight">
                   SAI CHEMICALS
@@ -274,7 +397,7 @@ function App() {
           <div className="hidden md:flex items-center gap-8 text-[15px] font-medium text-gray-600">
             <button
               onClick={() => navigateTo('home')}
-              className={`relative py-2 hover:text-black transition-colors ${currentPage === 'home' ? 'text-black font-semibold' : ''}`}
+              className={`relative py-2 hover:text-black transition-colors cursor-pointer ${currentPage === 'home' ? 'text-black font-semibold' : ''}`}
             >
               Home
               {currentPage === 'home' && (
@@ -283,7 +406,7 @@ function App() {
             </button>
             <button
               onClick={() => navigateTo('about')}
-              className={`relative py-2 hover:text-black transition-colors ${currentPage === 'about' ? 'text-black font-semibold' : ''}`}
+              className={`relative py-2 hover:text-black transition-colors cursor-pointer ${currentPage === 'about' ? 'text-black font-semibold' : ''}`}
             >
               About Us
               {currentPage === 'about' && (
@@ -299,7 +422,7 @@ function App() {
             >
               <button
                 onClick={() => navigateTo('products')}
-                className={`relative py-2 hover:text-black flex items-center gap-1 transition-colors ${currentPage === 'products' ? 'text-black font-semibold' : ''}`}
+                className={`relative py-2 hover:text-black flex items-center gap-1 transition-colors cursor-pointer ${currentPage === 'products' ? 'text-black font-semibold' : ''}`}
               >
                 Products
                 <ChevronDown className="w-4 h-4 transition-transform duration-200" style={{ transform: productsDropdownOpen ? 'rotate(180deg)' : 'none' }} />
@@ -322,14 +445,14 @@ function App() {
                     </div>
                     <button
                       onClick={() => navigateTo('products', 'silico-manganese')}
-                      className="text-left w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-xl transition-colors flex items-center justify-between group"
+                      className="text-left w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-xl transition-colors flex items-center justify-between group cursor-pointer"
                     >
                       <span>Silico Manganese</span>
                       <ChevronRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all text-[#0099ff]" />
                     </button>
                     <button
                       onClick={() => navigateTo('products', 'pig-iron')}
-                      className="text-left w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-xl transition-colors flex items-center justify-between group"
+                      className="text-left w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-xl transition-colors flex items-center justify-between group cursor-pointer"
                     >
                       <span>Pig Iron Lumps</span>
                       <ChevronRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all text-[#0099ff]" />
@@ -338,7 +461,7 @@ function App() {
                     <div className="border-t border-gray-100 my-1 pt-1">
                       <button
                         onClick={() => navigateTo('products', 'all')}
-                        className="text-left w-full px-3 py-2 text-xs font-semibold text-[#0099ff] hover:bg-blue-50 rounded-xl transition-colors flex items-center justify-between"
+                        className="text-left w-full px-3 py-2 text-xs font-semibold text-[#0099ff] hover:bg-blue-50 rounded-xl transition-colors flex items-center justify-between cursor-pointer"
                       >
                         <span>View All Products</span>
                         <ArrowRight className="w-3 h-3" />
@@ -351,7 +474,7 @@ function App() {
 
             <button
               onClick={() => navigateTo('contact')}
-              className={`relative py-2 hover:text-black transition-colors ${currentPage === 'contact' ? 'text-black font-semibold' : ''}`}
+              className={`relative py-2 hover:text-black transition-colors cursor-pointer ${currentPage === 'contact' ? 'text-black font-semibold' : ''}`}
             >
               Contact Us
               {currentPage === 'contact' && (
@@ -375,7 +498,7 @@ function App() {
 
           {/* Mobile menu trigger */}
           <button
-            className="md:hidden p-2 rounded-xl bg-gray-50 text-gray-800"
+            className="md:hidden p-2 rounded-xl bg-gray-50 text-gray-800 cursor-pointer"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
             {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -395,13 +518,13 @@ function App() {
               <div className="px-6 py-5 flex flex-col gap-4">
                 <button
                   onClick={() => navigateTo('home')}
-                  className={`text-left text-lg font-semibold py-1.5 border-b border-gray-50 ${currentPage === 'home' ? 'text-[#0099ff]' : 'text-gray-800'}`}
+                  className={`text-left text-lg font-semibold py-1.5 border-b border-gray-50 cursor-pointer ${currentPage === 'home' ? 'text-[#0099ff]' : 'text-gray-800'}`}
                 >
                   Home
                 </button>
                 <button
                   onClick={() => navigateTo('about')}
-                  className={`text-left text-lg font-semibold py-1.5 border-b border-gray-50 ${currentPage === 'about' ? 'text-[#0099ff]' : 'text-gray-800'}`}
+                  className={`text-left text-lg font-semibold py-1.5 border-b border-gray-50 cursor-pointer ${currentPage === 'about' ? 'text-[#0099ff]' : 'text-gray-800'}`}
                 >
                   About Us
                 </button>
@@ -411,19 +534,19 @@ function App() {
                   <div className="text-sm font-bold uppercase tracking-wider text-gray-400">Our Products</div>
                   <button
                     onClick={() => navigateTo('products', 'silico-manganese')}
-                    className="text-left text-base text-gray-700 pl-4 py-1 flex items-center gap-2"
+                    className="text-left text-base text-gray-700 pl-4 py-1 flex items-center gap-2 cursor-pointer"
                   >
                     <span className="w-1.5 h-1.5 rounded-full bg-[#0099ff]" /> Silico Manganese
                   </button>
                   <button
                     onClick={() => navigateTo('products', 'pig-iron')}
-                    className="text-left text-base text-gray-700 pl-4 py-1 flex items-center gap-2"
+                    className="text-left text-base text-gray-700 pl-4 py-1 flex items-center gap-2 cursor-pointer"
                   >
                     <span className="w-1.5 h-1.5 rounded-full bg-[#0099ff]" /> Pig Iron Lumps
                   </button>
                   <button
                     onClick={() => navigateTo('products', 'all')}
-                    className="text-left text-sm text-[#0099ff] pl-4 font-semibold py-1"
+                    className="text-left text-sm text-[#0099ff] pl-4 font-semibold py-1 cursor-pointer"
                   >
                     View All Products &rarr;
                   </button>
@@ -431,14 +554,14 @@ function App() {
 
                 <button
                   onClick={() => navigateTo('contact')}
-                  className={`text-left text-lg font-semibold py-1.5 border-b border-gray-50 ${currentPage === 'contact' ? 'text-[#0099ff]' : 'text-gray-800'}`}
+                  className={`text-left text-lg font-semibold py-1.5 border-b border-gray-50 cursor-pointer ${currentPage === 'contact' ? 'text-[#0099ff]' : 'text-gray-800'}`}
                 >
                   Contact Us
                 </button>
 
                 <button
                   onClick={() => openEnquiryModal('General Query')}
-                  className="btn-odysser w-full mt-2 py-3 bg-[#0099ff] hover:bg-blue-600 text-white rounded-xl font-semibold text-center"
+                  className="btn-odysser w-full mt-2 py-3 bg-[#0099ff] hover:bg-blue-600 text-white rounded-xl font-semibold text-center cursor-pointer"
                 >
                   Enquiry Now
                 </button>
@@ -449,20 +572,17 @@ function App() {
       </motion.nav>
 
       {/* Main Dynamic Viewport Container */}
-      <div className="pt-24 md:pt-28 pb-10">
+      <div className="pt-32 md:pt-36 pb-10">
 
         {/* ================= HOME PAGE ================= */}
         {currentPage === 'home' && selectedProductId === null && (
           <div>
-            {/* Hero Section */}
-            <section className="relative pt-12 pb-20 md:pt-20 md:pb-28 px-6 text-center">
-              <div className="max-w-5xl mx-auto">
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.92 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.6 }}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 border border-blue-100 shadow-sm mb-6"
-                >
+            {/* Hero Header Area Reorganized */}
+            <section className="relative pt-6 pb-12 px-6 text-center">
+              <div className="max-w-4xl mx-auto space-y-6">
+
+                {/* Certified Manufacturer badge */}
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 border border-blue-100 shadow-sm">
                   <span className="relative flex h-2.5 w-2.5">
                     <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-blue-400 opacity-75"></span>
                     <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[#0099ff]"></span>
@@ -470,36 +590,33 @@ function App() {
                   <span className="text-xs font-semibold uppercase tracking-wider text-blue-800">
                     ISO 9001:2015 Certified Manufacturer
                   </span>
-                </motion.div>
+                </div>
 
-                <motion.h1
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8, delay: 0.1 }}
-                  className="text-4xl md:text-6xl lg:text-7xl font-display font-bold tracking-tight text-gray-900 leading-tight"
-                >
-                  Sai Chemicals <br />
-                  <span className="text-[#0099ff]">Private Limited</span>
-                </motion.h1>
+                {/* Brand Showcase Area */}
+                <div className="glass-card p-6 md:p-8 bg-white/80 border border-gray-100 flex flex-col md:flex-row items-center justify-center gap-6 max-w-3xl mx-auto shadow-md">
+                  <img
+                    src="https://catalog.wlimg.com/1/6819962/other-images/12577-inner-comp-image.png"
+                    alt="Sai Chemicals Official Logo"
+                    className="h-16 w-auto object-contain shrink-0"
+                  />
+                  <div className="text-center md:text-left">
+                    <h2 className="text-2xl md:text-3xl font-display font-extrabold text-gray-900 tracking-tight leading-tight uppercase">
+                      Sai Chemicals Private Limited
+                    </h2>
+                    <p className="text-[#0099ff] font-semibold text-sm mt-1 flex items-center justify-center md:justify-start gap-1">
+                      <MapPin className="w-4 h-4" /> Rajnandgaon, Chhattisgarh
+                    </p>
+                    <p className="text-xs text-gray-400 font-semibold mt-1 tracking-wider">
+                      GST Number: 22AADCS3777J1Z6
+                    </p>
+                  </div>
+                </div>
 
-                <motion.p
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8, delay: 0.2 }}
-                  className="mt-6 text-lg md:text-2xl text-gray-600 max-w-3xl mx-auto leading-relaxed"
-                >
-                  Ferro Silico Manganese Lumps Manufacturer and Supplier at competitive prices. Providing industry-leading metallurgical raw materials with pure, accurate physical & chemical composition.
-                </motion.p>
-
-                <motion.div
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8, delay: 0.3 }}
-                  className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4"
-                >
+                {/* Call to Actions Only below */}
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
                   <button
                     onClick={() => navigateTo('products')}
-                    className="btn-odysser px-8 py-4 bg-black text-white hover:bg-black/90 font-semibold text-lg w-full sm:w-auto shadow-xl group cursor-pointer"
+                    className="btn-odysser px-8 py-3.5 bg-black text-white hover:bg-black/90 font-semibold text-base w-full sm:w-auto shadow-xl group cursor-pointer"
                   >
                     <span className="relative z-10 flex items-center justify-center gap-2">
                       Explore Products
@@ -510,51 +627,91 @@ function App() {
 
                   <button
                     onClick={() => navigateTo('about')}
-                    className="px-8 py-4 bg-white hover:bg-gray-50 border border-gray-200 text-gray-700 font-semibold text-lg w-full sm:w-auto rounded-xl shadow-sm transition-all cursor-pointer"
+                    className="px-8 py-3.5 bg-white hover:bg-gray-50 border border-gray-200 text-gray-700 font-semibold text-base w-full sm:w-auto rounded-xl shadow-sm transition-all cursor-pointer"
                   >
                     Learn About Us
                   </button>
-                </motion.div>
+                </div>
+
               </div>
             </section>
 
-            {/* Glimpse / Counter Statistics Grid */}
-            <section className="py-12 px-6">
-              <div className="max-w-6xl mx-auto">
-                <div className="glass-card p-8 md:p-12 relative overflow-hidden bg-white/70">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-blue-100/30 rounded-full blur-2xl" />
+            {/* SMOOTH PRODUCT SLIDESHOW */}
+            <section className="py-6 px-6 max-w-5xl mx-auto">
+              <div className="relative glass-card overflow-hidden bg-gradient-to-tr from-gray-900 to-slate-800 text-white rounded-3xl aspect-[16/9] md:aspect-[21/9] flex items-center justify-between group shadow-xl">
 
-                  <div className="text-center mb-10">
-                    <h3 className="text-sm font-bold uppercase tracking-widest text-[#0099ff] mb-2">Corporate Profile</h3>
-                    <h2 className="text-3xl font-bold font-display tracking-tight">Glimpse of Our Company</h2>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {[
-                      { icon: <Briefcase className="w-6 h-6 text-[#0099ff]" />, label: 'Nature of Business', value: 'Manufacturers, Exporters, Wholesaler' },
-                      { icon: <Users className="w-6 h-6 text-[#0099ff]" />, label: 'Number of Employees', value: '11 to 25 People' },
-                      { icon: <Calendar className="w-6 h-6 text-[#0099ff]" />, label: 'Year of Establishment', value: '1994' },
-                      { icon: <Globe className="w-6 h-6 text-[#0099ff]" />, label: 'Market Covered', value: 'Globally' }
-                    ].map((stat, idx) => (
-                      <motion.div
-                        key={idx}
-                        whileHover={{ y: -5 }}
-                        className="p-6 bg-white rounded-2xl border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.02)] flex flex-col items-center text-center"
-                      >
-                        <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center mb-4">
-                          {stat.icon}
-                        </div>
-                        <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">{stat.label}</div>
-                        <div className="text-base font-bold text-gray-800 leading-snug">{stat.value}</div>
-                      </motion.div>
-                    ))}
-                  </div>
+                {/* Slide Viewport */}
+                <div className="absolute inset-0 z-0">
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={activeSlide}
+                      initial={{ opacity: 0, scale: 1.05 }}
+                      animate={{ opacity: 0.35, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      transition={{ duration: 0.6 }}
+                      className="absolute inset-0 bg-cover bg-center"
+                      style={{ backgroundImage: `url(${PRODUCTS[activeSlide].imageUrl})` }}
+                    />
+                  </AnimatePresence>
+                  {/* Subtle vignette gradient */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-900/40 to-gray-950/20" />
                 </div>
+
+                {/* Slide content overlay */}
+                <div className="relative z-10 p-6 md:p-12 max-w-lg space-y-4">
+                  <span className="px-3 py-1 bg-[#0099ff] text-white text-[10px] font-bold uppercase rounded-full tracking-widest">
+                    {PRODUCTS[activeSlide].categoryLabel}
+                  </span>
+                  <h3 className="text-2xl md:text-4xl font-display font-extrabold tracking-tight text-white">
+                    {PRODUCTS[activeSlide].name}
+                  </h3>
+                  <p className="text-gray-300 text-xs md:text-sm leading-relaxed line-clamp-2">
+                    {PRODUCTS[activeSlide].description}
+                  </p>
+                  <div className="flex flex-wrap items-center gap-4 text-xs">
+                    <span className="font-bold text-[#0099ff]">{PRODUCTS[activeSlide].price}</span>
+                    <span className="text-gray-400">MOQ: {PRODUCTS[activeSlide].moq}</span>
+                  </div>
+                  <button
+                    onClick={() => navigateTo('products', PRODUCTS[activeSlide].category, PRODUCTS[activeSlide].id)}
+                    className="px-4 py-2 bg-white text-black font-semibold text-xs rounded-lg hover:bg-gray-100 transition-all cursor-pointer"
+                  >
+                    View Specifications &rarr;
+                  </button>
+                </div>
+
+                {/* Left arrow controls */}
+                <button
+                  onClick={handlePrevSlide}
+                  className="absolute left-4 z-20 p-2 rounded-full bg-black/40 hover:bg-black/60 text-white opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+
+                {/* Right arrow controls */}
+                <button
+                  onClick={handleNextSlide}
+                  className="absolute right-4 z-20 p-2 rounded-full bg-black/40 hover:bg-black/60 text-white opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+
+                {/* Navigation Dots */}
+                <div className="absolute bottom-4 left-0 right-0 z-20 flex justify-center gap-1.5">
+                  {PRODUCTS.map((_, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setActiveSlide(idx)}
+                      className={`w-2 h-2 rounded-full transition-all cursor-pointer ${activeSlide === idx ? 'bg-[#0099ff] w-5' : 'bg-white/40'}`}
+                    />
+                  ))}
+                </div>
+
               </div>
             </section>
 
             {/* Brief About Section */}
-            <section className="py-16 px-6">
+            <section className="py-12 px-6">
               <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
                 <div className="space-y-6">
                   <div className="inline-block px-3 py-1 bg-blue-50 border border-blue-100 rounded-full text-xs font-bold text-[#0099ff] uppercase tracking-wider">
@@ -580,7 +737,6 @@ function App() {
                 </div>
 
                 <div className="relative">
-                  {/* Decorative background container resembling the exquisite depth and shadow of orchids-av */}
                   <div className="absolute inset-0 bg-gradient-to-tr from-[#0099ff]/10 to-transparent rounded-3xl blur-2xl transform rotate-3" />
                   <div className="relative glass-card bg-white p-8 border border-gray-100 flex flex-col gap-6 shadow-xl">
                     <div className="flex items-start gap-4">
@@ -606,10 +762,10 @@ function App() {
               </div>
             </section>
 
-            {/* Latest Products Grid section */}
-            <section className="py-20 px-6 bg-gradient-to-b from-transparent to-gray-50">
+            {/* Latest Products Grid section - Displays all 5 products */}
+            <section className="py-16 px-6 bg-gradient-to-b from-transparent to-gray-50">
               <div className="max-w-6xl mx-auto">
-                <div className="text-center mb-16">
+                <div className="text-center mb-12">
                   <span className="text-[#0099ff] font-bold text-xs uppercase tracking-widest block mb-2">Our Offerings</span>
                   <h2 className="text-3xl md:text-5xl font-display font-bold tracking-tight text-gray-900">Latest Products</h2>
                   <p className="text-gray-500 mt-4 max-w-2xl mx-auto">Explore our range of Silico Manganese and Pig Iron Lumps designed for high-performance metallurgy.</p>
@@ -620,20 +776,23 @@ function App() {
                     <motion.div
                       key={prod.id}
                       whileHover={{ y: -8 }}
-                      className="bg-white rounded-3xl border border-gray-100 shadow-[0_10px_35px_rgba(0,0,0,0.03)] overflow-hidden flex flex-col h-full"
+                      className="bg-white rounded-3xl border border-gray-100/60 shadow-[0_10px_35px_rgba(0,0,0,0.03)] overflow-hidden flex flex-col h-full"
                     >
                       {/* Product Visual Area */}
-                      <div className="h-48 bg-gradient-to-tr from-gray-900 to-slate-800 p-6 flex flex-col justify-between relative overflow-hidden">
-                        {/* Abstract pattern to make fallback visual very polished */}
-                        <div className="absolute inset-0 opacity-15 mix-blend-overlay bg-repeat" style={{ backgroundImage: 'radial-gradient(circle, #fff 10%, transparent 11%)', backgroundSize: '12px 12px' }} />
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-[#0099ff]/20 rounded-full blur-2xl" />
+                      <div className="h-48 bg-gray-100 relative overflow-hidden">
+                        <img
+                          src={prod.imageUrl}
+                          alt={prod.name}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
 
-                        <span className="px-3 py-1 bg-white/10 backdrop-blur-md rounded-full text-[10px] uppercase tracking-wider font-bold text-white w-fit">
+                        <span className="absolute top-4 left-4 px-3 py-1 bg-white/25 backdrop-blur-md rounded-full text-[10px] uppercase tracking-wider font-bold text-white">
                           {prod.categoryLabel}
                         </span>
 
-                        <div className="relative z-10">
-                          <h3 className="text-xl font-bold font-display text-white tracking-tight leading-tight">
+                        <div className="absolute bottom-4 left-4 right-4 z-10">
+                          <h3 className="text-lg font-bold font-display text-white tracking-tight leading-tight">
                             {prod.name}
                           </h3>
                         </div>
@@ -646,9 +805,14 @@ function App() {
                             {prod.description}
                           </p>
 
+                          <div className="flex justify-between items-center bg-blue-50/50 rounded-xl px-4 py-2 text-xs">
+                            <span className="text-blue-700 font-bold uppercase tracking-wider">Price</span>
+                            <span className="text-gray-800 font-extrabold">{prod.price}</span>
+                          </div>
+
                           {/* Quick spec table */}
                           <div className="bg-gray-50 rounded-2xl p-4 space-y-2 text-xs">
-                            {Object.entries(prod.specs).slice(0, 3).map(([key, value]) => (
+                            {Object.entries(prod.specs).slice(0, 4).map(([key, value]) => (
                               <div key={key} className="flex justify-between border-b border-gray-100 pb-1.5 last:border-0 last:pb-0">
                                 <span className="text-gray-400 font-medium">{key}</span>
                                 <span className="text-gray-800 font-semibold text-right">{value}</span>
@@ -680,9 +844,9 @@ function App() {
             </section>
 
             {/* Quality, Product Assurance, Why us? Key Insights Tabs/Cards */}
-            <section className="py-20 px-6">
+            <section className="py-16 px-6">
               <div className="max-w-6xl mx-auto">
-                <div className="text-center mb-16">
+                <div className="text-center mb-12">
                   <span className="text-[#0099ff] font-bold text-xs uppercase tracking-widest block mb-2">Our Pillars</span>
                   <h2 className="text-3xl md:text-5xl font-display font-bold tracking-tight text-gray-900">Why Partner With Us?</h2>
                 </div>
@@ -728,9 +892,9 @@ function App() {
             </section>
 
             {/* Testimonials section */}
-            <section className="py-20 px-6 bg-gray-50/50">
+            <section className="py-16 px-6 bg-gray-50/50">
               <div className="max-w-6xl mx-auto">
-                <div className="text-center mb-16">
+                <div className="text-center mb-12">
                   <span className="text-[#0099ff] font-bold text-xs uppercase tracking-widest block mb-2">Feedbacks</span>
                   <h2 className="text-3xl md:text-5xl font-display font-bold tracking-tight text-gray-900">Client Testimonials</h2>
                   <p className="text-gray-500 mt-4">Hear from standard steel mill complexes and exporters who trust our chemicals.</p>
@@ -765,11 +929,11 @@ function App() {
 
         {/* ================= ABOUT US PAGE ================= */}
         {currentPage === 'about' && selectedProductId === null && (
-          <div className="px-6 py-8 md:py-16">
+          <div className="px-6 py-8 md:py-12">
             <div className="max-w-6xl mx-auto">
 
               {/* Breadcrumb & Header */}
-              <div className="mb-12 text-center md:text-left">
+              <div className="mb-10 text-center md:text-left">
                 <div className="flex justify-center md:justify-start items-center gap-2 text-xs text-gray-400 font-medium uppercase tracking-wider mb-3">
                   <button onClick={() => navigateTo('home')} className="hover:text-black cursor-pointer">Home</button>
                   <ChevronRight className="w-3 h-3" />
@@ -807,25 +971,30 @@ function App() {
                   </div>
                 </div>
 
-                {/* Right Area: Corporate Profile Specs */}
+                {/* Right Area: Corporate Profile Specs - REMOVED BOXES AND MADE IT A BEAUTIFUL VERTICAL TEXT FORMAT LIST */}
                 <div className="space-y-6">
-                  <div className="glass-card bg-white p-6 md:p-8 border border-gray-100 shadow-xl">
-                    <h3 className="text-xl font-bold font-display mb-6 pb-3 border-b border-gray-100">Corporate Details</h3>
+                  <div className="glass-card bg-white p-8 border border-gray-100 shadow-xl">
+                    <h3 className="text-xl font-bold font-display mb-6 pb-3 border-b border-gray-100 text-gray-900">Corporate Details</h3>
 
-                    <div className="space-y-4 text-sm">
+                    <div className="space-y-5">
                       {[
-                        { label: 'Nature of Business', value: 'Manufacturers, Exporters, Wholesaler' },
-                        { label: 'Number of Employees', value: '11 to 25 People' },
-                        { label: 'Year of Establishment', value: '1994' },
-                        { label: 'Market Covered', value: 'Globally' },
-                        { label: 'Name of CEO', value: 'Mr. Rahul Sial' },
-                        { label: 'GST No', value: '22AADCS3777J1Z6' },
-                        { label: 'Annual Turnover', value: 'Rs. 25 - 50 Crore' },
-                        { label: 'Legal Status of Firm', value: 'Limited Company (Ltd./Pvt.Ltd.)' }
+                        { icon: <Briefcase className="w-5 h-5 text-[#0099ff]" />, label: 'Nature of Business', value: 'Manufacturers, Exporters, Wholesaler' },
+                        { icon: <Users className="w-5 h-5 text-[#0099ff]" />, label: 'Number of Employees', value: '11 to 25 People' },
+                        { icon: <Calendar className="w-5 h-5 text-[#0099ff]" />, label: 'Year of Establishment', value: '1994' },
+                        { icon: <Globe className="w-5 h-5 text-[#0099ff]" />, label: 'Market Covered', value: 'Globally' },
+                        { icon: <Info className="w-5 h-5 text-[#0099ff]" />, label: 'Name of CEO', value: 'Mr. Rahul Sial' },
+                        { icon: <Hash className="w-5 h-5 text-[#0099ff]" />, label: 'GST Number', value: '22AADCS3777J1Z6' },
+                        { icon: <DollarSign className="w-5 h-5 text-[#0099ff]" />, label: 'Annual Turnover', value: 'Rs. 25 - 50 Crore' },
+                        { icon: <TrendingUp className="w-5 h-5 text-[#0099ff]" />, label: 'Legal Status of Firm', value: 'Limited Company (Ltd./Pvt.Ltd.)' }
                       ].map((item, idx) => (
-                        <div key={idx} className="flex flex-col border-b border-gray-50 pb-3 last:border-0 last:pb-0">
-                          <span className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">{item.label}</span>
-                          <span className="font-semibold text-gray-800 text-sm">{item.value}</span>
+                        <div key={idx} className="flex items-start gap-3.5 border-b border-gray-50 pb-4 last:border-0 last:pb-0">
+                          <div className="p-2 bg-blue-50/50 rounded-xl shrink-0">
+                            {item.icon}
+                          </div>
+                          <div>
+                            <span className="block text-[11px] font-bold text-gray-400 uppercase tracking-widest">{item.label}</span>
+                            <span className="block font-bold text-gray-800 text-sm mt-0.5 leading-snug">{item.value}</span>
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -852,11 +1021,11 @@ function App() {
 
         {/* ================= PRODUCTS PAGE ================= */}
         {currentPage === 'products' && selectedProductId === null && (
-          <div className="px-6 py-8 md:py-16">
+          <div className="px-6 py-8 md:py-12">
             <div className="max-w-6xl mx-auto">
 
               {/* Header */}
-              <div className="mb-12 text-center md:text-left">
+              <div className="mb-10 text-center md:text-left">
                 <div className="flex justify-center md:justify-start items-center gap-2 text-xs text-gray-400 font-medium uppercase tracking-wider mb-3">
                   <button onClick={() => navigateTo('home')} className="hover:text-black cursor-pointer">Home</button>
                   <ChevronRight className="w-3 h-3" />
@@ -912,29 +1081,42 @@ function App() {
                     className="bg-white rounded-3xl border border-gray-100 shadow-[0_10px_35px_rgba(0,0,0,0.03)] overflow-hidden flex flex-col h-full"
                   >
                     {/* Visual Area */}
-                    <div className="h-44 bg-gradient-to-tr from-gray-900 to-slate-800 p-6 flex flex-col justify-between relative overflow-hidden">
-                      <div className="absolute inset-0 opacity-15 mix-blend-overlay bg-repeat" style={{ backgroundImage: 'radial-gradient(circle, #fff 10%, transparent 11%)', backgroundSize: '12px 12px' }} />
-                      <div className="absolute top-0 right-0 w-32 h-32 bg-[#0099ff]/20 rounded-full blur-2xl" />
+                    <div className="h-44 relative overflow-hidden">
+                      <img src={prod.imageUrl} alt={prod.name} className="w-full h-full object-cover" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
 
-                      <span className="px-3 py-1 bg-white/10 backdrop-blur-md rounded-full text-[10px] uppercase tracking-wider font-bold text-white w-fit">
+                      <span className="absolute top-4 left-4 px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-[10px] uppercase tracking-wider font-bold text-white">
                         {prod.categoryLabel}
                       </span>
 
-                      <h3 className="text-lg font-bold font-display text-white tracking-tight leading-tight relative z-10">
+                      <h3 className="absolute bottom-4 left-4 right-4 text-lg font-bold font-display text-white tracking-tight leading-tight z-10">
                         {prod.name}
                       </h3>
                     </div>
 
                     <div className="p-6 flex-1 flex flex-col justify-between">
                       <div className="space-y-4">
-                        <p className="text-sm text-gray-500 leading-relaxed">
+                        <p className="text-sm text-gray-500 leading-relaxed line-clamp-2">
                           {prod.description}
                         </p>
 
+                        <div className="flex justify-between items-center bg-blue-50/50 rounded-xl px-4 py-1.5 text-xs">
+                          <span className="text-blue-700 font-bold uppercase tracking-wider">Price</span>
+                          <span className="text-gray-800 font-extrabold">{prod.price}</span>
+                        </div>
+
                         {/* Complete Specifications Grid */}
                         <div className="bg-gray-50 rounded-2xl p-4 space-y-2">
-                          <div className="text-[10px] uppercase font-bold text-gray-400 tracking-wider mb-2">Technical Properties</div>
-                          {Object.entries(prod.specs).map(([key, value]) => (
+                          <div className="text-[10px] uppercase font-bold text-gray-400 tracking-wider mb-2 flex items-center gap-1">
+                            <FileSpreadsheet className="w-3.5 h-3.5 text-[#0099ff]" /> Technical Properties
+                          </div>
+
+                          <div className="flex justify-between border-b border-gray-100 pb-1.5 text-xs">
+                            <span className="text-gray-400 font-medium">MOQ</span>
+                            <span className="text-gray-800 font-bold">{prod.moq}</span>
+                          </div>
+
+                          {Object.entries(prod.specs).slice(0, 5).map(([key, value]) => (
                             <div key={key} className="flex justify-between border-b border-gray-100 pb-1.5 last:border-0 last:pb-0 text-xs">
                               <span className="text-gray-400 font-medium">{key}</span>
                               <span className="text-gray-800 font-semibold text-right">{value}</span>
@@ -973,7 +1155,7 @@ function App() {
             const prod = PRODUCTS.find(p => p.id === selectedProductId);
             if (!prod) return <div className="text-center py-20">Product not found.</div>;
             return (
-              <div className="px-6 py-8 md:py-16">
+              <div className="px-6 py-8 md:py-12">
                 <div className="max-w-5xl mx-auto">
 
                   {/* Breadcrumb */}
@@ -987,28 +1169,38 @@ function App() {
 
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
                     {/* Visual representation */}
-                    <div className="glass-card bg-gradient-to-tr from-gray-900 to-slate-800 text-white p-8 md:p-12 relative overflow-hidden aspect-[4/3] flex flex-col justify-between shadow-xl min-h-[300px]">
-                      <div className="absolute inset-0 opacity-10 mix-blend-overlay bg-repeat" style={{ backgroundImage: 'radial-gradient(circle, #fff 10%, transparent 11%)', backgroundSize: '16px 16px' }} />
-                      <div className="absolute bottom-[-10%] right-[-10%] w-[350px] h-[350px] bg-[#0099ff]/30 rounded-full blur-[90px]" />
+                    <div className="glass-card overflow-hidden text-white relative aspect-[4/3] flex flex-col justify-between shadow-xl min-h-[300px]">
+                      <img src={prod.imageUrl} alt={prod.name} className="absolute inset-0 w-full h-full object-cover" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
 
-                      <span className="px-3 py-1 bg-white/15 backdrop-blur-md rounded-full text-xs uppercase tracking-wider font-bold text-white w-fit">
+                      <span className="absolute top-6 left-6 px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-xs uppercase tracking-wider font-bold text-white">
                         {prod.categoryLabel}
                       </span>
 
-                      <div>
-                        <h1 className="text-3xl md:text-5xl font-display font-bold leading-tight tracking-tight">
+                      <div className="relative z-10 p-6 md:p-8">
+                        <h1 className="text-3xl md:text-4xl font-display font-extrabold leading-tight tracking-tight text-white uppercase">
                           {prod.name}
                         </h1>
-                        <p className="text-gray-300 text-sm mt-3 leading-relaxed max-w-md">Sai Chemicals Private Limited Grade Metallurgy specifications verified.</p>
+                        <p className="text-gray-300 text-xs mt-3 leading-relaxed max-w-md">Sai Chemicals Private Limited Grade Metallurgy specifications verified.</p>
                       </div>
                     </div>
 
-                    {/* Specifications table */}
+                    {/* Specifications table - MOUNTING EVERY SINGLE PROPERTY */}
                     <div className="space-y-6">
                       <div className="glass-card bg-white p-6 md:p-8 border border-gray-100 shadow-xl">
                         <h2 className="text-xl font-bold font-display mb-4">Technical Specifications</h2>
 
                         <div className="space-y-3.5">
+                          <div className="flex justify-between items-center border-b border-gray-50 pb-3 text-sm">
+                            <span className="text-gray-400 font-bold uppercase text-[11px] tracking-wider">Price</span>
+                            <span className="text-[#0099ff] font-extrabold text-base text-right">{prod.price}</span>
+                          </div>
+
+                          <div className="flex justify-between items-center border-b border-gray-50 pb-3 text-sm">
+                            <span className="text-gray-400 font-bold uppercase text-[11px] tracking-wider">Minimum Order Quantity (MOQ)</span>
+                            <span className="text-gray-800 font-bold text-right">{prod.moq}</span>
+                          </div>
+
                           {Object.entries(prod.specs).map(([key, value]) => (
                             <div key={key} className="flex justify-between items-center border-b border-gray-50 pb-3 last:border-0 last:pb-0 text-sm">
                               <span className="text-gray-400 font-bold uppercase text-[11px] tracking-wider">{key}</span>
@@ -1057,11 +1249,11 @@ function App() {
 
         {/* ================= CONTACT US PAGE ================= */}
         {currentPage === 'contact' && selectedProductId === null && (
-          <div className="px-6 py-8 md:py-16">
+          <div className="px-6 py-8 md:py-12">
             <div className="max-w-6xl mx-auto">
 
               {/* Header */}
-              <div className="mb-12 text-center md:text-left">
+              <div className="mb-10 text-center md:text-left">
                 <div className="flex justify-center md:justify-start items-center gap-2 text-xs text-gray-400 font-medium uppercase tracking-wider mb-3">
                   <button onClick={() => navigateTo('home')} className="hover:text-black cursor-pointer">Home</button>
                   <ChevronRight className="w-3 h-3" />
@@ -1245,28 +1437,38 @@ function App() {
 
       </div>
 
-      {/* Quick Enquiry Floating Button */}
-      <div className="fixed bottom-6 right-6 z-40 flex flex-col gap-3">
-        <a
-          href="https://api.whatsapp.com/send?phone=919425234682&text=Hello!+I+found+your+website+https://www.saichemicalsindia.in+and+am+interested+in+your+products."
-          target="_blank"
-          rel="noopener noreferrer"
-          className="w-14 h-14 rounded-full bg-[#25D366] text-white flex items-center justify-center shadow-2xl hover:scale-105 transition-all"
-          title="WhatsApp Us"
-        >
-          {/* Custom SVG logo of Whatsapp */}
-          <svg className="w-7 h-7 fill-current" viewBox="0 0 24 24">
-            <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.003 5.424 5.429 0 12.04 0c3.202.001 6.212 1.249 8.477 3.518 2.263 2.268 3.507 5.28 3.505 8.484-.004 6.612-5.43 12.03-12.04 12.03-2.002-.001-3.97-.502-5.713-1.455L0 24zm6.59-4.846c1.6.95 3.167 1.451 4.793 1.452 5.518 0 10.006-4.485 10.01-10.004.002-2.673-1.036-5.187-2.923-7.073C16.541 1.642 14.032.602 11.36.602c-5.518 0-10.007 4.487-10.011 10.006-.001 1.83.483 3.61 1.4 5.17l-1.02 3.722 3.828-1.004zm12.106-5.495c-.328-.164-1.942-.958-2.242-1.068-.3-.11-.518-.164-.737.164-.219.328-.847 1.068-1.038 1.286-.192.219-.383.246-.711.082-.328-.164-1.386-.51-2.64-1.627-.976-.87-1.633-1.947-1.825-2.275-.192-.328-.02-.505.144-.668.148-.146.328-.383.493-.574.164-.192.219-.328.328-.546.11-.219.055-.41-.027-.574-.082-.164-.737-1.777-1.01-2.433-.267-.64-.539-.553-.738-.563-.19-.01-.41-.012-.628-.012-.218 0-.573.082-.873.41-.3.328-1.147 1.12-1.147 2.731 0 1.611 1.173 3.167 1.337 3.386.164.219 2.308 3.524 5.59 4.945.78.338 1.39.54 1.867.691.783.25 1.496.214 2.06.13.627-.094 1.943-.794 2.216-1.53.273-.737.273-1.366.191-1.5-.082-.134-.3-.219-.628-.383z" />
-          </svg>
-        </a>
-
+      {/* QUICK ACTIONS BOTTOM NAVIGATION BAR */}
+      <div className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-gray-100 py-2.5 px-6 shadow-[0_-5px_15px_rgba(0,0,0,0.03)] md:hidden flex justify-around items-center">
         <button
-          onClick={() => openEnquiryModal('General Query')}
-          className="w-14 h-14 rounded-full bg-[#0099ff] text-white flex items-center justify-center shadow-2xl hover:scale-105 transition-all cursor-pointer"
-          title="Send Quick Enquiry"
+          onClick={() => navigateTo('home')}
+          className="flex flex-col items-center gap-1 text-gray-400 hover:text-[#0099ff] transition-all cursor-pointer"
         >
-          <FileText className="w-6 h-6" />
+          <span className="text-[10px] font-bold tracking-wider uppercase">Home</span>
         </button>
+        <button
+          onClick={() => navigateTo('about')}
+          className="flex flex-col items-center gap-1 text-gray-400 hover:text-[#0099ff] transition-all cursor-pointer"
+        >
+          <span className="text-[10px] font-bold tracking-wider uppercase">Profile</span>
+        </button>
+        <button
+          onClick={() => navigateTo('products')}
+          className="flex flex-col items-center gap-1 text-gray-400 hover:text-[#0099ff] transition-all cursor-pointer"
+        >
+          <span className="text-[10px] font-bold tracking-wider uppercase">Products</span>
+        </button>
+        <button
+          onClick={() => navigateTo('contact')}
+          className="flex flex-col items-center gap-1 text-gray-400 hover:text-[#0099ff] transition-all cursor-pointer"
+        >
+          <span className="text-[10px] font-bold tracking-wider uppercase">Contact</span>
+        </button>
+        <a
+          href="tel:+919425234682"
+          className="flex flex-col items-center gap-1 text-gray-400 hover:text-[#0099ff] transition-all cursor-pointer"
+        >
+          <span className="text-[10px] font-bold tracking-wider uppercase">Call Us</span>
+        </a>
       </div>
 
       {/* Interactive Quick Quote Modal PopUp */}
@@ -1298,7 +1500,7 @@ function App() {
                 </div>
                 <button
                   onClick={() => setIsEnquiryModalOpen(false)}
-                  className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition-all text-white"
+                  className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition-all text-white cursor-pointer"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -1313,7 +1515,7 @@ function App() {
                     type="text"
                     readOnly
                     value={quickEnquiryForm.productName}
-                    className="w-full px-4 py-2.5 bg-gray-50 rounded-xl border border-gray-100 text-xs font-semibold text-gray-800"
+                    className="w-full px-4 py-2.5 bg-gray-50 rounded-xl border border-gray-100 text-xs font-semibold text-gray-800 focus:outline-none"
                   />
                 </div>
 
@@ -1349,7 +1551,7 @@ function App() {
                       type="text"
                       readOnly
                       value="India (+91)"
-                      className="w-full px-4 py-2.5 bg-gray-50 rounded-xl border border-gray-100 text-xs text-gray-500"
+                      className="w-full px-4 py-2.5 bg-gray-50 rounded-xl border border-gray-100 text-xs text-gray-500 focus:outline-none"
                     />
                   </div>
                   <div>
@@ -1409,9 +1611,11 @@ function App() {
           {/* Brand col */}
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-[#0099ff] to-[#0055ff] flex items-center justify-center text-white font-bold text-base shadow-md">
-                S
-              </div>
+              <img
+                src="https://catalog.wlimg.com/1/6819962/other-images/12577-inner-comp-image.png"
+                alt="Sai Chemicals Logo"
+                className="h-8 w-auto object-contain"
+              />
               <span className="font-display font-bold text-base tracking-tight text-gray-900 uppercase">
                 Sai Chemicals
               </span>
