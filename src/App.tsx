@@ -237,10 +237,34 @@ function App() {
   const [activeSlide, setActiveSlide] = useState(0);
   const autoSlideTimer = useRef<number | null>(null);
 
-  // Scroll detection for Navbar styling
+  // Touch handlers for mobile swipe
+  const touchStartX = useRef<number | null>(null);
+  const touchEndX = useRef<number | null>(null);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.targetTouches[0].clientX;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    touchEndX.current = e.targetTouches[0].clientX;
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStartX.current || !touchEndX.current) return;
+    const diffX = touchStartX.current - touchEndX.current;
+    if (diffX > 50) {
+      handleNextSlide();
+    } else if (diffX < -50) {
+      handlePrevSlide();
+    }
+    touchStartX.current = null;
+    touchEndX.current = null;
+  };
+
+  // Scroll detection for Navbar styling (adjusted threshold for brand header height)
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 40);
+      setIsScrolled(window.scrollY > 150);
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
@@ -340,20 +364,14 @@ function App() {
       </div>
 
       {/* SEARCH PRODUCTS BAR AT THE VERY TOP */}
-      <div className="bg-gray-900 text-white py-3 px-6 border-b border-gray-800 relative z-50">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          {/* Company identity neatly below search bar or in top bar */}
-          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 text-xs text-gray-300">
-            <div className="font-extrabold tracking-tight text-white flex items-center gap-2 uppercase">
-              <img src="/favicon.jpg" alt="Sai Baba Icon" className="w-5 h-5 rounded-full object-contain" />
-              Sai Chemicals Private Limited
-            </div>
-            <div className="flex items-center gap-1 text-gray-400">
-              <MapPin className="w-3.5 h-3.5 text-[#0099ff]" /> Rajnandgaon, Chhattisgarh
-            </div>
-            <div className="flex items-center gap-1 text-gray-400 font-semibold">
-              <Hash className="w-3.5 h-3.5 text-[#0099ff]" /> GST: 22AADCS3777J1Z6
-            </div>
+      <div className="bg-gray-950 text-white py-3.5 px-6 border-b border-gray-900 relative z-50">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+          <div className="flex items-center gap-2 text-xs font-semibold tracking-wider text-gray-400 uppercase">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-blue-400 opacity-75"></span>
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-[#0099ff]"></span>
+            </span>
+            <span>Welcome to Sai Chemicals Private Limited</span>
           </div>
 
           <form onSubmit={handleSearchSubmit} className="relative flex items-center w-full max-w-xs shrink-0">
@@ -362,25 +380,71 @@ function App() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search Products..."
-              className="w-full bg-gray-800 text-xs text-white rounded-full pl-4 pr-10 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#0099ff] border border-gray-700"
+              className="w-full bg-gray-900 text-xs text-white rounded-full pl-4 pr-10 py-2 focus:outline-none focus:ring-1 focus:ring-[#0099ff] border border-gray-800"
             />
             <button
               type="submit"
               className="absolute right-1 p-1 bg-[#0099ff] hover:bg-blue-600 rounded-full transition-all text-white cursor-pointer"
             >
-              <Search className="w-3 h-3" />
+              <Search className="w-3.5 h-3.5" />
             </button>
           </form>
         </div>
       </div>
 
-      {/* Navigation Bar */}
+      {/* PROMINENT BRAND HEADER IN THE WHITE SPACE BELOW SEARCH BAR */}
+      <div className="bg-white border-b border-gray-100 py-6 px-6 relative z-30 shadow-xs">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="flex items-center gap-4.5 text-center md:text-left flex-col md:flex-row">
+            <img
+              src="/favicon.jpg"
+              alt="Sai Chemicals Logo"
+              className="w-20 h-20 rounded-full object-contain shadow-md border border-gray-50 bg-white p-1"
+            />
+            <div>
+              <h1 className="text-2xl md:text-3.5xl font-extrabold tracking-tight text-gray-950 uppercase leading-none">
+                Sai Chemicals Private Limited
+              </h1>
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mt-1.5">
+                ISO 9001:2015 Certified Manufacturer, Exporter & Supplier
+              </p>
+            </div>
+          </div>
+
+          {/* Quick Stats / Info Details */}
+          <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-8 text-xs text-gray-500 font-semibold border-t sm:border-t-0 border-gray-100 pt-4 sm:pt-0 w-full md:w-auto justify-center md:justify-end">
+            <div className="flex items-center gap-2">
+              <div className="p-2 bg-blue-50 text-[#0099ff] rounded-xl">
+                <MapPin className="w-4 h-4" />
+              </div>
+              <div>
+                <span className="block text-[10px] text-gray-400 uppercase tracking-wider font-bold">Location</span>
+                <span className="text-gray-800 font-bold">Rajnandgaon, Chhattisgarh</span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 border-t sm:border-t-0 sm:border-l border-gray-100 pt-3 sm:pt-0 sm:pl-8 w-full sm:w-auto">
+              <div className="p-2 bg-blue-50 text-[#0099ff] rounded-xl">
+                <Hash className="w-4 h-4" />
+              </div>
+              <div>
+                <span className="block text-[10px] text-gray-400 uppercase tracking-wider font-bold">GSTIN No.</span>
+                <span className="text-gray-800 font-bold">22AADCS3777J1Z6</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Navigation Bar - Changed to sticky with dynamic top-0 to anchor touch roof of screen with no gaps */}
       <motion.nav
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-        className={`fixed top-14 left-0 right-0 z-40 transition-all duration-300 ${
-          isScrolled ? 'bg-white/85 backdrop-blur-md shadow-sm py-3 border-b border-gray-100' : 'bg-white/20 backdrop-blur-md py-5 border-b border-gray-100/10'
+        className={`sticky top-0 left-0 right-0 z-40 transition-all duration-300 ${
+          isScrolled
+            ? 'bg-white/95 backdrop-blur-md shadow-md py-3.5 border-b border-gray-100'
+            : 'bg-white/90 backdrop-blur-md py-4 border-b border-gray-100/50'
         }`}
       >
         <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
@@ -582,14 +646,14 @@ function App() {
         </AnimatePresence>
       </motion.nav>
 
-      {/* Main Dynamic Viewport Container */}
-      <div className="pt-28 md:pt-32 pb-10">
+      {/* Main Dynamic Viewport Container - Reduced top padding because navigation bar is sticky instead of fixed */}
+      <div className="pt-8 pb-10">
 
         {/* ================= HOME PAGE ================= */}
         {currentPage === 'home' && selectedProductId === null && (
           <div>
             {/* Hero Header Area Reorganized */}
-            <section className="relative pt-12 pb-12 px-6 text-center">
+            <section className="relative pt-6 pb-12 px-6 text-center">
               <div className="max-w-4xl mx-auto space-y-6">
 
                 {/* Certified Manufacturer badge */}
@@ -603,16 +667,12 @@ function App() {
                   </span>
                 </div>
 
-                <h1 className="text-4xl md:text-6xl font-display font-extrabold text-gray-900 tracking-tight leading-tight uppercase max-w-3xl mx-auto">
-                  Premium Silico Manganese & Pig Iron Lumps
-                </h1>
-
                 <p className="text-gray-500 max-w-2xl mx-auto text-sm md:text-base leading-relaxed">
                   Leading manufacturer, exporter, and supplier of high-grade Ferro Silico Manganese Lumps and Pig Iron Lumps based in Rajnandgaon, Chhattisgarh. We deliver superior chemical consistency and metallurgy toughness globally.
                 </p>
 
                 {/* Call to Actions Only below */}
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
                   <button
                     onClick={() => navigateTo('products')}
                     className="btn-odysser px-8 py-3.5 bg-black text-white hover:bg-black/90 font-semibold text-base w-full sm:w-auto shadow-xl group cursor-pointer"
@@ -635,9 +695,14 @@ function App() {
               </div>
             </section>
 
-            {/* SMOOTH PRODUCT SLIDESHOW - TEXT AND BUTTONS REMOVED AS REQUESTED */}
+            {/* SMOOTH PRODUCT SLIDESHOW - TEXT AND BUTTONS REMOVED AS REQUESTED, ADDED MOBILE SWIPE EVENT HANDLERS */}
             <section className="py-6 px-6 max-w-5xl mx-auto">
-              <div className="relative glass-card overflow-hidden rounded-3xl min-h-[480px] md:h-[520px] flex items-center justify-center group shadow-2xl border-0 bg-gray-50">
+              <div
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTouchEnd}
+                className="relative glass-card overflow-hidden rounded-3xl min-h-[480px] md:h-[520px] flex items-center justify-center group shadow-2xl border-0 bg-gray-50 select-none touch-pan-y"
+              >
 
                 {/* Slide Viewport */}
                 <div className="absolute inset-0 z-0">
