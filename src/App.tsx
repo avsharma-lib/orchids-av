@@ -332,14 +332,15 @@ function App() {
           </button>
         </div>
 
-        {/* Global Navigation Dropdown Menu (Overlay/Drawer) with staggered animations */}
+        {/* Global Navigation Dropdown Menu (Overlay/Drawer) with GPU-accelerated smooth animations */}
         <AnimatePresence>
           {isMenuOpen && (
             <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.3 }}
+              initial={{ opacity: 0, scaleY: 0.8, y: -20 }}
+              animate={{ opacity: 1, scaleY: 1, y: 0 }}
+              exit={{ opacity: 0, scaleY: 0.8, y: -20 }}
+              transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+              style={{ originY: 0 }}
               className="bg-white/95 backdrop-blur-md border-b border-gray-100 overflow-hidden"
             >
               <div className="max-w-7xl mx-auto px-6 py-6 grid grid-cols-1 md:grid-cols-3 gap-8">
