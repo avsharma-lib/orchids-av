@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowRight,
@@ -8,7 +8,6 @@ import {
   Phone,
   Menu,
   X,
-  ChevronDown,
   MessageSquare,
   Users,
   Calendar,
@@ -19,7 +18,6 @@ import {
   ChevronRight,
   Briefcase,
   Search,
-  ChevronLeft,
   Info,
   DollarSign,
   TrendingUp,
@@ -214,8 +212,6 @@ function App() {
   // Modals & Dynamic UI states
   const [isEnquiryModalOpen, setIsEnquiryModalOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [productsDropdownOpen, setProductsDropdownOpen] = useState(false);
 
   // Form states
   const [newsletterEmail, setNewsletterEmail] = useState('');
@@ -233,63 +229,6 @@ function App() {
   // Product Search State
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Slideshow States
-  const [activeSlide, setActiveSlide] = useState(0);
-  const autoSlideTimer = useRef<number | null>(null);
-
-  // Touch handlers for mobile swipe
-  const touchStartX = useRef<number | null>(null);
-  const touchEndX = useRef<number | null>(null);
-
-  const handleTouchStart = (e: React.TouchEvent) => {
-    touchStartX.current = e.targetTouches[0].clientX;
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    touchEndX.current = e.targetTouches[0].clientX;
-  };
-
-  const handleTouchEnd = () => {
-    if (!touchStartX.current || !touchEndX.current) return;
-    const diffX = touchStartX.current - touchEndX.current;
-    if (diffX > 50) {
-      handleNextSlide();
-    } else if (diffX < -50) {
-      handlePrevSlide();
-    }
-    touchStartX.current = null;
-    touchEndX.current = null;
-  };
-
-  // Scroll detection for Navbar styling (adjusted threshold for brand header height)
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 150);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  // Handle Slideshow auto-rotation
-  useEffect(() => {
-    autoSlideTimer.current = window.setInterval(() => {
-      setActiveSlide(prev => (prev + 1) % PRODUCTS.length);
-    }, 5000);
-
-    return () => {
-      if (autoSlideTimer.current) {
-        window.clearInterval(autoSlideTimer.current);
-      }
-    };
-  }, []);
-
-  const handleNextSlide = () => {
-    setActiveSlide(prev => (prev + 1) % PRODUCTS.length);
-  };
-
-  const handlePrevSlide = () => {
-    setActiveSlide(prev => (prev - 1 + PRODUCTS.length) % PRODUCTS.length);
-  };
 
   // Custom function to navigate to pages and reset top view scroll
   const navigateTo = (page: 'home' | 'about' | 'products' | 'contact', category?: 'all' | 'silico-manganese' | 'pig-iron', productId?: string | null) => {
@@ -297,7 +236,6 @@ function App() {
     if (category) setSelectedCategory(category);
     setSelectedProductId(productId || null);
     setIsMenuOpen(false);
-    setProductsDropdownOpen(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -363,224 +301,38 @@ function App() {
         <div className="absolute bottom-[10%] left-[5%] w-[450px] h-[450px] bg-gradient-to-r from-gray-200/55 to-transparent rounded-full blur-[90px] opacity-60" />
       </div>
 
-      {/* SEARCH PRODUCTS BAR AT THE VERY TOP */}
-      <div className="bg-gray-950 text-white py-3.5 px-6 border-b border-gray-900 relative z-50">
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
-          <div className="flex items-center gap-2 text-xs font-semibold tracking-wider text-gray-400 uppercase">
-            <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-blue-400 opacity-75"></span>
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-[#0099ff]"></span>
-            </span>
-            <span>Welcome to Sai Chemicals Private Limited</span>
-          </div>
-
-          <form onSubmit={handleSearchSubmit} className="relative flex items-center w-full max-w-xs shrink-0">
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search Products..."
-              className="w-full bg-gray-900 text-xs text-white rounded-full pl-4 pr-10 py-2 focus:outline-none focus:ring-1 focus:ring-[#0099ff] border border-gray-800"
-            />
-            <button
-              type="submit"
-              className="absolute right-1 p-1 bg-[#0099ff] hover:bg-blue-600 rounded-full transition-all text-white cursor-pointer"
-            >
-              <Search className="w-3.5 h-3.5" />
-            </button>
-          </form>
-        </div>
-      </div>
-
-      {/* PROMINENT BRAND HEADER IN THE WHITE SPACE BELOW SEARCH BAR */}
-      <div className="bg-white border-b border-gray-100 py-6 px-6 relative z-30 shadow-xs">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-4.5 text-center md:text-left flex-col md:flex-row">
-            <img
-              src="/favicon.jpg"
-              alt="Sai Chemicals Logo"
-              className="w-20 h-20 rounded-full object-contain shadow-md border border-gray-50 bg-white p-1"
-            />
-            <div>
-              <h1 className="text-2xl md:text-3.5xl font-extrabold tracking-tight text-gray-950 uppercase leading-none">
-                Sai Chemicals Private Limited
-              </h1>
-              <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mt-1.5">
-                ISO 9001:2015 Certified Manufacturer, Exporter & Supplier
-              </p>
-            </div>
-          </div>
-
-          {/* Quick Stats / Info Details */}
-          <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-8 text-xs text-gray-500 font-semibold border-t sm:border-t-0 border-gray-100 pt-4 sm:pt-0 w-full md:w-auto justify-center md:justify-end">
-            <div className="flex items-center gap-2">
-              <div className="p-2 bg-blue-50 text-[#0099ff] rounded-xl">
-                <MapPin className="w-4 h-4" />
-              </div>
-              <div>
-                <span className="block text-[10px] text-gray-400 uppercase tracking-wider font-bold">Location</span>
-                <span className="text-gray-800 font-bold">Rajnandgaon, Chhattisgarh</span>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 border-t sm:border-t-0 sm:border-l border-gray-100 pt-3 sm:pt-0 sm:pl-8 w-full sm:w-auto">
-              <div className="p-2 bg-blue-50 text-[#0099ff] rounded-xl">
-                <Hash className="w-4 h-4" />
-              </div>
-              <div>
-                <span className="block text-[10px] text-gray-400 uppercase tracking-wider font-bold">GSTIN No.</span>
-                <span className="text-gray-800 font-bold">22AADCS3777J1Z6</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Navigation Bar - Changed to sticky with dynamic top-0 to anchor touch roof of screen with no gaps */}
+      {/* Navigation Bar - Changed to sticky with ONLY the square company logo, name, and menu toggle button */}
       <motion.nav
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-        className={`sticky top-0 left-0 right-0 z-40 transition-all duration-300 ${
-          isScrolled
-            ? 'bg-white/95 backdrop-blur-md shadow-md py-3.5 border-b border-gray-100'
-            : 'bg-white/90 backdrop-blur-md py-4 border-b border-gray-100/50'
-        }`}
+        className="sticky top-0 left-0 right-0 z-40 transition-all duration-300 bg-white shadow-sm border-b border-gray-100 py-3.5"
       >
         <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
 
-          {/* Logo Brand area */}
-          <div className="flex items-center cursor-pointer animate-fade-in" onClick={() => navigateTo('home')}>
-            <div className="relative flex items-center gap-3">
-              <img
-                src="/favicon.jpg"
-                alt="Sai Chemicals Logo"
-                className="h-10 w-10 object-contain rounded-full"
-              />
-              <div>
-                <span className="font-display font-bold text-lg md:text-xl tracking-tight text-gray-900 block leading-tight">
-                  SAI CHEMICALS
-                </span>
-                <span className="text-[10px] text-gray-500 uppercase tracking-widest font-semibold block leading-none">
-                  Private Limited
-                </span>
-              </div>
-            </div>
+          {/* Extreme Left: Square Company Logo & Company Name */}
+          <div className="flex items-center gap-3 cursor-pointer animate-fade-in" onClick={() => navigateTo('home')}>
+            <img
+              src="/favicon.png"
+              alt="Sai Chemicals Logo"
+              className="h-10 w-10 object-contain rounded-none border border-gray-200 shadow-xs"
+            />
+            <span className="font-display font-extrabold text-base md:text-xl tracking-tight text-gray-950 uppercase leading-none">
+              Sai Chemicals Private Limited
+            </span>
           </div>
 
-          {/* Desktop Navigation Links with animated hover lines */}
-          <div className="hidden md:flex items-center gap-8 text-[15px] font-medium text-gray-600">
-            <button
-              onClick={() => navigateTo('home')}
-              className={`relative py-2 hover:text-black transition-colors cursor-pointer ${currentPage === 'home' ? 'text-black font-semibold' : ''}`}
-            >
-              Home
-              {currentPage === 'home' && (
-                <motion.span layoutId="navIndicator" className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#0099ff] rounded-full" />
-              )}
-            </button>
-            <button
-              onClick={() => navigateTo('about')}
-              className={`relative py-2 hover:text-black transition-colors cursor-pointer ${currentPage === 'about' ? 'text-black font-semibold' : ''}`}
-            >
-              About Us
-              {currentPage === 'about' && (
-                <motion.span layoutId="navIndicator" className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#0099ff] rounded-full" />
-              )}
-            </button>
-
-            {/* Products Interactive Dropdown */}
-            <div
-              className="relative"
-              onMouseEnter={() => setProductsDropdownOpen(true)}
-              onMouseLeave={() => setProductsDropdownOpen(false)}
-            >
-              <button
-                onClick={() => navigateTo('products')}
-                className={`relative py-2 hover:text-black flex items-center gap-1 transition-colors cursor-pointer ${currentPage === 'products' ? 'text-black font-semibold' : ''}`}
-              >
-                Products
-                <ChevronDown className="w-4 h-4 transition-transform duration-200" style={{ transform: productsDropdownOpen ? 'rotate(180deg)' : 'none' }} />
-                {currentPage === 'products' && (
-                  <motion.span layoutId="navIndicator" className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#0099ff] rounded-full" />
-                )}
-              </button>
-
-              <AnimatePresence>
-                {productsDropdownOpen && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 15 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 10 }}
-                    transition={{ duration: 0.2 }}
-                    className="absolute left-0 mt-1 w-64 bg-white/95 backdrop-blur-md rounded-2xl shadow-xl border border-gray-100 p-3 flex flex-col gap-1 z-50"
-                  >
-                    <div className="text-[11px] uppercase font-bold tracking-wider text-gray-400 px-3 py-1 border-b border-gray-50 mb-1">
-                      Categories
-                    </div>
-                    <button
-                      onClick={() => navigateTo('products', 'silico-manganese')}
-                      className="text-left w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-xl transition-colors flex items-center justify-between group cursor-pointer"
-                    >
-                      <span>Silico Manganese</span>
-                      <ChevronRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all text-[#0099ff]" />
-                    </button>
-                    <button
-                      onClick={() => navigateTo('products', 'pig-iron')}
-                      className="text-left w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-xl transition-colors flex items-center justify-between group cursor-pointer"
-                    >
-                      <span>Pig Iron Lumps</span>
-                      <ChevronRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all text-[#0099ff]" />
-                    </button>
-
-                    <div className="border-t border-gray-100 my-1 pt-1">
-                      <button
-                        onClick={() => navigateTo('products', 'all')}
-                        className="text-left w-full px-3 py-2 text-xs font-semibold text-[#0099ff] hover:bg-blue-50 rounded-xl transition-colors flex items-center justify-between cursor-pointer"
-                      >
-                        <span>View All Products</span>
-                        <ArrowRight className="w-3 h-3" />
-                      </button>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-
-            <button
-              onClick={() => navigateTo('contact')}
-              className={`relative py-2 hover:text-black transition-colors cursor-pointer ${currentPage === 'contact' ? 'text-black font-semibold' : ''}`}
-            >
-              Contact Us
-              {currentPage === 'contact' && (
-                <motion.span layoutId="navIndicator" className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#0099ff] rounded-full" />
-              )}
-            </button>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="hidden md:flex items-center gap-4">
-            <button
-              onClick={() => openEnquiryModal('General Query')}
-              className="btn-odysser px-5 py-2.5 text-[14px] font-semibold tracking-wide cursor-pointer text-white bg-black hover:bg-black/90 transition-all rounded-xl relative overflow-hidden group shadow-lg"
-            >
-              <span className="relative z-10 flex items-center gap-1.5">
-                Quick Quote <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </span>
-              <span className="absolute inset-0 shimmer-bg opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></span>
-            </button>
-          </div>
-
-          {/* Mobile menu trigger */}
+          {/* Extreme Right: Hamburger/Menu icon */}
           <button
-            className="md:hidden p-2 rounded-xl bg-gray-50 text-gray-800 cursor-pointer"
+            className="p-2.5 rounded-xl bg-gray-50 hover:bg-gray-100 text-gray-800 cursor-pointer transition-colors"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
+            aria-label="Toggle Menu"
           >
-            {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {isMenuOpen ? <X className="w-5 h-5 text-[#0099ff]" /> : <Menu className="w-5 h-5 text-[#0099ff]" />}
           </button>
         </div>
 
-        {/* Mobile Navigation Drawer with staggered animations */}
+        {/* Global Navigation Dropdown Menu (Overlay/Drawer) with staggered animations */}
         <AnimatePresence>
           {isMenuOpen && (
             <motion.div
@@ -588,63 +340,131 @@ function App() {
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.3 }}
-              className="md:hidden bg-white/95 backdrop-blur-md border-b border-gray-100 overflow-hidden"
+              className="bg-white/95 backdrop-blur-md border-b border-gray-100 overflow-hidden"
             >
-              <div className="px-6 py-5 flex flex-col gap-4">
-                <button
-                  onClick={() => navigateTo('home')}
-                  className={`text-left text-lg font-semibold py-1.5 border-b border-gray-50 cursor-pointer ${currentPage === 'home' ? 'text-[#0099ff]' : 'text-gray-800'}`}
-                >
-                  Home
-                </button>
-                <button
-                  onClick={() => navigateTo('about')}
-                  className={`text-left text-lg font-semibold py-1.5 border-b border-gray-50 cursor-pointer ${currentPage === 'about' ? 'text-[#0099ff]' : 'text-gray-800'}`}
-                >
-                  About Us
-                </button>
-
-                {/* Mobile products list */}
-                <div className="flex flex-col gap-2">
-                  <div className="text-sm font-bold uppercase tracking-wider text-gray-400">Our Products</div>
+              <div className="max-w-7xl mx-auto px-6 py-6 grid grid-cols-1 md:grid-cols-3 gap-8">
+                {/* Col 1: Main Pages */}
+                <div className="flex flex-col gap-3">
+                  <span className="text-[10px] uppercase font-bold tracking-widest text-gray-400">Pages</span>
                   <button
-                    onClick={() => navigateTo('products', 'silico-manganese')}
-                    className="text-left text-base text-gray-700 pl-4 py-1 flex items-center gap-2 cursor-pointer"
+                    onClick={() => navigateTo('home')}
+                    className={`text-left text-base font-bold py-1 flex items-center gap-2 cursor-pointer transition-colors ${currentPage === 'home' && selectedProductId === null ? 'text-[#0099ff]' : 'text-gray-800 hover:text-black'}`}
                   >
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#0099ff]" /> Silico Manganese
+                    <Home className="w-4 h-4 text-[#0099ff]" /> Home
                   </button>
                   <button
-                    onClick={() => navigateTo('products', 'pig-iron')}
-                    className="text-left text-base text-gray-700 pl-4 py-1 flex items-center gap-2 cursor-pointer"
+                    onClick={() => navigateTo('about')}
+                    className={`text-left text-base font-bold py-1 flex items-center gap-2 cursor-pointer transition-colors ${currentPage === 'about' ? 'text-[#0099ff]' : 'text-gray-800 hover:text-black'}`}
                   >
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#0099ff]" /> Pig Iron Lumps
+                    <Info className="w-4 h-4 text-[#0099ff]" /> About Us
                   </button>
                   <button
-                    onClick={() => navigateTo('products', 'all')}
-                    className="text-left text-sm text-[#0099ff] pl-4 font-semibold py-1 cursor-pointer"
+                    onClick={() => navigateTo('products')}
+                    className={`text-left text-base font-bold py-1 flex items-center gap-2 cursor-pointer transition-colors ${currentPage === 'products' ? 'text-[#0099ff]' : 'text-gray-800 hover:text-black'}`}
                   >
-                    View All Products &rarr;
+                    <Briefcase className="w-4 h-4 text-[#0099ff]" /> Products
+                  </button>
+                  <button
+                    onClick={() => navigateTo('contact')}
+                    className={`text-left text-base font-bold py-1 flex items-center gap-2 cursor-pointer transition-colors ${currentPage === 'contact' ? 'text-[#0099ff]' : 'text-gray-800 hover:text-black'}`}
+                  >
+                    <MessageSquare className="w-4 h-4 text-[#0099ff]" /> Contact Us
                   </button>
                 </div>
 
-                <button
-                  onClick={() => navigateTo('contact')}
-                  className={`text-left text-lg font-semibold py-1.5 border-b border-gray-50 cursor-pointer ${currentPage === 'contact' ? 'text-[#0099ff]' : 'text-gray-800'}`}
-                >
-                  Contact Us
-                </button>
+                {/* Col 2: Products Categories */}
+                <div className="flex flex-col gap-3">
+                  <span className="text-[10px] uppercase font-bold tracking-widest text-gray-400">Our Offerings</span>
+                  <button
+                    onClick={() => navigateTo('products', 'all')}
+                    className={`text-left text-sm font-semibold pl-1 py-1.5 flex items-center gap-2 cursor-pointer ${currentPage === 'products' && selectedCategory === 'all' ? 'text-[#0099ff]' : 'text-gray-600 hover:text-black'}`}
+                  >
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#0099ff]" /> All Products
+                  </button>
+                  <button
+                    onClick={() => navigateTo('products', 'silico-manganese')}
+                    className={`text-left text-sm font-semibold pl-1 py-1.5 flex items-center gap-2 cursor-pointer ${currentPage === 'products' && selectedCategory === 'silico-manganese' ? 'text-[#0099ff]' : 'text-gray-600 hover:text-black'}`}
+                  >
+                    <span className="w-1.5 h-1.5 rounded-full bg-gray-300" /> Silico Manganese
+                  </button>
+                  <button
+                    onClick={() => navigateTo('products', 'pig-iron')}
+                    className={`text-left text-sm font-semibold pl-1 py-1.5 flex items-center gap-2 cursor-pointer ${currentPage === 'products' && selectedCategory === 'pig-iron' ? 'text-[#0099ff]' : 'text-gray-600 hover:text-black'}`}
+                  >
+                    <span className="w-1.5 h-1.5 rounded-full bg-gray-300" /> Pig Iron Lumps
+                  </button>
+                </div>
 
-                <button
-                  onClick={() => openEnquiryModal('General Query')}
-                  className="btn-odysser w-full mt-2 py-3 bg-[#0099ff] hover:bg-blue-600 text-white rounded-xl font-semibold text-center cursor-pointer"
-                >
-                  Enquiry Now
-                </button>
+                {/* Col 3: Quick Action / Call */}
+                <div className="flex flex-col gap-4">
+                  <span className="text-[10px] uppercase font-bold tracking-widest text-gray-400">Quick Contact</span>
+                  <div className="text-xs text-gray-500 leading-relaxed">
+                    Need bulk quantities or custom alloy percentages? Connect with our desk directly.
+                  </div>
+                  <div className="flex flex-wrap gap-2.5">
+                    <button
+                      onClick={() => openEnquiryModal('General Query')}
+                      className="px-4 py-2 bg-black hover:bg-gray-900 text-white font-bold text-xs rounded-xl transition-all cursor-pointer"
+                    >
+                      Enquiry Now
+                    </button>
+                    <a
+                      href="tel:+919425234682"
+                      className="px-4 py-2 bg-blue-50 hover:bg-blue-100 text-[#0099ff] font-bold text-xs rounded-xl transition-all text-center flex items-center gap-1 cursor-pointer"
+                    >
+                      <Phone className="w-3.5 h-3.5" /> Call Sales
+                    </a>
+                  </div>
+                </div>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
       </motion.nav>
+
+      {/* SEARCH BAR (Directly below navigation bar, spanning available width with proper margins) */}
+      <div className="max-w-7xl mx-auto px-6 mt-4">
+        <form onSubmit={handleSearchSubmit} className="relative flex items-center w-full">
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search Products..."
+            className="w-full bg-white text-sm text-gray-900 rounded-xl pl-5 pr-12 py-3.5 focus:outline-none focus:ring-2 focus:ring-[#0099ff] border border-gray-200 shadow-xs"
+          />
+          <button
+            type="submit"
+            className="absolute right-2 p-2 bg-[#0099ff] hover:bg-blue-600 rounded-lg transition-all text-white cursor-pointer"
+          >
+            <Search className="w-4 h-4" />
+          </button>
+        </form>
+      </div>
+
+      {/* LOCATION & GST SECTION (Directly below search bar, reduced spacing, Location perfectly left-aligned with GST) */}
+      <div className="max-w-7xl mx-auto px-6 mt-3 flex flex-col gap-2 bg-white/40 backdrop-blur-xs p-3.5 rounded-2xl border border-gray-100/30">
+        {/* Location Row */}
+        <div className="flex items-center gap-3 text-xs text-gray-600">
+          <div className="p-1.5 bg-blue-50 text-[#0099ff] rounded-lg shrink-0">
+            <MapPin className="w-4 h-4" />
+          </div>
+          <div>
+            <span className="block text-[9px] text-gray-400 uppercase tracking-wider font-bold">Location</span>
+            <span className="text-gray-800 font-bold">Rajnandgaon, Chhattisgarh, India</span>
+          </div>
+        </div>
+
+        {/* GST Row */}
+        <div className="flex items-center gap-3 text-xs text-gray-600">
+          <div className="p-1.5 bg-blue-50 text-[#0099ff] rounded-lg shrink-0">
+            <Hash className="w-4 h-4" />
+          </div>
+          <div>
+            <span className="block text-[9px] text-gray-400 uppercase tracking-wider font-bold">GSTIN Number</span>
+            <span className="text-gray-800 font-bold">22AADCS3777J1Z6</span>
+          </div>
+        </div>
+      </div>
 
       {/* Main Dynamic Viewport Container - Reduced top padding because navigation bar is sticky instead of fixed */}
       <div className="pt-8 pb-10">
@@ -695,60 +515,6 @@ function App() {
               </div>
             </section>
 
-            {/* SMOOTH PRODUCT SLIDESHOW - TEXT AND BUTTONS REMOVED AS REQUESTED, ADDED MOBILE SWIPE EVENT HANDLERS */}
-            <section className="py-6 px-6 max-w-5xl mx-auto">
-              <div
-                onTouchStart={handleTouchStart}
-                onTouchMove={handleTouchMove}
-                onTouchEnd={handleTouchEnd}
-                className="relative glass-card overflow-hidden rounded-3xl min-h-[480px] md:h-[520px] flex items-center justify-center group shadow-2xl border-0 bg-gray-50 select-none touch-pan-y"
-              >
-
-                {/* Slide Viewport */}
-                <div className="absolute inset-0 z-0">
-                  <AnimatePresence mode="wait">
-                    <motion.div
-                      key={activeSlide}
-                      initial={{ opacity: 0, scale: 1.02 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.98 }}
-                      transition={{ duration: 0.6 }}
-                      className="absolute inset-0 bg-contain bg-center bg-no-repeat bg-gray-50 cursor-pointer"
-                      style={{ backgroundImage: `url(${PRODUCTS[activeSlide].imageUrl})` }}
-                      onClick={() => navigateTo('products', PRODUCTS[activeSlide].category, PRODUCTS[activeSlide].id)}
-                    />
-                  </AnimatePresence>
-                </div>
-
-                {/* Slider UI controls (Arrows and Dots) */}
-                <div className="absolute bottom-6 right-6 z-20 flex gap-2">
-                  <button
-                    onClick={handlePrevSlide}
-                    className="p-3 rounded-full bg-black/50 hover:bg-black/70 text-white transition-all cursor-pointer shadow-md backdrop-blur-md"
-                  >
-                    <ChevronLeft className="w-5 h-5" />
-                  </button>
-                  <button
-                    onClick={handleNextSlide}
-                    className="p-3 rounded-full bg-black/50 hover:bg-black/70 text-white transition-all cursor-pointer shadow-md backdrop-blur-md"
-                  >
-                    <ChevronRight className="w-5 h-5" />
-                  </button>
-                </div>
-
-                {/* Top indicators: Navigation Dots */}
-                <div className="absolute bottom-8 left-8 z-20 flex gap-2">
-                  {PRODUCTS.map((_, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => setActiveSlide(idx)}
-                      className={`h-2 rounded-full transition-all cursor-pointer ${activeSlide === idx ? 'bg-[#0099ff] w-8' : 'bg-black/30 w-2'}`}
-                    />
-                  ))}
-                </div>
-
-              </div>
-            </section>
 
             {/* Brief About Section */}
             <section className="py-12 px-6">
@@ -1207,76 +973,86 @@ function App() {
                     <span className="text-gray-900 font-semibold">{prod.name}</span>
                   </div>
 
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
-                    {/* Visual representation */}
-                    <div className="glass-card overflow-hidden text-white relative aspect-[4/3] flex flex-col justify-between shadow-xl min-h-[300px]">
+                  <div className="flex flex-col gap-8">
+                    {/* Top element: ONLY the product image */}
+                    <div className="glass-card overflow-hidden text-white relative aspect-[21/9] md:aspect-[16/6] flex flex-col justify-end shadow-xl w-full max-h-[400px]">
                       <img src={prod.imageUrl} alt={prod.name} className="absolute inset-0 w-full h-full object-cover" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
+                      {/* Subdued overlay for depth, but no text or overlay names */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
 
-                      <span className="absolute top-6 left-6 px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-xs uppercase tracking-wider font-bold text-white">
+                      <span className="absolute top-6 left-6 px-3.5 py-1.5 bg-black/60 backdrop-blur-md rounded-full text-xs uppercase tracking-wider font-bold text-white shadow-sm">
                         {prod.categoryLabel}
                       </span>
-
-                      <div className="relative z-10 p-6 md:p-8">
-                        <h1 className="text-3xl md:text-4xl font-display font-extrabold leading-tight tracking-tight text-white uppercase">
-                          {prod.name}
-                        </h1>
-                        <p className="text-gray-300 text-xs mt-3 leading-relaxed max-w-md">Sai Chemicals Private Limited Grade Metallurgy specifications verified.</p>
-                      </div>
                     </div>
 
-                    {/* Specifications table - MOUNTING EVERY SINGLE PROPERTY */}
-                    <div className="space-y-6">
-                      <div className="glass-card bg-white p-6 md:p-8 border border-gray-100 shadow-xl">
-                        <h2 className="text-xl font-bold font-display mb-4">Technical Specifications</h2>
+                    {/* Bottom element: Display the product details below the image */}
+                    <div className="space-y-8 mt-4">
+                      {/* Product Name Title at the top of the details */}
+                      <div>
+                        <h1 className="text-3xl md:text-4.5xl font-display font-extrabold leading-tight tracking-tight text-gray-950 uppercase">
+                          {prod.name}
+                        </h1>
+                        <p className="text-gray-500 text-sm mt-2 leading-relaxed">
+                          {prod.description}
+                        </p>
+                      </div>
 
-                        <div className="space-y-3.5">
-                          <div className="flex justify-between items-center border-b border-gray-50 pb-3 text-sm">
-                            <span className="text-gray-400 font-bold uppercase text-[11px] tracking-wider">Price</span>
-                            <span className="text-[#0099ff] font-extrabold text-base text-right">{prod.price}</span>
-                          </div>
+                      {/* Specifications table & key properties */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+                        {/* Left table */}
+                        <div className="glass-card bg-white p-6 md:p-8 border border-gray-100 shadow-md">
+                          <h2 className="text-lg font-bold font-display mb-4 text-gray-950">Technical Specifications</h2>
 
-                          <div className="flex justify-between items-center border-b border-gray-50 pb-3 text-sm">
-                            <span className="text-gray-400 font-bold uppercase text-[11px] tracking-wider">Minimum Order Quantity (MOQ)</span>
-                            <span className="text-gray-800 font-bold text-right">{prod.moq}</span>
-                          </div>
-
-                          {Object.entries(prod.specs).map(([key, value]) => (
-                            <div key={key} className="flex justify-between items-center border-b border-gray-50 pb-3 last:border-0 last:pb-0 text-sm">
-                              <span className="text-gray-400 font-bold uppercase text-[11px] tracking-wider">{key}</span>
-                              <span className="text-gray-800 font-semibold text-right">{value}</span>
+                          <div className="space-y-3.5">
+                            <div className="flex justify-between items-center border-b border-gray-50 pb-3 text-sm">
+                              <span className="text-gray-400 font-bold uppercase text-[10px] tracking-wider">Price</span>
+                              <span className="text-[#0099ff] font-extrabold text-base text-right">{prod.price}</span>
                             </div>
-                          ))}
+
+                            <div className="flex justify-between items-center border-b border-gray-50 pb-3 text-sm">
+                              <span className="text-gray-400 font-bold uppercase text-[10px] tracking-wider">Minimum Order Quantity (MOQ)</span>
+                              <span className="text-gray-800 font-bold text-right">{prod.moq}</span>
+                            </div>
+
+                            {Object.entries(prod.specs).map(([key, value]) => (
+                              <div key={key} className="flex justify-between items-center border-b border-gray-50 pb-3 last:border-0 last:pb-0 text-sm">
+                                <span className="text-gray-400 font-bold uppercase text-[10px] tracking-wider">{key}</span>
+                                <span className="text-gray-800 font-semibold text-right">{value}</span>
+                              </div>
+                            ))}
+                          </div>
                         </div>
-                      </div>
 
-                      {/* Product features / highlights */}
-                      <div className="glass-card bg-white p-6 md:p-8 border border-gray-100 shadow-xl">
-                        <h3 className="text-sm font-bold uppercase tracking-wider text-[#0099ff] mb-4">Key Properties</h3>
-                        <ul className="space-y-3 text-sm text-gray-600">
-                          {prod.features.map((feat, idx) => (
-                            <li key={idx} className="flex items-start gap-3">
-                              <Check className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
-                              <span>{feat}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
+                        {/* Right table/features */}
+                        <div className="space-y-6">
+                          <div className="glass-card bg-white p-6 md:p-8 border border-gray-100 shadow-md">
+                            <h3 className="text-xs font-bold uppercase tracking-wider text-[#0099ff] mb-4">Key Properties</h3>
+                            <ul className="space-y-3 text-sm text-gray-600">
+                              {prod.features.map((feat, idx) => (
+                                <li key={idx} className="flex items-start gap-3">
+                                  <Check className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
+                                  <span>{feat}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
 
-                      {/* Call to Actions */}
-                      <div className="flex gap-4">
-                        <button
-                          onClick={() => openEnquiryModal(prod.name)}
-                          className="btn-odysser flex-1 py-4 bg-black text-white hover:bg-gray-900 font-semibold text-center rounded-xl transition-all shadow-md cursor-pointer"
-                        >
-                          Enquiry For {prod.name}
-                        </button>
-                        <button
-                          onClick={() => navigateTo('products', 'all')}
-                          className="px-6 py-4 bg-white hover:bg-gray-50 border border-gray-200 text-gray-700 font-semibold rounded-xl text-sm transition-all text-center cursor-pointer"
-                        >
-                          All Products
-                        </button>
+                          {/* Call to Actions */}
+                          <div className="flex flex-col sm:flex-row gap-4">
+                            <button
+                              onClick={() => openEnquiryModal(prod.name)}
+                              className="btn-odysser flex-1 py-4 bg-black text-white hover:bg-gray-900 font-semibold text-center rounded-xl transition-all shadow-md cursor-pointer"
+                            >
+                              Enquiry For {prod.name}
+                            </button>
+                            <button
+                              onClick={() => navigateTo('products', 'all')}
+                              className="px-6 py-4 bg-white hover:bg-gray-50 border border-gray-200 text-gray-700 font-semibold rounded-xl text-sm transition-all text-center cursor-pointer"
+                            >
+                              All Products
+                            </button>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
