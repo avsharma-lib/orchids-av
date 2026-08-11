@@ -1,6 +1,41 @@
 import { useEffect, useState, useRef } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
-import { CheckCircle2, ArrowRight, Instagram, Linkedin, Twitter, VolumeX, Volume2 } from 'lucide-react';
+import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
+import {
+  ArrowRight, Plus, ChevronLeft, ChevronRight,
+  Image as ImageIcon, Film, MessageCircle, Phone,
+  Trash2, ArrowUp, ArrowDown, X,
+  Smile, CheckCircle, Briefcase, Trophy,
+  Facebook, Instagram
+} from 'lucide-react';
+import { saveMedia, getAllMedia, deleteMedia, updateMediaOrder, type MediaItem } from './utils/db';
+
+const STATIC_MEDIA = [
+  { url: '/gallery/0b098ce4-c11e-4f44-b879-b4c657e6170a.jpeg', type: 'image' as const },
+  { url: '/gallery/2d174889-db50-48df-9d51-cfc8d1249d47.jpeg', type: 'image' as const },
+  { url: '/gallery/4709e79f-c9ba-4535-b857-8ae0c719e8b5.jpeg', type: 'image' as const },
+  { url: '/gallery/4c6285fb-2696-45af-aefa-85915ab62d0c.jpeg', type: 'image' as const },
+  { url: '/gallery/53edfa1c-ba72-471b-9ed9-20d5ccd7b843.jpeg', type: 'image' as const },
+  { url: '/gallery/6546c5ac-56db-42d7-bf0f-388c477019cf.jpeg', type: 'image' as const },
+  { url: '/gallery/79529c19-8484-4869-8922-c4dc898b0833.jpeg', type: 'image' as const },
+  { url: '/gallery/79e32a52-ec68-41fe-8c31-a3b0b56ef77b.jpeg', type: 'image' as const },
+  { url: '/gallery/84a5401a-394a-458b-8995-2067d9eb99c9.jpeg', type: 'image' as const },
+  { url: '/gallery/977ed0f5-d40d-4d5a-9639-9e48762aa67d.jpeg', type: 'image' as const },
+  { url: '/gallery/9b4d1de4-515b-4b7d-87a1-c780e37d51cb.jpeg', type: 'image' as const },
+  { url: '/gallery/a3ff7171-55e6-49c1-9d1d-bd81655bacec.jpeg', type: 'image' as const },
+  { url: '/gallery/b1cdc669-94f6-4210-a880-150be03c9ef7.jpeg', type: 'image' as const },
+  { url: '/gallery/bb0ee29e-7933-47ba-bf8d-6fd003a89781.jpeg', type: 'image' as const },
+  { url: '/gallery/d6d76f32-460f-4b07-b057-b789c43b5df2.jpeg', type: 'image' as const },
+  { url: '/gallery/e02c4e64-dc77-4e75-84ff-50ba4b624708.jpeg', type: 'image' as const },
+  { url: '/gallery/e1657072-e7ee-4f17-98e9-b2367af2832f.jpeg', type: 'image' as const },
+  { url: '/gallery/ec00be5f-3246-4a3b-9adb-93c63f06cc66 (1).jpeg', type: 'image' as const },
+  { url: '/gallery/ec00be5f-3246-4a3b-9adb-93c63f06cc66.jpeg', type: 'image' as const },
+  { url: '/gallery/IMG_20260629_224517_240.jpg', type: 'image' as const },
+  { url: '/gallery/IMG_20260629_224517_242.jpg', type: 'image' as const },
+  { url: '/gallery/IMG_20260629_224718_492.jpg', type: 'image' as const },
+  { url: '/gallery/IMG_20260629_224720_986.jpg', type: 'image' as const },
+  { url: '/gallery/IMG_20260629_224722_730.jpg', type: 'image' as const },
+  { url: '/gallery/IMG_20260629_224728_120.jpg', type: 'image' as const }
+];
 
 function App() {
   const { scrollYProgress } = useScroll();
@@ -8,8 +43,139 @@ function App() {
   const y2 = useTransform(scrollYProgress, [0, 1], [0, -50]);
 
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isMuted, setIsMuted] = useState(true);
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const [galleryMedia, setGalleryMedia] = useState<MediaItem[]>([]);
+  const [allMedia, setAllMedia] = useState<{url: string, type: 'image' | 'video', id?: number}[]>([]);
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [isGridOpen, setIsGridOpen] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+  const [isAdminOpen, setIsAdminOpen] = useState(false);
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+
+  // Form states
+  const [formName, setFormName] = useState('');
+  const [formPhone, setFormPhone] = useState('');
+  const [formAddress, setFormAddress] = useState('');
+  const [formConstituency, setFormConstituency] = useState('');
+  const [formMessage, setFormMessage] = useState('');
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const autoPlayRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    const loadGallery = async () => {
+      const media = await getAllMedia();
+      setGalleryMedia(media);
+    };
+    loadGallery();
+  }, []);
+
+  useEffect(() => {
+    if (isAutoPlaying && galleryMedia.length > 0) {
+      autoPlayRef.current = window.setInterval(() => {
+        setCurrentSlide((prev) => (prev + 1) % galleryMedia.length);
+      }, 5000);
+    }
+    return () => {
+      if (autoPlayRef.current) {
+        window.clearInterval(autoPlayRef.current);
+        autoPlayRef.current = null;
+      }
+    };
+  }, [isAutoPlaying, galleryMedia.length]);
+
+  useEffect(() => {
+    const combined = [
+      ...STATIC_MEDIA.map((m, i) => ({ ...m, id: -1 - i })),
+      ...galleryMedia.map(m => ({
+        url: URL.createObjectURL(m.blob),
+        type: m.type,
+        id: m.id
+      }))
+    ];
+    setAllMedia(combined);
+
+    return () => {
+      combined.forEach(m => {
+        if (m.url.startsWith('blob:')) {
+          URL.revokeObjectURL(m.url);
+        }
+      });
+    };
+  }, [galleryMedia]);
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const type = file.type.startsWith('video') ? 'video' : 'image';
+
+      const newItem: Omit<MediaItem, 'id' | 'order'> = {
+        blob: file,
+        type: type,
+        timestamp: Date.now()
+      };
+
+      await saveMedia(newItem);
+    }
+
+    const media = await getAllMedia();
+    setGalleryMedia(media);
+    if (media.length > 0) {
+      setCurrentSlide(media.length - 1);
+    }
+  };
+
+  const handleDelete = async (id: number) => {
+    if (window.confirm('क्या आप वाकई इसे हटाना चाहते हैं?')) {
+      await deleteMedia(id);
+      const media = await getAllMedia();
+      setGalleryMedia(media);
+      if (currentSlide >= media.length) {
+        setCurrentSlide(Math.max(0, media.length - 1));
+      }
+    }
+  };
+
+  const moveItem = async (index: number, direction: 'up' | 'down') => {
+    const newMedia = [...galleryMedia];
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+
+    if (targetIndex < 0 || targetIndex >= newMedia.length) return;
+
+    [newMedia[index], newMedia[targetIndex]] = [newMedia[targetIndex], newMedia[index]];
+    await updateMediaOrder(newMedia);
+    setGalleryMedia(await getAllMedia());
+  };
+
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (formName === 'Aaryaveer' && !formPhone && !formAddress && !formConstituency && !formMessage) {
+      setIsAdminOpen(true);
+      setFormName('');
+      return;
+    }
+    alert('पंजीकरण के लिए धन्यवाद! हम जल्द ही आपसे संपर्क करेंगे।');
+    setFormName('');
+    setFormPhone('');
+    setFormAddress('');
+    setFormConstituency('');
+    setFormMessage('');
+  };
+
+  const nextSlide = () => {
+    setIsAutoPlaying(false);
+    if (allMedia.length === 0) return;
+    setCurrentSlide((prev) => (prev + 1) % allMedia.length);
+  };
+
+  const prevSlide = () => {
+    setIsAutoPlaying(false);
+    if (allMedia.length === 0) return;
+    setCurrentSlide((prev) => (prev - 1 + allMedia.length) % allMedia.length);
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -18,13 +184,6 @@ function App() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
-  const toggleMute = () => {
-    if (videoRef.current) {
-      videoRef.current.muted = !isMuted;
-      setIsMuted(!isMuted);
-    }
-  };
 
   return (
     <div className="min-h-screen bg-odysser-bg text-odysser-text selection:bg-black selection:text-white">
@@ -39,31 +198,330 @@ function App() {
       >
         <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="h-8 w-8 rounded bg-gradient-to-br from-odysser-primary to-blue-400 flex items-center justify-center">
-              <span className="text-white font-bold text-sm tracking-tighter">LS</span>
-            </div>
-            <span className="font-display font-bold text-lg tracking-tight">Lumora Social</span>
+            <img src="/logo.png" alt="Congress Logo" className="h-12 w-auto object-contain" />
+            <span className="font-display font-black text-2xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-black to-gray-600">कमलेश मिश्रा</span>
           </div>
 
           <div className="hidden md:flex items-center gap-8 text-[15px] font-medium text-odysser-muted">
-            <a href="#features" className="hover:text-black transition-colors">Features</a>
-            <a href="#process" className="hover:text-black transition-colors">Process</a>
-            <a href="#pricing" className="hover:text-black transition-colors">Pricing</a>
-            <a href="#testimonials" className="hover:text-black transition-colors">Testimonials</a>
+            <a href="#gallery" className="hover:text-black transition-colors">फोटो गैलरी</a>
+            <a href="#about" className="hover:text-black transition-colors">परिचय</a>
+            <a href="#contact" className="hover:text-black transition-colors">संपर्क करें</a>
+            <a href="#volunteer" className="hover:text-black transition-colors">हमसे जुड़ें</a>
           </div>
 
           <div className="flex items-center gap-4">
-            <a href="#pricing" className="hidden sm:block text-[15px] font-medium text-odysser-muted hover:text-black transition-colors">Sign in</a>
-            <a href="#pricing" className="btn-odysser px-5 py-2.5 text-[15px] group">
-              Get Access — £398
+            <button
+              onClick={() => setIsContactModalOpen(true)}
+              className="btn-odysser px-5 py-2.5 text-[15px] group"
+            >
+              संपर्क करें
               <span className="absolute inset-0 shimmer-bg opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></span>
-            </a>
+            </button>
           </div>
         </div>
       </motion.nav>
 
-      {/* Hero Section */}
-      <section className="relative pt-40 pb-20 md:pt-48 md:pb-32 overflow-hidden px-6">
+      {/* Contact Modal */}
+      <AnimatePresence>
+        {isContactModalOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsContactModalOpen(false)}
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="relative w-full max-w-lg bg-white rounded-[2.5rem] shadow-2xl overflow-hidden"
+            >
+              <div className="p-8">
+                <div className="flex justify-between items-center mb-8">
+                  <h3 className="text-3xl font-display font-bold">संपर्क करें</h3>
+                  <button onClick={() => setIsContactModalOpen(false)} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                    <X className="w-6 h-6" />
+                  </button>
+                </div>
+
+                <div className="space-y-6">
+                  {[
+                    { label: 'संपर्क सूत्र 1', phone: '9406122222' },
+                    { label: 'संपर्क सूत्र 2', phone: '9644950000' }
+                  ].map((item, idx) => (
+                    <div key={idx} className="p-6 rounded-3xl bg-gray-50 border border-gray-100">
+                      <div className="text-odysser-muted font-bold text-sm uppercase tracking-wider mb-2">{item.label}</div>
+                      <div className="text-3xl font-display font-black mb-6">{item.phone}</div>
+                      <div className="flex gap-4">
+                        <a href={`tel:${item.phone}`} className="flex-1 py-3 bg-black text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
+                          <Phone className="w-4 h-4" /> कॉल करें
+                        </a>
+                        <a href={`https://wa.me/91${item.phone}`} target="_blank" rel="noopener noreferrer" className="flex-1 py-3 bg-[#25D366] text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
+                          <MessageCircle className="w-4 h-4" /> व्हाट्सएप
+                        </a>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Admin Panel Modal */}
+      <AnimatePresence>
+        {isAdminOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsAdminOpen(false)}
+              className="absolute inset-0 bg-black/80 backdrop-blur-md"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              className="relative w-full max-w-4xl bg-white rounded-[3rem] shadow-2xl overflow-hidden max-h-[80vh] flex flex-col"
+            >
+              <div className="p-8 border-b flex justify-between items-center bg-gray-50">
+                <div>
+                  <h3 className="text-3xl font-display font-bold">गैलरी प्रबंधन</h3>
+                  <p className="text-odysser-muted">फोटो और वीडियो प्रबंधित करें</p>
+                </div>
+                <div className="flex gap-4">
+                   <button
+                    onClick={() => fileInputRef.current?.click()}
+                    className="flex items-center gap-2 px-6 py-3 bg-odysser-primary text-white rounded-2xl font-bold hover:scale-105 transition-transform"
+                  >
+                    <Plus className="w-5 h-5" /> मीडिया जोड़ें
+                  </button>
+                  <button onClick={() => setIsAdminOpen(false)} className="p-3 hover:bg-gray-200 rounded-2xl transition-colors text-gray-500">
+                    <X className="w-6 h-6" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="p-8 overflow-y-auto flex-1">
+                {galleryMedia.length > 0 ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    {galleryMedia.map((item, index) => (
+                      <div key={item.id} className="group relative rounded-[2rem] overflow-hidden border-2 border-gray-100 bg-gray-50 aspect-video">
+                        {item.type === 'image' ? (
+                          <img src={URL.createObjectURL(item.blob)} alt="" className="w-full h-full object-cover" />
+                        ) : (
+                          <video src={URL.createObjectURL(item.blob)} className="w-full h-full object-cover" />
+                        )}
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+                          <button
+                            onClick={() => moveItem(index, 'up')}
+                            disabled={index === 0}
+                            className="p-3 bg-white rounded-xl hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                          >
+                            <ArrowUp className="w-5 h-5" />
+                          </button>
+                          <button
+                            onClick={() => moveItem(index, 'down')}
+                            disabled={index === galleryMedia.length - 1}
+                            className="p-3 bg-white rounded-xl hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                          >
+                            <ArrowDown className="w-5 h-5" />
+                          </button>
+                          <button
+                            onClick={() => item.id && handleDelete(item.id)}
+                            className="p-3 bg-red-500 text-white rounded-xl hover:bg-red-600 transition-all"
+                          >
+                            <Trash2 className="w-5 h-5" />
+                          </button>
+                        </div>
+                        <div className="absolute top-4 left-4 px-3 py-1 bg-black/30 backdrop-blur-md rounded-full text-white text-xs font-bold">
+                          {index + 1}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-20 text-odysser-muted">
+                    <ImageIcon className="w-16 h-16 mx-auto mb-4 opacity-20" />
+                    <p>कोई मीडिया नहीं मिला। नया जोड़ने के लिए ऊपर दिए गए बटन का उपयोग करें।</p>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Grid Modal */}
+      <AnimatePresence>
+        {isGridOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsGridOpen(false)}
+              className="absolute inset-0 bg-black/90 backdrop-blur-md"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              className="relative w-full max-w-6xl bg-white rounded-[3rem] shadow-2xl overflow-hidden max-h-[85vh] flex flex-col z-10"
+            >
+              <div className="p-8 border-b flex justify-between items-center bg-gray-50">
+                <h3 className="text-3xl font-display font-bold">फोटो गैलरी</h3>
+                <button onClick={() => setIsGridOpen(false)} className="p-3 hover:bg-gray-200 rounded-2xl transition-colors text-gray-500">
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+              <div className="p-8 overflow-y-auto flex-1 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {allMedia.map((item, idx) => (
+                  <div
+                    key={idx}
+                    className="aspect-square rounded-2xl overflow-hidden cursor-zoom-in hover:scale-[1.02] transition-transform shadow-md border-2 border-gray-100"
+                    onClick={() => setSelectedImage(item.url)}
+                  >
+                    {item.type === 'image' ? (
+                      <img src={item.url} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <video src={item.url} className="w-full h-full object-cover" />
+                    )}
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Zoom Modal */}
+      <AnimatePresence>
+        {selectedImage && (
+          <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSelectedImage(null)}
+              className="absolute inset-0 bg-black/95 backdrop-blur-xl"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.5 }}
+              className="relative max-w-full max-h-full z-20"
+            >
+              <img src={selectedImage} alt="" className="max-w-full max-h-[90vh] rounded-2xl shadow-2xl" />
+              <button
+                onClick={() => setSelectedImage(null)}
+                className="absolute -top-12 right-0 p-2 text-white hover:text-gray-300 transition-colors"
+              >
+                <X className="w-8 h-8" />
+              </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* 1. Photo Gallery Section */}
+      <section id="gallery" className="pt-32 bg-white overflow-hidden">
+        <div className="w-full">
+          <div className="text-center mb-16 relative px-6">
+            <p className="font-handwriting text-3xl md:text-4xl text-odysser-primary mb-4 transform -rotate-2">फोटो गैलरी</p>
+            <h2 className="text-4xl md:text-6xl font-display font-bold tracking-tight">फोटो <span className="text-odysser-muted">गैलरी।</span></h2>
+
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileUpload}
+              multiple
+              accept="image/*,video/*"
+              className="hidden"
+            />
+          </div>
+
+          <div className="relative aspect-[16/9] md:aspect-[21/9] w-full overflow-hidden shadow-2xl group cursor-pointer" onClick={() => setIsGridOpen(true)}>
+            {allMedia.length > 0 ? (
+              <>
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={currentSlide}
+                    initial={{ opacity: 0, x: 100 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -100 }}
+                    transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                    className="absolute inset-0"
+                  >
+                    {allMedia[currentSlide].type === 'image' ? (
+                      <img
+                        src={allMedia[currentSlide].url}
+                        alt="गैलरी"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <video
+                        src={allMedia[currentSlide].url}
+                        autoPlay
+                        muted
+                        loop
+                        playsInline
+                        className="w-full h-full object-cover"
+                      />
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+                  </motion.div>
+                </AnimatePresence>
+
+                <button
+                  onClick={(e) => { e.stopPropagation(); prevSlide(); }}
+                  className="absolute left-6 top-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white flex items-center justify-center hover:bg-white hover:text-black transition-all z-20 opacity-0 group-hover:opacity-100"
+                >
+                  <ChevronLeft className="w-6 h-6" />
+                </button>
+                <button
+                  onClick={(e) => { e.stopPropagation(); nextSlide(); }}
+                  className="absolute right-6 top-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white flex items-center justify-center hover:bg-white hover:text-black transition-all z-20 opacity-0 group-hover:opacity-100"
+                >
+                  <ChevronRight className="w-6 h-6" />
+                </button>
+
+                <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2 z-20">
+                  {allMedia.map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setIsAutoPlaying(false);
+                        setCurrentSlide(i);
+                      }}
+                      className={`h-1.5 rounded-full transition-all duration-500 ${
+                        currentSlide === i ? 'w-8 bg-white' : 'w-2 bg-white/40 hover:bg-white/60'
+                      }`}
+                    />
+                  ))}
+                </div>
+
+                <div className="absolute top-8 right-8 z-20 p-3 rounded-2xl bg-black/20 backdrop-blur-md border border-white/20 text-white">
+                  {allMedia[currentSlide].type === 'image' ? <ImageIcon className="w-5 h-5" /> : <Film className="w-5 h-5" />}
+                </div>
+              </>
+            ) : (
+              <div className="absolute inset-0 flex flex-col items-center justify-center text-odysser-muted bg-gray-50">
+                <ImageIcon className="w-16 h-16 mb-4 opacity-20" />
+                <p className="text-xl font-medium">कोई फोटो या वीडियो नहीं है।</p>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* 2. Hero Section */}
+      <section className="relative py-20 overflow-hidden px-6">
         <div className="max-w-7xl mx-auto text-center relative z-10">
 
           <motion.div
@@ -77,7 +535,7 @@ function App() {
               <span className="relative inline-flex h-2 w-2 rounded-full bg-green-400"></span>
             </span>
             <span className="text-[13px] font-medium text-odysser-muted tracking-wide uppercase">
-              Used by the team behind 100M+ views
+              विकास और सेवा के लिए समर्पित
             </span>
           </motion.div>
 
@@ -87,9 +545,7 @@ function App() {
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
             className="text-5xl md:text-7xl lg:text-8xl font-display font-bold tracking-[-0.03em] leading-[1.05] max-w-[1000px] mx-auto text-balance"
           >
-            The system behind
-            <br />
-            <span className="text-odysser-primary">100 million</span> views.
+            कमलेश <span className="text-odysser-primary">मिश्रा</span>
           </motion.h1>
 
           <motion.p
@@ -98,34 +554,69 @@ function App() {
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.3 }}
             className="mt-8 text-xl md:text-2xl text-odysser-muted max-w-3xl mx-auto leading-relaxed text-balance font-sans"
           >
-            Track clients, income, and deliverables in the same system we used to build a brand doing £50K/month. No apps. No subscriptions. Just a sheet that works.
+            छत्तीसगढ़ प्रदेश कांग्रेस कमेटी के सचिव के रूप में जनसेवा, संगठन निर्माण और क्षेत्रीय विकास के लिए निरंतर कार्यरत।
           </motion.p>
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.4 }}
-            className="mt-12 flex flex-col items-center justify-center gap-4"
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.35 }}
+            className="mt-8 flex flex-col items-center gap-6"
           >
-            <a href="#pricing" className="btn-odysser px-8 py-4 text-lg w-full sm:w-auto group">
-              <span className="relative z-10 flex items-center gap-2">
-                Get Instant Access — £398
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </span>
-              <span className="absolute inset-0 shimmer-bg pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity"></span>
-            </a>
-            <p className="text-sm text-odysser-muted font-medium flex items-center gap-3">
-              <span>One-time payment</span>
-              <span className="w-1 h-1 rounded-full bg-gray-300"></span>
-              <span>Instant access</span>
-              <span className="w-1 h-1 rounded-full bg-gray-300"></span>
-              <span>Setup in 10 mins</span>
-            </p>
+            <button
+              onClick={() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })}
+              className="btn-odysser px-8 py-3 text-sm font-bold uppercase tracking-wider"
+            >
+              अधिक जानकारी
+            </button>
+
+            <div className="flex gap-4">
+              <a
+                href="https://www.facebook.com/kamleshmishra_cg"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-5 py-2.5 bg-[#1877F2] text-white rounded-full hover:scale-105 transition-transform shadow-lg text-sm font-bold"
+              >
+                <Facebook className="w-4 h-4" /> फेसबुक
+              </a>
+              <a
+                href="https://www.instagram.com/kamleshmishra_cg"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-tr from-[#f09433] via-[#e6683c] via-[#dc2743] via-[#cc2366] to-[#bc1888] text-white rounded-full hover:scale-105 transition-transform shadow-lg text-sm font-bold"
+              >
+                <Instagram className="w-4 h-4" /> इंस्टाग्राम
+              </a>
+            </div>
           </motion.div>
 
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.45 }}
+            className="mt-12 space-y-4 max-w-xl mx-auto px-4"
+          >
+            {[
+              { label: 'जुड़ें', color: 'bg-[#1e69a5]', icon: Smile, target: 'volunteer' },
+              { label: 'शिकायत', color: 'bg-[#ffcc33]', text: 'text-black', icon: CheckCircle, target: 'volunteer' },
+              { label: 'सुझाव', color: 'bg-[#21283d]', icon: Briefcase, target: 'volunteer' },
+              { label: 'संपर्क', color: 'bg-[#d62839]', icon: Trophy, isModal: true }
+            ].map((item, idx) => (
+              <button
+                key={idx}
+                onClick={() => item.isModal ? setIsContactModalOpen(true) : document.getElementById(item.target!)?.scrollIntoView({ behavior: 'smooth' })}
+                className={`w-full flex items-center justify-between p-6 ${item.color} ${item.text || 'text-white'} rounded-2xl transition-all hover:scale-[1.02] hover:shadow-xl group relative overflow-hidden shadow-md`}
+              >
+                <div className="flex items-center gap-4 relative z-10">
+                  <item.icon className="w-12 h-12 opacity-20 absolute -left-4" />
+                  <span className="text-2xl font-display font-black ml-8 uppercase tracking-wide">{item.label}</span>
+                </div>
+                <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
+              </button>
+            ))}
+          </motion.div>
         </div>
 
-        {/* Floating Abstract Elements */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden -z-10">
           <motion.div
             style={{ y: y1 }}
@@ -138,75 +629,26 @@ function App() {
         </div>
       </section>
 
-      {/* Floating Image/Video Previews */}
-      <section className="relative -mt-10 pb-32 px-6 z-20">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16">
-          <motion.div
-            initial={{ opacity: 0, rotate: -10, y: 40 }}
-            animate={{ opacity: 1, rotate: -4, y: 0 }}
-            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1], delay: 0.5 }}
-            whileHover={{ y: -10, rotate: -2, transition: { duration: 0.4 } }}
-            className="w-full max-w-[280px] rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.1)] border-4 border-white bg-white origin-bottom"
-          >
-            <img src="https://www.lumorasocials.com/proof-1.jpeg" alt="Lumora Social Instagram profile" className="w-full h-auto object-cover" />
-          </motion.div>
-
-          {/* Central Video Player */}
+      {/* Hero Image Container */}
+      <section className="relative pb-20 px-6 z-20">
+        <div className="max-w-4xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1], delay: 0.55 }}
-            className="w-full max-w-[320px] rounded-3xl overflow-hidden shadow-[0_30px_60px_rgba(0,0,0,0.15)] border-[6px] border-white bg-black relative group z-10"
+            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1], delay: 0.5 }}
+            className="w-full rounded-3xl overflow-hidden shadow-[0_30px_60px_rgba(0,0,0,0.15)] border-[8px] border-white bg-black relative group"
           >
-             <video
-                ref={videoRef}
-                src="https://www.lumorasocials.com/demo.mp4"
+             <img
+                src="/politician.webp"
+                alt="कमलेश मिश्रा"
                 className="w-full h-auto object-cover"
-                autoPlay
-                loop
-                muted
-                playsInline
              />
-             <button
-                onClick={toggleMute}
-                className="absolute bottom-4 right-4 bg-black/50 hover:bg-black/70 backdrop-blur-sm text-white p-2 rounded-full transition-colors"
-              >
-                {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-             </button>
-             <div className="absolute top-4 left-4 bg-black/50 backdrop-blur-sm text-white text-xs font-medium px-2 py-1 rounded">
-               Click for sound
-             </div>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, rotate: 10, y: 40 }}
-            animate={{ opacity: 1, rotate: 4, y: 0 }}
-            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1], delay: 0.6 }}
-            whileHover={{ y: -10, rotate: 2, transition: { duration: 0.4 } }}
-            className="w-full max-w-[280px] rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.1)] border-4 border-white bg-white origin-bottom"
-          >
-            <img src="https://www.lumorasocials.com/proof-2.jpeg" alt="Creator TikTok profile" className="w-full h-auto object-cover" />
           </motion.div>
         </div>
       </section>
 
-      {/* Marquee Section */}
-      <section className="py-12 border-y border-gray-200 bg-white overflow-hidden flex flex-col">
-        <div className="flex w-fit animate-[marquee_30s_linear_infinite]">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="flex gap-16 px-8 min-w-max items-center">
-                {['Content Creator — £6K/mo', 'Agency Owner — £3982K/mo', 'Social Media Manager — £8K/mo', 'Brand Strategist — £7K/mo', 'YouTuber — £5K/mo', 'Freelance Marketer — £4.5K/mo'].map((text, j) => (
-                  <span key={j} className="text-xl font-display font-medium text-odysser-muted whitespace-nowrap">
-                    {text}
-                  </span>
-                ))}
-              </div>
-            ))}
-        </div>
-      </section>
-
-      {/* The Fix Section */}
-      <section id="features" className="py-32 px-6 relative">
+      {/* 3. About Section (परिचय) */}
+      <section id="about" className="py-32 px-6 relative">
         <div className="max-w-5xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -215,351 +657,179 @@ function App() {
             transition={{ duration: 0.8 }}
             className="text-center mb-20"
           >
-            <p className="font-handwriting text-3xl md:text-4xl text-odysser-primary mb-4 transform -rotate-2">The fix</p>
+            <p className="font-handwriting text-3xl md:text-4xl text-odysser-primary mb-4 transform -rotate-2">परिचय</p>
             <h2 className="text-4xl md:text-6xl font-display font-bold tracking-tight text-balance leading-tight">
-              One Google Sheet.<br/>
-              <span className="text-odysser-muted">Your entire business, organised.</span>
+              समर्पण और सेवा का<br/>
+              <span className="text-odysser-muted">एक नया अध्याय।</span>
             </h2>
-            <p className="mt-6 text-xl text-odysser-muted max-w-2xl mx-auto">
-              We took the exact system we used to build a brand with 100M+ views and turned it into a plug-and-play Google Sheet. Open it, add your clients, and know exactly where you stand — in ten minutes.
-            </p>
+            <div className="mt-6 text-2xl md:text-3xl text-odysser-muted max-w-4xl mx-auto font-sans leading-relaxed">
+              कमलेश मिश्रा छत्तीसगढ़ प्रदेश कांग्रेस कमेटी के सचिव हैं। वे मुंगेली विधानसभा के प्रभारी रह चुके हैं और पूर्व प्रदेश सचिव, छत्तीसगढ़ युवा कांग्रेस के रूप में भी अपनी सेवाएं दे चुके हैं। जनसेवा, संगठन निर्माण और क्षेत्रीय विकास के लिए वे निरंतर कार्यरत हैं।
+            </div>
+            <div className="mt-8 p-6 bg-white rounded-3xl border border-gray-100 shadow-sm inline-block">
+              <div className="text-odysser-muted font-bold text-sm uppercase tracking-wider mb-2">पता</div>
+              <div className="text-xl font-display font-bold">
+                भनपुरी मिश्रा कॉम्प्लेक्स, सुंदर नगर
+              </div>
+            </div>
           </motion.div>
+        </div>
+      </section>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
-            {[
-              { stat: '100M+', label: 'Views generated' },
-              { stat: '£50K', label: 'Revenue built / mo' },
-              { stat: '10min', label: 'Setup time' },
-              { stat: '£0', label: 'Monthly fees' }
-            ].map((item, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: i * 0.1 }}
-                className="glass-card p-6 md:p-8 text-center border-t-4 border-t-odysser-primary hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)] transition-shadow"
-              >
-                <div className="text-4xl md:text-5xl font-display font-bold text-black mb-2">{item.stat}</div>
-                <div className="text-sm font-bold text-odysser-muted uppercase tracking-wider">{item.label}</div>
-              </motion.div>
-            ))}
+      {/* 4. Contact Section (संपर्क करें) */}
+      <section id="contact" className="py-32 px-6 bg-odysser-surface text-white text-center relative overflow-hidden">
+        <div className="absolute inset-0 z-0 opacity-20" style={{ background: 'radial-gradient(circle at center, var(--color-odysser-primary) 0%, transparent 70%)' }}></div>
+        <div className="max-w-3xl mx-auto relative z-10">
+          <p className="font-handwriting text-3xl md:text-4xl text-blue-400 mb-4">संपर्क करें</p>
+          <h2 className="text-5xl md:text-7xl font-display font-bold tracking-tight mb-8">
+            संपर्क सूत्र
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="p-8 bg-white/5 rounded-[2rem] backdrop-blur-md border border-white/10 flex flex-col items-center gap-6">
+               <div className="w-16 h-16 rounded-2xl bg-blue-500/20 flex items-center justify-center text-blue-400">
+                 <Phone className="w-8 h-8" />
+               </div>
+               <div>
+                 <div className="text-blue-400 font-bold mb-1 uppercase tracking-wider text-sm">संपर्क सूत्र 1</div>
+                 <div className="text-3xl md:text-4xl font-display font-black">9406122222</div>
+               </div>
+               <div className="flex gap-4 w-full">
+                 <a href="tel:9406122222" className="flex-1 py-3 bg-white text-black rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-blue-50 transition-colors">
+                   <Phone className="w-4 h-4" /> कॉल करें
+                 </a>
+                 <a href="https://wa.me/919406122222" target="_blank" rel="noopener noreferrer" className="flex-1 py-3 bg-[#25D366] text-white rounded-xl font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
+                   <MessageCircle className="w-4 h-4" /> व्हाट्सएप
+                 </a>
+               </div>
+            </div>
+
+            <div className="p-8 bg-white/5 rounded-[2rem] backdrop-blur-md border border-white/10 flex flex-col items-center gap-6">
+               <div className="w-16 h-16 rounded-2xl bg-blue-500/20 flex items-center justify-center text-blue-400">
+                 <Phone className="w-8 h-8" />
+               </div>
+               <div>
+                 <div className="text-blue-400 font-bold mb-1 uppercase tracking-wider text-sm">संपर्क सूत्र 2</div>
+                 <div className="text-3xl md:text-4xl font-display font-black">9644950000</div>
+               </div>
+               <div className="flex gap-4 w-full">
+                 <a href="tel:9644950000" className="flex-1 py-3 bg-white text-black rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-blue-50 transition-colors">
+                   <Phone className="w-4 h-4" /> कॉल करें
+                 </a>
+                 <a href="https://wa.me/919644950000" target="_blank" rel="noopener noreferrer" className="flex-1 py-3 bg-[#25D366] text-white rounded-xl font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
+                   <MessageCircle className="w-4 h-4" /> व्हाट्सएप
+                 </a>
+               </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Honest Question / Pain Points */}
-      <section className="py-32 px-6 bg-odysser-surfaceLight relative overflow-hidden">
-        <div className="max-w-4xl mx-auto">
-          <div className="mb-16">
-            <p className="font-handwriting text-3xl md:text-4xl text-odysser-primary mb-4">Honest question</p>
-            <h2 className="text-4xl md:text-5xl font-display font-bold tracking-tight mb-6">
-              How much money have you<br/>already lost to disorganisation?
-            </h2>
-            <p className="text-xl text-odysser-muted text-balance">
-              You're making real money. But you're running a real business on DMs, Notes app screenshots, and “I think they paid me?”
-            </p>
-          </div>
-
-          <div className="space-y-4">
-            {[
-              "You scroll back through 200 DMs to find what a client actually agreed to",
-              "You have no idea what you've earned this month — until you manually add it up",
-              "Deadlines sneak up because your \"system\" is a mental to-do list",
-              "You're paying £50+/mo for a CRM you opened twice"
-            ].map((point, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: i * 0.1 }}
-                className="flex items-start gap-4 p-5 md:p-6 bg-white rounded-2xl shadow-sm border border-gray-100"
-              >
-                <div className="min-w-[32px] h-8 rounded-full bg-red-50 text-red-500 flex items-center justify-center font-bold text-lg">×</div>
-                <p className="text-lg md:text-xl font-medium text-gray-800 leading-snug">{point}</p>
-              </motion.div>
-            ))}
-          </div>
-
-          <div className="mt-16 text-center">
-            <p className="font-handwriting text-3xl md:text-4xl text-black transform rotate-2">
-              It's not a talent problem. It's a systems problem.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Inside the sheet */}
-      <section id="process" className="py-32 px-6 relative border-b border-gray-200">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-24">
-            <p className="font-handwriting text-3xl md:text-4xl text-odysser-primary mb-4">What's inside</p>
-            <h2 className="text-4xl md:text-6xl font-display font-bold tracking-tight">
-              Three tabs. Zero bloat.<br/>
-              <span className="text-odysser-muted">Everything you actually need.</span>
-            </h2>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-16 md:gap-24 mb-24 items-center">
-            <div className="order-2 md:order-1">
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.8 }}
-                className="bg-gray-100 rounded-3xl p-4 md:p-8 aspect-[4/3] flex items-center justify-center border border-gray-200"
-              >
-                <div className="w-full h-full bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col overflow-hidden">
-                  <div className="h-10 bg-gray-50 border-b border-gray-200 flex items-center px-4 gap-2">
-                    <div className="w-3 h-3 rounded-full bg-red-400"></div>
-                    <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
-                    <div className="w-3 h-3 rounded-full bg-green-400"></div>
-                    <div className="ml-4 h-4 w-32 bg-gray-200 rounded"></div>
-                  </div>
-                  <div className="p-4 flex-1 flex flex-col gap-3">
-                    <div className="h-6 w-full bg-blue-50 rounded"></div>
-                    <div className="flex gap-2"><div className="h-8 w-1/4 bg-gray-100 rounded"></div><div className="h-8 flex-1 bg-gray-100 rounded"></div><div className="h-8 w-1/6 bg-green-100 rounded"></div></div>
-                    <div className="flex gap-2"><div className="h-8 w-1/4 bg-gray-100 rounded"></div><div className="h-8 flex-1 bg-gray-100 rounded"></div><div className="h-8 w-1/6 bg-yellow-100 rounded"></div></div>
-                    <div className="flex gap-2"><div className="h-8 w-1/4 bg-gray-100 rounded"></div><div className="h-8 flex-1 bg-gray-100 rounded"></div><div className="h-8 w-1/6 bg-green-100 rounded"></div></div>
-                  </div>
-                </div>
-              </motion.div>
-            </div>
-            <div className="order-1 md:order-2 space-y-12">
-              <div>
-                <h3 className="text-3xl font-bold mb-4 font-display">Client Tracker</h3>
-                <p className="text-xl font-handwriting text-odysser-primary mb-4 transform -rotate-2">Every client. One view.</p>
-                <p className="text-lg text-odysser-muted mb-6">Name, project, revenue, status, deadline, payment status, and notes. No more digging through DMs to remember what you agreed to.</p>
-                <ul className="space-y-3 font-bold text-gray-800 text-lg">
-                  <li className="flex items-center gap-3"><CheckCircle2 className="w-5 h-5 text-odysser-primary" /> Status tracking (Active, Pending, New)</li>
-                  <li className="flex items-center gap-3"><CheckCircle2 className="w-5 h-5 text-odysser-primary" /> Payment status per client</li>
-                  <li className="flex items-center gap-3"><CheckCircle2 className="w-5 h-5 text-odysser-primary" /> Deadline visibility</li>
-                  <li className="flex items-center gap-3"><CheckCircle2 className="w-5 h-5 text-odysser-primary" /> Notes column for context</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-16 md:gap-24 mb-24 items-center">
-            <div className="space-y-12">
-              <div>
-                <h3 className="text-3xl font-bold mb-4 font-display">Income Dashboard</h3>
-                <p className="text-xl font-handwriting text-odysser-primary mb-4 transform -rotate-2">Know your numbers. Finally.</p>
-                <p className="text-lg text-odysser-muted mb-6">See total earned, pending invoices, and overdue payments at a glance. Auto-calculated. Updated the moment you log a payment.</p>
-                <ul className="space-y-3 font-bold text-gray-800 text-lg">
-                  <li className="flex items-center gap-3"><CheckCircle2 className="w-5 h-5 text-odysser-primary" /> Auto-sum total revenue</li>
-                  <li className="flex items-center gap-3"><CheckCircle2 className="w-5 h-5 text-odysser-primary" /> Pending vs paid breakdown</li>
-                  <li className="flex items-center gap-3"><CheckCircle2 className="w-5 h-5 text-odysser-primary" /> Overdue payment flags</li>
-                  <li className="flex items-center gap-3"><CheckCircle2 className="w-5 h-5 text-odysser-primary" /> Monthly trend tracking</li>
-                </ul>
-              </div>
-            </div>
-            <div>
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.8 }}
-                className="bg-gray-100 rounded-3xl p-4 md:p-8 aspect-[4/3] flex items-center justify-center border border-gray-200"
-              >
-                 <div className="w-full h-full bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col overflow-hidden p-6 gap-6">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="bg-green-50 rounded-lg p-4 border border-green-100"><div className="text-sm text-green-700 font-medium mb-1">Total Earned</div><div className="text-2xl font-bold">£12,450</div></div>
-                      <div className="bg-orange-50 rounded-lg p-4 border border-orange-100"><div className="text-sm text-orange-700 font-medium mb-1">Pending</div><div className="text-2xl font-bold">£3,200</div></div>
-                    </div>
-                    <div className="flex-1 bg-gray-50 rounded-lg border border-gray-100 p-4">
-                      <div className="h-full w-full flex items-end gap-2">
-                        {[40, 70, 45, 90, 65, 80].map((h, i) => (
-                          <div key={i} className="flex-1 bg-odysser-primary rounded-t-sm" style={{ height: `${h}%` }}></div>
-                        ))}
-                      </div>
-                    </div>
-                 </div>
-              </motion.div>
-            </div>
-          </div>
-
-           <div className="grid md:grid-cols-2 gap-16 md:gap-24 items-center">
-            <div className="order-2 md:order-1">
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.8 }}
-                className="bg-gray-100 rounded-3xl p-4 md:p-8 aspect-[4/3] flex items-center justify-center border border-gray-200"
-              >
-                 <div className="w-full h-full bg-white rounded-xl shadow-sm border border-gray-200 flex overflow-hidden p-4 gap-4">
-                   {['Brief', 'Draft', 'Review', 'Done'].map((col, i) => (
-                      <div key={i} className="flex-1 bg-gray-50 rounded border border-gray-100 p-2 flex flex-col gap-2">
-                        <div className="text-xs font-bold text-gray-500 uppercase">{col}</div>
-                        <div className="bg-white p-2 rounded shadow-sm border border-gray-100 h-16"></div>
-                        {i % 2 === 0 && <div className="bg-white p-2 rounded shadow-sm border border-gray-100 h-20"></div>}
-                      </div>
-                   ))}
-                 </div>
-              </motion.div>
-            </div>
-            <div className="order-1 md:order-2 space-y-12">
-              <div>
-                <h3 className="text-3xl font-bold mb-4 font-display">Content Pipeline</h3>
-                <p className="text-xl font-handwriting text-odysser-primary mb-4 transform -rotate-2">Brief to Published. Nothing slips.</p>
-                <p className="text-lg text-odysser-muted mb-6">Track every deliverable through your workflow — from brief to draft to review to published. Know exactly where everything stands.</p>
-                <ul className="space-y-3 font-bold text-gray-800 text-lg">
-                  <li className="flex items-center gap-3"><CheckCircle2 className="w-5 h-5 text-odysser-primary" /> 4-stage workflow tracking</li>
-                  <li className="flex items-center gap-3"><CheckCircle2 className="w-5 h-5 text-odysser-primary" /> Client-linked deliverables</li>
-                  <li className="flex items-center gap-3"><CheckCircle2 className="w-5 h-5 text-odysser-primary" /> Due date visibility</li>
-                  <li className="flex items-center gap-3"><CheckCircle2 className="w-5 h-5 text-odysser-primary" /> Filter by stage or client</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </section>
-
-      {/* Testimonials */}
-      <section id="testimonials" className="py-32 px-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-20">
-            <p className="font-handwriting text-3xl md:text-4xl text-odysser-primary mb-4">From creators using the system</p>
-            <h2 className="text-4xl md:text-5xl font-display font-bold tracking-tight">Don't take our word for it.</h2>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[
-              { text: "I was tracking clients in my Notes app. Genuinely. This sheet replaced my entire system in one afternoon.", author: "Jess T.", role: "Content Creator", rev: "£6K/mo" },
-              { text: "The income tab alone saved me. I had no idea two clients owed me over £3K until I plugged everything in.", author: "Marcus L.", role: "Freelance Marketer", rev: "£4.5K/mo" },
-              { text: "I used to use Notion, Trello AND a spreadsheet. This replaced all three. And it was forty nine quid.", author: "Sophie R.", role: "Social Media Manager", rev: "£8K/mo" },
-              { text: "My VA can update it, I can check it on my phone, and I finally know exactly where every pound is coming from.", author: "Dan K.", role: "Agency Owner", rev: "£3982K/mo" },
-              { text: "Bought it on a whim. It's now the backbone of my entire freelance business. Can't work without it.", author: "Priya M.", role: "Brand Strategist", rev: "£7K/mo" },
-              { text: "Whoever built this actually understands how creators work. It's not some bloated SaaS nonsense. Just works.", author: "Alex W.", role: "YouTuber", rev: "£5K/mo" },
-            ].map((t, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: i * 0.1 }}
-                className="bg-white p-8 rounded-3xl shadow-sm border border-gray-200 flex flex-col justify-between"
-              >
-                <p className="text-lg text-gray-800 font-medium mb-8 leading-relaxed">"{t.text}"</p>
-                <div className="flex items-center justify-between border-t border-gray-100 pt-4 mt-auto">
-                  <div>
-                    <div className="font-bold text-black">{t.author}</div>
-                    <div className="text-sm text-odysser-muted">{t.role}</div>
-                  </div>
-                  <div className="text-sm font-bold bg-gray-50 border border-gray-200 px-3 py-1 rounded-full text-odysser-muted">
-                    {t.rev}
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Pricing / Offer */}
-      <section id="pricing" className="py-32 px-6 bg-[#f0ece7] border-y border-gray-200">
+      {/* 5. Volunteer Form (हमसे जुड़ें) */}
+      <section id="volunteer" className="py-32 px-6 bg-[#f0ece7] border-y border-gray-200">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-16">
-             <p className="font-handwriting text-3xl md:text-4xl text-odysser-primary mb-4">The offer</p>
-            <h2 className="text-4xl md:text-6xl font-display font-bold tracking-tight">Here's everything you get.</h2>
+             <p className="font-handwriting text-3xl md:text-4xl text-odysser-primary mb-4">हमसे जुड़ें</p>
+            <h2 className="text-4xl md:text-6xl font-display font-bold tracking-tight">विकास की यात्रा में जुड़ें</h2>
           </div>
 
           <div className="glass-card overflow-hidden border-2 border-white shadow-[0_30px_60px_rgba(0,0,0,0.08)]">
             <div className="p-8 md:p-12">
-              <div className="space-y-6 mb-12">
-                {[
-                  { title: "Client Tracker System", desc: "Track every client, project, status & payment", val: "£497" },
-                  { title: "Income Dashboard", desc: "Revenue tracking with auto-calculated totals", val: "£297" },
-                  { title: "Content Pipeline Board", desc: "Deliverable tracking from brief to publish", val: "£197" },
-                  { title: "Built-in Formulas & Automations", desc: "Auto-flag overdue, sum revenue, surface priorities", val: "£397" },
-                  { title: "Step-by-Step Setup Guide", desc: "Video walkthrough — running in under 10 minutes", val: "£97" },
-                ].map((item, i) => (
-                  <div key={i} className="flex items-start md:items-center justify-between gap-4 py-4 border-b border-gray-100 last:border-0">
-                    <div className="flex items-start gap-4">
-                      <div className="min-w-6 mt-1 md:mt-0 text-odysser-primary"><CheckCircle2 className="w-6 h-6" /></div>
-                      <div>
-                        <div className="font-bold text-lg">{item.title}</div>
-                        <div className="text-odysser-muted text-sm md:text-base">{item.desc}</div>
-                      </div>
-                    </div>
-                    <div className="text-odysser-muted line-through font-medium hidden md:block">{item.val}</div>
+              <form onSubmit={handleFormSubmit} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-odysser-muted uppercase tracking-wider">नाम</label>
+                    <input
+                      type="text"
+                      value={formName}
+                      onChange={(e) => setFormName(e.target.value)}
+                      placeholder="आपका नाम लिखें"
+                      className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-odysser-primary/20 transition-all"
+                    />
                   </div>
-                ))}
-              </div>
-
-              <div className="bg-gray-50 rounded-2xl p-8 border border-gray-200 text-center relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-odysser-primary to-transparent"></div>
-                <div className="text-odysser-muted font-bold mb-2">Total value: <span className="line-through">£1,485</span></div>
-                <div className="text-sm font-bold uppercase tracking-widest text-odysser-primary mb-4">Today</div>
-                <div className="text-6xl md:text-7xl font-display font-bold mb-8 text-black">£398</div>
-
-                <button className="btn-odysser w-full md:w-auto px-12 py-5 text-xl group mb-4">
-                  <span className="relative z-10 flex items-center justify-center gap-2">
-                    Get Instant Access
-                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                  </span>
-                  <span className="absolute inset-0 shimmer-bg pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity"></span>
-                </button>
-                <div className="text-sm text-odysser-muted font-bold flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
-                  <span>One-time payment</span>
-                  <span className="hidden md:inline">•</span>
-                  <span>Instant Google Sheet access</span>
-                  <span className="hidden md:inline">•</span>
-                  <span>Yours forever</span>
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-odysser-muted uppercase tracking-wider">मोबाइल नंबर</label>
+                    <input
+                      type="tel"
+                      value={formPhone}
+                      onChange={(e) => setFormPhone(e.target.value)}
+                      placeholder="अपना मोबाइल नंबर लिखें"
+                      className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-odysser-primary/20 transition-all"
+                    />
+                  </div>
                 </div>
-              </div>
+                <div className="space-y-2">
+                    <label className="text-sm font-bold text-odysser-muted uppercase tracking-wider">पता</label>
+                    <input
+                      type="text"
+                      value={formAddress}
+                      onChange={(e) => setFormAddress(e.target.value)}
+                      placeholder="आपका पता लिखें"
+                      className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-odysser-primary/20 transition-all"
+                    />
+                </div>
+                <div className="space-y-2">
+                    <label className="text-sm font-bold text-odysser-muted uppercase tracking-wider">विधानसभा क्षेत्र</label>
+                    <input
+                      type="text"
+                      value={formConstituency}
+                      onChange={(e) => setFormConstituency(e.target.value)}
+                      placeholder="अपने विधानसभा क्षेत्र का नाम लिखें"
+                      className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-odysser-primary/20 transition-all"
+                    />
+                </div>
+                <div className="space-y-2">
+                    <label className="text-sm font-bold text-odysser-muted uppercase tracking-wider">संदेश</label>
+                    <textarea
+                      rows={4}
+                      value={formMessage}
+                      onChange={(e) => setFormMessage(e.target.value)}
+                      placeholder="अपना संदेश लिखें"
+                      className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-odysser-primary/20 transition-all"
+                    ></textarea>
+                </div>
+
+                <div className="pt-4">
+                  <button
+                    type="submit"
+                    className="btn-odysser w-full px-12 py-5 text-xl group relative"
+                  >
+                    <span className="relative z-10 flex items-center justify-center gap-2">
+                      स्वयंसेवक के रूप में जुड़ें
+                      <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                    </span>
+                    <span className="absolute inset-0 shimmer-bg pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity"></span>
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Footer CTA */}
-      <section className="py-32 px-6 bg-odysser-surface text-white text-center relative overflow-hidden">
-        <div className="absolute inset-0 z-0 opacity-20" style={{ background: 'radial-gradient(circle at center, var(--color-odysser-primary) 0%, transparent 70%)' }}></div>
-        <div className="max-w-3xl mx-auto relative z-10">
-          <p className="font-handwriting text-3xl md:text-4xl text-blue-400 mb-4">Sooooooo....</p>
-          <h2 className="text-5xl md:text-7xl font-display font-bold tracking-tight mb-8">
-            Your business deserves<br/>a real system.
-          </h2>
-          <p className="text-xl text-gray-400 mb-12 max-w-2xl mx-auto font-medium">
-            Same Google Sheet CRM behind 100M+ views. One payment. Open it, add your clients, and stop winging it.
-          </p>
-          <div className="flex flex-col items-center gap-4">
-            <button className="btn-odysser bg-white text-black px-10 py-5 text-lg group hover:bg-gray-50 w-full sm:w-auto shadow-none border-0">
-              <span className="relative z-10 font-bold">Get Instant Access</span>
-            </button>
-            <div className="text-sm text-gray-400 font-bold flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
-              <span>Instant access</span>
-              <span>•</span>
-              <span>Setup guide included</span>
-              <span>•</span>
-              <span>Yours forever</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
+      {/* 6. Footer */}
       <footer className="py-12 px-6 border-t border-gray-200">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">
-            <div className="h-8 w-8 rounded bg-odysser-surface flex items-center justify-center">
-              <span className="text-white font-bold text-sm tracking-tighter">LS</span>
-            </div>
-            <span className="font-display font-bold text-lg tracking-tight">Lumora Social</span>
+            <img src="/logo.png" alt="Congress Logo" className="h-10 w-auto object-contain" />
+            <span className="font-display font-black text-2xl tracking-tight">कमलेश मिश्रा</span>
           </div>
 
           <div className="flex items-center gap-6">
-            <a href="#" className="text-gray-400 hover:text-black transition-colors"><Twitter className="w-5 h-5" /></a>
-            <a href="#" className="text-gray-400 hover:text-black transition-colors"><Linkedin className="w-5 h-5" /></a>
-            <a href="#" className="text-gray-400 hover:text-black transition-colors"><Instagram className="w-5 h-5" /></a>
+            <a href="#gallery" className="text-sm font-bold text-odysser-muted hover:text-black transition-colors">फोटो गैलरी</a>
+            <a href="#about" className="text-sm font-bold text-odysser-muted hover:text-black transition-colors">परिचय</a>
+            <a href="#contact" onClick={(e) => { e.preventDefault(); setIsContactModalOpen(true); }} className="text-sm font-bold text-odysser-muted hover:text-black transition-colors">संपर्क करें</a>
+            <a href="#volunteer" className="text-sm font-bold text-odysser-muted hover:text-black transition-colors">हमसे जुड़ें</a>
           </div>
 
-          <div className="text-sm text-odysser-muted font-bold">
-            © {new Date().getFullYear()} Lumora Social. All rights reserved.
+          <div className="flex flex-col items-center md:items-center gap-2">
+            <div className="text-sm font-bold text-odysser-muted">संपर्क: 9406122222, 9644950000</div>
+            <div className="text-sm text-odysser-muted font-bold">
+              © {new Date().getFullYear()} कमलेश मिश्रा। सर्वाधिकार सुरक्षित।
+            </div>
+            <div className="flex gap-4">
+              <span className="text-xs font-bold text-gray-400">फेसबुक</span>
+              <span className="text-xs font-bold text-gray-400">एक्स (ट्विटर)</span>
+              <span className="text-xs font-bold text-gray-400">इंस्टाग्राम</span>
+            </div>
           </div>
         </div>
       </footer>
